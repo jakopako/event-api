@@ -1,0 +1,83 @@
+definitions:
+  models.Concert:
+    properties:
+      artist:
+        example: SuperArtist
+        type: string
+      comment:
+        example: Super exciting comment.
+        type: string
+      date:
+        example: "2021-10-31T19:00:00.000Z"
+        type: string
+      link:
+        example: http://link.to/concert/page
+        type: string
+      location:
+        example: SuperLocation
+        type: string
+    required:
+    - artist
+    - date
+    - link
+    - location
+    type: object
+info:
+  contact: {}
+paths:
+  /api/concerts:
+    get:
+      consumes:
+      - application/json
+      description: Get all concerts.
+      parameters:
+      - description: search string
+        in: query
+        name: s
+        type: string
+      - description: page number
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Concert'
+            type: array
+      summary: Get all concerts.
+      tags:
+      - Concerts
+    post:
+      consumes:
+      - application/json
+      description: Add a new concert.
+      parameters:
+      - description: Concert Info
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Concert'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Failed to parse body
+          schema:
+            type: string
+        "500":
+          description: Failed to insert concert
+          schema:
+            type: string
+      summary: Add a new concert.
+      tags:
+      - Concerts
+swagger: "2.0"

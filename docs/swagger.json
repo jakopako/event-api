@@ -1,0 +1,125 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/api/concerts": {
+            "get": {
+                "description": "Get all concerts.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Concerts"
+                ],
+                "summary": "Get all concerts.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search string",
+                        "name": "s",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Concert"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new concert.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Concerts"
+                ],
+                "summary": "Add a new concert.",
+                "parameters": [
+                    {
+                        "description": "Concert Info",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Concert"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Failed to parse body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to insert concert",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Concert": {
+            "type": "object",
+            "required": [
+                "artist",
+                "date",
+                "link",
+                "location"
+            ],
+            "properties": {
+                "artist": {
+                    "type": "string",
+                    "example": "SuperArtist"
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Super exciting comment."
+                },
+                "date": {
+                    "type": "string",
+                    "example": "2021-10-31T19:00:00.000Z"
+                },
+                "link": {
+                    "type": "string",
+                    "example": "http://link.to/concert/page"
+                },
+                "location": {
+                    "type": "string",
+                    "example": "SuperLocation"
+                }
+            }
+        }
+    }
+}
