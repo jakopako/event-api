@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -10,14 +11,15 @@ import (
 	"github.com/jakopako/croncert-api/config"
 	_ "github.com/jakopako/croncert-api/docs"
 	"github.com/jakopako/croncert-api/routes"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func setupRoutes(app *fiber.App) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success":     true,
-			"message":     "You are at the root endpoint 😉",
-			"github_repo": "https://github.com/MikeFMeyer/catchphrase-go-mongodb-rest-api",
+			"success": true,
+			"message": "You are at the root endpoint.",
+			"api_doc": fmt.Sprintf("%s/api/swagger/index.html", c.BaseURL()),
 		})
 	})
 
@@ -29,13 +31,6 @@ func setupRoutes(app *fiber.App) {
 // https://dev.to/mikefmeyer/build-a-go-rest-api-with-fiber-and-mongodb-44og
 // https://dev.to/koddr/build-a-restful-api-on-go-fiber-postgresql-jwt-and-swagger-docs-in-isolated-docker-containers-475j
 func main() {
-	// if os.Getenv("APP_ENV") != "production" {
-	// 	err := godotenv.Load()
-	// 	if err != nil {
-	// 		log.Fatal("Error loading .env file")
-	// 	}
-	// }
-
 	app := fiber.New()
 
 	app.Use(cors.New())
