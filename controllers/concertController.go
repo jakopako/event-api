@@ -35,6 +35,7 @@ func GetAllConcerts(c *fiber.Ctx) error {
 
 	filter := bson.M{}
 	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"date", 1}})
 
 	if s := c.Query("s"); s != "" {
 		filter = bson.M{

@@ -1,0 +1,2 @@
+ heroku container:push web -a croncert-api
+ heroku container:release web -a croncert-api
