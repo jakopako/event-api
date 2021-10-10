@@ -32,13 +32,24 @@ func GetAllConcerts(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var concerts []models.Concert
+	d := time.Now()
+	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 
-	filter := bson.M{}
+	filter := bson.M{
+		"$and": []bson.M{
+			{
+				"date": bson.M{
+					"$gt": today,
+				},
+			},
+		},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
 
 	if s := c.Query("s"); s != "" {
-		filter = bson.M{
+		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
 			"$or": []bson.M{
 				{
 					"artist": bson.M{
@@ -49,7 +60,7 @@ func GetAllConcerts(c *fiber.Ctx) error {
 					},
 				},
 			},
-		}
+		})
 	}
 
 	page, _ := strconv.Atoi(c.Query("page", "1"))
