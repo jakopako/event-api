@@ -140,7 +140,16 @@ func AddConcert(c *fiber.Ctx) error {
 	}
 
 	opts := options.Replace().SetUpsert(true)
-	result, err := concertCollection.ReplaceOne(ctx, concert, concert, opts)
+	// The filter ignores the comment assuming that the comment might be updated over time.
+	// In future versions we might need to take more factors into account to decide whether
+	// an existing concert needs to be updated or a new concert needs to be added.
+	filterConcert := models.Concert{
+		Artist:   concert.Artist,
+		Date:     concert.Date,
+		Location: concert.Location,
+		Link:     concert.Link,
+	}
+	result, err := concertCollection.ReplaceOne(ctx, filterConcert, concert, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
