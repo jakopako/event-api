@@ -20,7 +20,14 @@ type MongoInstance struct {
 var MI MongoInstance
 
 func ConnectDB() {
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	var client *mongo.Client
+	var err error
+	if os.Getenv("IN_CONTAINER") == "Yes" {
+		client, err = mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	} else {
+		client, err = mongo.NewClient(options.Client().ApplyURI(os.Getenv("LOCAL_MONGO_URI")))
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
