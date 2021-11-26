@@ -164,3 +164,84 @@ func AddConcert(c *fiber.Ctx) error {
 	})
 
 }
+
+// GetTodaysConcertsSlack func for retrieving today's concerts, formatted as md for slack.
+// @Description Get today's concerts.
+// @Summary Get today's concerts.
+// @Tags Concerts
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "A json with the results"
+// @Router /api/concerts/today/slack [post]
+func GetTodaysConcertsSlack(c *fiber.Ctx) error {
+	concertCollection := config.MI.DB.Collection("concerts")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	var concerts []models.Concert
+	d := time.Now()
+	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
+	tomorrow := time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
+
+	filter := bson.M{
+		"$and": []bson.M{
+			{
+				"date": bson.M{
+					"$gte": today,
+				},
+			},
+			{
+				"date": bson.M{
+					"$lte": tomorrow,
+				},
+			},
+		},
+	}
+
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"date", 1}})
+
+	total, _ := concertCollection.CountDocuments(ctx, filter)
+	if total == 0 {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"response_type": "ephemeral",
+			"text":          "Sorry, no concerts tonight.",
+		})
+	}
+
+	cursor, err := concertCollection.Find(ctx, filter, findOptions)
+	defer cursor.Close(ctx)
+
+	if err != nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"response_type": "ephemeral",
+			"text":          "Sorry, something went wrong.",
+		})
+	}
+
+	for cursor.Next(ctx) {
+		var concert models.Concert
+		cursor.Decode(&concert)
+		concerts = append(concerts, concert)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"response_type": "ephemeral",
+		"blocks": []fiber.Map{
+			{
+				"type": "section",
+				"text": fiber.Map{
+					"type": "mrkdwn",
+					"text": GetMarkdownSummary(concerts),
+				},
+			},
+		},
+	})
+}
+
+func GetMarkdownSummary(concerts []models.Concert) string {
+	result := ""
+	for _, c := range concerts {
+		result += fmt.Sprintf("<%s|%s> @%s, %s\n", c.Link, c.Artist, c.Location, c.Date)
+	}
+	return result
+}

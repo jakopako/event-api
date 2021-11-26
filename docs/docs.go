@@ -106,6 +106,29 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/api/concerts/today/slack": {
+            "post": {
+                "description": "Get today's concerts.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Concerts"
+                ],
+                "summary": "Get today's concerts.",
+                "responses": {
+                    "200": {
+                        "description": "A json with the results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

@@ -80,4 +80,19 @@ paths:
       summary: Add a new concert.
       tags:
       - Concerts
+  /api/concerts/today/slack:
+    post:
+      consumes:
+      - application/json
+      description: Get today's concerts.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A json with the results
+          schema:
+            type: string
+      summary: Get today's concerts.
+      tags:
+      - Concerts
 swagger: "2.0"

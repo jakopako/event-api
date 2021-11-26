@@ -16,4 +16,5 @@ func ConcertsRoute(route fiber.Router) {
 	})
 	route.Get("/", controllers.GetAllConcerts)
 	route.Post("/", auth, controllers.AddConcert)
+	route.Post("/today/slack", controllers.GetTodaysConcertsSlack)
 }
