@@ -24,7 +24,7 @@ func setupRoutes(app *fiber.App) {
 	})
 
 	api := app.Group("/api")
-	routes.ConcertsRoute(api.Group("/concerts"))
+	routes.EventsRoute(api.Group("/events"))
 	routes.SwaggerRoute(api.Group("/swagger"))
 }
 

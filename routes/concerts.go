@@ -8,13 +8,13 @@ import (
 	"github.com/jakopako/croncert-api/controllers"
 )
 
-func ConcertsRoute(route fiber.Router) {
+func EventsRoute(route fiber.Router) {
 	auth := basicauth.New(basicauth.Config{
 		Users: map[string]string{
 			os.Getenv("API_POST_USER"): os.Getenv("API_POST_PASSWORD"),
 		},
 	})
-	route.Get("/", controllers.GetAllConcerts)
-	route.Post("/", auth, controllers.AddConcert)
-	route.Post("/today/slack", controllers.GetTodaysConcertsSlack)
+	route.Get("/", controllers.GetAllEvents)
+	route.Post("/", auth, controllers.AddEvent)
+	route.Post("/today/slack", controllers.GetTodaysEventsSlack)
 }

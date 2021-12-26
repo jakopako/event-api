@@ -16,22 +16,24 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 )
 
-// GetAllConcerts func gets all concerts.
-// @Description Get all concerts.
-// @Summary Get all concerts.
-// @Tags Concerts
+// GetAllEvents func gets all events.
+// @Description Get all events.
+// @Summary Get all events.
+// @Tags events
 // @Accept json
 // @Produce json
-// @Param s query string false "search string"
+// @Param title query string false "title search string"
+// @Param location query string false "location search string"
+// @Param city query string false "city search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
-// @Success 200 {array} models.Concert
-// @Router /api/concerts [get]
-func GetAllConcerts(c *fiber.Ctx) error {
-	concertCollection := config.MI.DB.Collection("concerts")
+// @Success 200 {array} models.Event
+// @Router /api/events [get]
+func GetAllEvents(c *fiber.Ctx) error {
+	eventCollection := config.MI.DB.Collection("events")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	var concerts []models.Concert
+	var events []models.Event
 	d := time.Now()
 	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 
@@ -48,45 +50,47 @@ func GetAllConcerts(c *fiber.Ctx) error {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
 
-	if s := c.Query("s"); s != "" {
-		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
-			"$or": []bson.M{
-				{
-					"artist": bson.M{
-						"$regex": primitive.Regex{
-							Pattern: s,
-							Options: "i",
+	for _, searchString := range []string{"title", "location", "city"} {
+		if s := c.Query(searchString); s != "" {
+			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
+				"$or": []bson.M{
+					{
+						searchString: bson.M{
+							"$regex": primitive.Regex{
+								Pattern: s,
+								Options: "i",
+							},
 						},
 					},
 				},
-			},
-		})
+			})
+		}
 	}
 
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limitVal, _ := strconv.Atoi(c.Query("limit", "10"))
 	var limit int64 = int64(limitVal)
 
-	total, _ := concertCollection.CountDocuments(ctx, filter)
+	total, _ := eventCollection.CountDocuments(ctx, filter)
 
 	findOptions.SetSkip((int64(page) - 1) * limit)
 	findOptions.SetLimit(limit)
 
-	cursor, err := concertCollection.Find(ctx, filter, findOptions)
+	cursor, err := eventCollection.Find(ctx, filter, findOptions)
 	defer cursor.Close(ctx)
 
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
-			"message": "Concerts Not found",
+			"message": "events not found",
 			"error":   err,
 		})
 	}
 
 	for cursor.Next(ctx) {
-		var concert models.Concert
-		cursor.Decode(&concert)
-		concerts = append(concerts, concert)
+		var event models.Event
+		cursor.Decode(&event)
+		events = append(events, event)
 	}
 
 	last := math.Ceil(float64(total) / float64(limit))
@@ -95,7 +99,7 @@ func GetAllConcerts(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":      concerts,
+		"data":      events,
 		"total":     total,
 		"page":      page,
 		"last_page": last,
@@ -103,22 +107,22 @@ func GetAllConcerts(c *fiber.Ctx) error {
 	})
 }
 
-// AddConcert func for adding a new concert to the database.
-// @Description Add a new concert.
-// @Summary Add a new concert.
-// @Tags Concerts
+// AddEvent func for adding a new event to the database.
+// @Description Add a new event.
+// @Summary Add a new event.
+// @Tags events
 // @Accept json
 // @Produce json
-// @Param message body models.Concert true "Concert Info"
+// @Param message body models.Event true "Event Info"
 // @Failure 400 {object} string "Failed to parse body"
-// @Failure 500 {object} string "Failed to insert concert"
-// @Router /api/concerts [post]
-func AddConcert(c *fiber.Ctx) error {
-	concertCollection := config.MI.DB.Collection("concerts")
+// @Failure 500 {object} string "Failed to insert event"
+// @Router /api/events [post]
+func AddEvent(c *fiber.Ctx) error {
+	eventCollection := config.MI.DB.Collection("events")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	concert := new(models.Concert)
+	event := new(models.Event)
 
-	if err := c.BodyParser(concert); err != nil {
+	if err := c.BodyParser(event); err != nil {
 		//log.Println(err)
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
@@ -128,7 +132,7 @@ func AddConcert(c *fiber.Ctx) error {
 	}
 
 	validate := validator.New()
-	err := validate.Struct(concert)
+	err := validate.Struct(event)
 
 	if err != nil {
 		//log.Println(err)
@@ -142,45 +146,47 @@ func AddConcert(c *fiber.Ctx) error {
 	opts := options.Replace().SetUpsert(true)
 	// The filter ignores the comment assuming that the comment might be updated over time.
 	// In future versions we might need to take more factors into account to decide whether
-	// an existing concert needs to be updated or a new concert needs to be added.
-	filterConcert := models.Concert{
-		Artist:   concert.Artist,
-		Date:     concert.Date,
-		Location: concert.Location,
-		Link:     concert.Link,
+	// an existing event needs to be updated or a new event needs to be added.
+	filterEvent := models.Event{
+		Title:    event.Title,
+		Date:     event.Date,
+		Location: event.Location,
+		URL:      event.URL,
 	}
-	result, err := concertCollection.ReplaceOne(ctx, filterConcert, concert, opts)
+	result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "Failed to insert concert",
+			"message": "Failed to insert event",
 			"error":   err,
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data":    result,
 		"success": true,
-		"message": "Concert inserted successfully",
+		"message": "Event inserted successfully",
 	})
 
 }
 
-// GetTodaysConcertsSlack func for retrieving today's concerts, formatted as md for slack.
-// @Description Get today's concerts.
-// @Summary Get today's concerts.
-// @Tags Concerts
+// GetTodayseventsSlack func for retrieving today's events, formatted as md for slack.
+// @Description Get today's events.
+// @Summary Get today's events.
+// @Tags events
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "A json with the results"
-// @Router /api/concerts/today/slack [post]
-func GetTodaysConcertsSlack(c *fiber.Ctx) error {
-	concertCollection := config.MI.DB.Collection("concerts")
+// @Router /api/events/today/slack [post]
+func GetTodaysEventsSlack(c *fiber.Ctx) error {
+	eventCollection := config.MI.DB.Collection("events")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	var concerts []models.Concert
+	var events []models.Event
 	d := time.Now()
 	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 	tomorrow := time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
+
+	city := "zurich" // TODO: read from post body.
 
 	filter := bson.M{
 		"$and": []bson.M{
@@ -194,21 +200,29 @@ func GetTodaysConcertsSlack(c *fiber.Ctx) error {
 					"$lte": tomorrow,
 				},
 			},
+			{
+				"city": bson.M{
+					"$regex": primitive.Regex{
+						Pattern: city,
+						Options: "i",
+					},
+				},
+			},
 		},
 	}
 
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
 
-	total, _ := concertCollection.CountDocuments(ctx, filter)
+	total, _ := eventCollection.CountDocuments(ctx, filter)
 	if total == 0 {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"response_type": "ephemeral",
-			"text":          "Sorry, no concerts tonight.",
+			"text":          "Sorry, no events tonight.",
 		})
 	}
 
-	cursor, err := concertCollection.Find(ctx, filter, findOptions)
+	cursor, err := eventCollection.Find(ctx, filter, findOptions)
 	defer cursor.Close(ctx)
 
 	if err != nil {
@@ -219,9 +233,9 @@ func GetTodaysConcertsSlack(c *fiber.Ctx) error {
 	}
 
 	for cursor.Next(ctx) {
-		var concert models.Concert
-		cursor.Decode(&concert)
-		concerts = append(concerts, concert)
+		var event models.Event
+		cursor.Decode(&event)
+		events = append(events, event)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -231,17 +245,17 @@ func GetTodaysConcertsSlack(c *fiber.Ctx) error {
 				"type": "section",
 				"text": fiber.Map{
 					"type": "mrkdwn",
-					"text": GetMarkdownSummary(concerts),
+					"text": GetMarkdownSummary(events),
 				},
 			},
 		},
 	})
 }
 
-func GetMarkdownSummary(concerts []models.Concert) string {
+func GetMarkdownSummary(events []models.Event) string {
 	result := ""
-	for _, c := range concerts {
-		result += fmt.Sprintf("<%s|%s> @%s, %s\n", c.Link, c.Artist, c.Location, c.Date)
+	for _, c := range events {
+		result += fmt.Sprintf("<%s|%s> @%s, %s\n", c.URL, c.Title, c.Location, c.Date)
 	}
 	return result
 }

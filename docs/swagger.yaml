@@ -1,8 +1,8 @@
 definitions:
-  models.Concert:
+  models.Event:
     properties:
-      artist:
-        example: SuperArtist
+      city:
+        example: SuperCity
         type: string
       comment:
         example: Super exciting comment.
@@ -10,30 +10,46 @@ definitions:
       date:
         example: "2021-10-31T19:00:00.000Z"
         type: string
-      link:
-        example: http://link.to/concert/page
-        type: string
       location:
         example: SuperLocation
         type: string
+      title:
+        example: ExcitingTitle
+        type: string
+      type:
+        example: concert
+        type: string
+      url:
+        example: http://link.to/concert/page
+        type: string
     required:
-    - artist
+    - city
     - date
-    - link
     - location
+    - title
+    - type
+    - url
     type: object
 info:
   contact: {}
 paths:
-  /api/concerts:
+  /api/events:
     get:
       consumes:
       - application/json
-      description: Get all concerts.
+      description: Get all events.
       parameters:
-      - description: search string
+      - description: title search string
         in: query
-        name: s
+        name: title
+        type: string
+      - description: location search string
+        in: query
+        name: location
+        type: string
+      - description: city search string
+        in: query
+        name: city
         type: string
       - description: page number
         in: query
@@ -50,22 +66,22 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Concert'
+              $ref: '#/definitions/models.Event'
             type: array
-      summary: Get all concerts.
+      summary: Get all events.
       tags:
-      - Concerts
+      - events
     post:
       consumes:
       - application/json
-      description: Add a new concert.
+      description: Add a new event.
       parameters:
-      - description: Concert Info
+      - description: Event Info
         in: body
         name: message
         required: true
         schema:
-          $ref: '#/definitions/models.Concert'
+          $ref: '#/definitions/models.Event'
       produces:
       - application/json
       responses:
@@ -74,17 +90,17 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to insert concert
+          description: Failed to insert event
           schema:
             type: string
-      summary: Add a new concert.
+      summary: Add a new event.
       tags:
-      - Concerts
-  /api/concerts/today/slack:
+      - events
+  /api/events/today/slack:
     post:
       consumes:
       - application/json
-      description: Get today's concerts.
+      description: Get today's events.
       produces:
       - application/json
       responses:
@@ -92,7 +108,7 @@ paths:
           description: A json with the results
           schema:
             type: string
-      summary: Get today's concerts.
+      summary: Get today's events.
       tags:
-      - Concerts
+      - events
 swagger: "2.0"

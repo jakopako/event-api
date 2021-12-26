@@ -23,9 +23,9 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/concerts": {
+        "/api/events": {
             "get": {
-                "description": "Get all concerts.",
+                "description": "Get all events.",
                 "consumes": [
                     "application/json"
                 ],
@@ -33,14 +33,26 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Concerts"
+                    "events"
                 ],
-                "summary": "Get all concerts.",
+                "summary": "Get all events.",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "search string",
-                        "name": "s",
+                        "description": "title search string",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "location search string",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "city search string",
+                        "name": "city",
                         "in": "query"
                     },
                     {
@@ -62,14 +74,14 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Concert"
+                                "$ref": "#/definitions/models.Event"
                             }
                         }
                     }
                 }
             },
             "post": {
-                "description": "Add a new concert.",
+                "description": "Add a new event.",
                 "consumes": [
                     "application/json"
                 ],
@@ -77,17 +89,17 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Concerts"
+                    "events"
                 ],
-                "summary": "Add a new concert.",
+                "summary": "Add a new event.",
                 "parameters": [
                     {
-                        "description": "Concert Info",
+                        "description": "Event Info",
                         "name": "message",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Concert"
+                            "$ref": "#/definitions/models.Event"
                         }
                     }
                 ],
@@ -99,7 +111,7 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to insert concert",
+                        "description": "Failed to insert event",
                         "schema": {
                             "type": "string"
                         }
@@ -107,9 +119,9 @@ var doc = `{
                 }
             }
         },
-        "/api/concerts/today/slack": {
+        "/api/events/today/slack": {
             "post": {
-                "description": "Get today's concerts.",
+                "description": "Get today's events.",
                 "consumes": [
                     "application/json"
                 ],
@@ -117,9 +129,9 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Concerts"
+                    "events"
                 ],
-                "summary": "Get today's concerts.",
+                "summary": "Get today's events.",
                 "responses": {
                     "200": {
                         "description": "A json with the results",
@@ -132,18 +144,20 @@ var doc = `{
         }
     },
     "definitions": {
-        "models.Concert": {
+        "models.Event": {
             "type": "object",
             "required": [
-                "artist",
+                "city",
                 "date",
-                "link",
-                "location"
+                "location",
+                "title",
+                "type",
+                "url"
             ],
             "properties": {
-                "artist": {
+                "city": {
                     "type": "string",
-                    "example": "SuperArtist"
+                    "example": "SuperCity"
                 },
                 "comment": {
                     "type": "string",
@@ -153,13 +167,21 @@ var doc = `{
                     "type": "string",
                     "example": "2021-10-31T19:00:00.000Z"
                 },
-                "link": {
-                    "type": "string",
-                    "example": "http://link.to/concert/page"
-                },
                 "location": {
                     "type": "string",
                     "example": "SuperLocation"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "ExcitingTitle"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "concert"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "http://link.to/concert/page"
                 }
             }
         }
