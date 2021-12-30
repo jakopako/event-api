@@ -34,6 +34,29 @@ info:
   contact: {}
 paths:
   /api/events:
+    delete:
+      consumes:
+      - application/json
+      description: Delete events.
+      parameters:
+      - description: location string
+        in: query
+        name: location
+        type: string
+      - description: datetime string
+        in: query
+        name: datetime
+        type: string
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Failed to delete events
+          schema:
+            type: string
+      summary: Delete events.
+      tags:
+      - events
     get:
       consumes:
       - application/json

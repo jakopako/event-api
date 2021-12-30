@@ -98,6 +98,41 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete events.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Delete events.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "location string",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "datetime string",
+                        "name": "datetime",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Failed to delete events",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/api/events/today/slack": {

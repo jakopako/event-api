@@ -252,6 +252,64 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	})
 }
 
+// DeleteEvents func for deleting events.
+// @Description Delete events.
+// @Summary Delete events.
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param location query string false "location string"
+// @Param datetime query string false "datetime string"
+// @Failure 500 {object} string "Failed to delete events"
+// @Router /api/events [delete]
+func DeleteEvents(c *fiber.Ctx) error {
+	eventsCollection := config.MI.DB.Collection("events")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	loc := c.Query("location")
+
+	datetimeString := c.Query("datetime")
+	var filter bson.M
+	if datetimeString == "" {
+		filter = bson.M{"location": loc}
+	} else {
+		t, err := time.Parse("2006-01-02 15:04", datetimeString)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"success": false,
+				"message": "Couldn't parse datetime",
+				"error":   err,
+			})
+		}
+		filter = bson.M{
+			"$and": []bson.M{
+				{
+					"date": bson.M{
+						"$gte": t,
+					},
+				},
+				{
+					"location": loc,
+				},
+			},
+		}
+	}
+
+	result, err := eventsCollection.DeleteMany(ctx, filter)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": fmt.Sprintf("Failed to delete events at location %s", loc),
+			"error":   err,
+		})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"message": fmt.Sprintf("Successfully deleted %d events at location %s", result.DeletedCount, loc),
+	})
+}
+
 func GetMarkdownSummary(events []models.Event) string {
 	result := ""
 	for _, c := range events {
