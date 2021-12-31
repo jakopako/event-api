@@ -304,7 +304,7 @@ func DeleteEvents(c *fiber.Ctx) error {
 			"error":   err,
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": fmt.Sprintf("Successfully deleted %d events at location %s", result.DeletedCount, loc),
 	})

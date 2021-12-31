@@ -19,12 +19,12 @@ FROM gcr.io/distroless/base-debian10
 
 # Copy binary and config files from /build 
 # to root folder of scratch container.
-COPY --from=builder ["/build/apiserver", "/build/.env", "/"]
+COPY --from=builder ["/build/apiserver", "/"]
 
 ENV IN_CONTAINER=Yes
 
 # Export necessary port.
-EXPOSE 5000
+EXPOSE 8080
 
 USER nonroot:nonroot
 
