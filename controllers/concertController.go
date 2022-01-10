@@ -17,7 +17,7 @@ import (
 )
 
 // GetAllEvents func gets all events.
-// @Description Get all events.
+// @Description This endpoint returns all events matching the search terms. Note that only events from today on will be returned, ie no past events.
 // @Summary Get all events.
 // @Tags events
 // @Accept json
@@ -28,6 +28,7 @@ import (
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
 // @Success 200 {array} models.Event
+// @Failure 404 {object} string "No events found"
 // @Router /api/events [get]
 func GetAllEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
@@ -108,11 +109,12 @@ func GetAllEvents(c *fiber.Ctx) error {
 }
 
 // AddEvent func for adding a new event to the database.
-// @Description Add a new event.
+// @Description Add a new event to the database.
 // @Summary Add a new event.
 // @Tags events
 // @Accept json
 // @Produce json
+// @Security BasicAuth
 // @Param message body models.Event true "Event Info"
 // @Failure 400 {object} string "Failed to parse body"
 // @Failure 500 {object} string "Failed to insert event"
@@ -170,12 +172,12 @@ func AddEvent(c *fiber.Ctx) error {
 }
 
 // GetTodayseventsSlack func for retrieving today's events, formatted as md for slack.
-// @Description Get today's events.
+// @Description This endpoint returns today's events in a format that slack needs for its slash command. Currently, Zurich is hardcoded as city (will be changed).
 // @Summary Get today's events.
 // @Tags events
 // @Accept json
 // @Produce json
-// @Success 200 {string} string "A json with the results"
+// @Success 200 {object} string "A json with the results"
 // @Router /api/events/today/slack [post]
 func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
@@ -258,8 +260,10 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param location query string false "location string"
+// @Security BasicAuth
+// @Param location query string true "location string"
 // @Param datetime query string false "datetime string"
+// @Success 200 {object} string "A success message"
 // @Failure 500 {object} string "Failed to delete events"
 // @Router /api/events [delete]
 func DeleteEvents(c *fiber.Ctx) error {
@@ -307,6 +311,56 @@ func DeleteEvents(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": fmt.Sprintf("Successfully deleted %d events at location %s", result.DeletedCount, loc),
+	})
+}
+
+// GetDistinct func for getting distinct field values.
+// @Description This endpoint returns all distinct values for the given field. Note that past events are not considered for this query.
+// @Summary Get distinct field values.
+// @Tags events
+// @Produce json
+// @Param field path string true "field name, can only be location or city"
+// @Failure 500 {object} string "Failed to retrieve values"
+// @Failure 400 {object} string "Bad request"
+// @Router /api/events/{field} [get]
+func GetDistinct(c *fiber.Ctx) error {
+	eventsCollection := config.MI.DB.Collection("events")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+
+	field := c.Params("field")
+	if field != "location" && field != "city" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid value for the field parameter",
+			"error":   "The field parameter has to be 'location' or 'city'",
+		})
+	}
+
+	d := time.Now()
+	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
+
+	filter := bson.M{
+		"$and": []bson.M{
+			{
+				"date": bson.M{
+					"$gt": today,
+				},
+			},
+		},
+	}
+
+	result, err := eventsCollection.Distinct(ctx, field, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to query database.",
+			"error":   err,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    result,
+		"success": true,
 	})
 }
 

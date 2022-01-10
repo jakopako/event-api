@@ -17,5 +17,6 @@ func EventsRoute(route fiber.Router) {
 	route.Get("/", controllers.GetAllEvents)
 	route.Post("/", auth, controllers.AddEvent)
 	route.Delete("/", auth, controllers.DeleteEvents)
+	route.Get("/:field", controllers.GetDistinct)
 	route.Post("/today/slack", controllers.GetTodaysEventsSlack)
 }

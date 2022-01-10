@@ -25,7 +25,7 @@ var doc = `{
     "paths": {
         "/api/events": {
             "get": {
-                "description": "Get all events.",
+                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned, ie no past events.",
                 "consumes": [
                     "application/json"
                 ],
@@ -77,11 +77,22 @@ var doc = `{
                                 "$ref": "#/definitions/models.Event"
                             }
                         }
+                    },
+                    "404": {
+                        "description": "No events found",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 }
             },
             "post": {
-                "description": "Add a new event.",
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new event to the database.",
                 "consumes": [
                     "application/json"
                 ],
@@ -119,6 +130,11 @@ var doc = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
                 "description": "Delete events.",
                 "consumes": [
                     "application/json"
@@ -135,7 +151,8 @@ var doc = `{
                         "type": "string",
                         "description": "location string",
                         "name": "location",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -145,6 +162,12 @@ var doc = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "A success message",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "500": {
                         "description": "Failed to delete events",
                         "schema": {
@@ -156,7 +179,7 @@ var doc = `{
         },
         "/api/events/today/slack": {
             "post": {
-                "description": "Get today's events.",
+                "description": "This endpoint returns today's events in a format that slack needs for its slash command. Currently, Zurich is hardcoded as city (will be changed).",
                 "consumes": [
                     "application/json"
                 ],
@@ -170,6 +193,41 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "A json with the results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{field}": {
+            "get": {
+                "description": "This endpoint returns all distinct values for the given field. Note that past events are not considered for this query.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get distinct field values.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "field name, can only be location or city",
+                        "name": "field",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve values",
                         "schema": {
                             "type": "string"
                         }

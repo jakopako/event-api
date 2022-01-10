@@ -42,6 +42,7 @@ paths:
       - description: location string
         in: query
         name: location
+        required: true
         type: string
       - description: datetime string
         in: query
@@ -50,17 +51,24 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: A success message
+          schema:
+            type: string
         "500":
           description: Failed to delete events
           schema:
             type: string
+      security:
+      - BasicAuth: []
       summary: Delete events.
       tags:
       - events
     get:
       consumes:
       - application/json
-      description: Get all events.
+      description: This endpoint returns all events matching the search terms. Note
+        that only events from today on will be returned, ie no past events.
       parameters:
       - description: title search string
         in: query
@@ -91,13 +99,17 @@ paths:
             items:
               $ref: '#/definitions/models.Event'
             type: array
+        "404":
+          description: No events found
+          schema:
+            type: string
       summary: Get all events.
       tags:
       - events
     post:
       consumes:
       - application/json
-      description: Add a new event.
+      description: Add a new event to the database.
       parameters:
       - description: Event Info
         in: body
@@ -116,14 +128,41 @@ paths:
           description: Failed to insert event
           schema:
             type: string
+      security:
+      - BasicAuth: []
       summary: Add a new event.
+      tags:
+      - events
+  /api/events/{field}:
+    get:
+      description: This endpoint returns all distinct values for the given field.
+        Note that past events are not considered for this query.
+      parameters:
+      - description: field name, can only be location or city
+        in: path
+        name: field
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Failed to retrieve values
+          schema:
+            type: string
+      summary: Get distinct field values.
       tags:
       - events
   /api/events/today/slack:
     post:
       consumes:
       - application/json
-      description: Get today's events.
+      description: This endpoint returns today's events in a format that slack needs
+        for its slash command. Currently, Zurich is hardcoded as city (will be changed).
       produces:
       - application/json
       responses:
