@@ -5,7 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
-	"github.com/jakopako/croncert-api/controllers"
+	"github.com/jakopako/event-api/controllers"
 )
 
 func EventsRoute(route fiber.Router) {

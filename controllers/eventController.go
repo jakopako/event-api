@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/jakopako/croncert-api/config"
-	"github.com/jakopako/croncert-api/models"
+	"github.com/jakopako/event-api/config"
+	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
