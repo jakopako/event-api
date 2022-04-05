@@ -7,5 +7,5 @@ import (
 )
 
 func SwaggerRoute(route fiber.Router) {
-	route.Get("*", swagger.Handler)
+	route.Get("*", swagger.HandlerDefault)
 }

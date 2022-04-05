@@ -1,28 +1,22 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/jakopako/croncert-api/config"
-	_ "github.com/jakopako/croncert-api/docs"
-	"github.com/jakopako/croncert-api/routes"
+	"github.com/gofiber/fiber/v2/utils"
+	"github.com/jakopako/event-api/config"
+	_ "github.com/jakopako/event-api/docs"
+	"github.com/jakopako/event-api/routes"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 func setupRoutes(app *fiber.App) {
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
-			"message": "You are at the root endpoint.",
-			"api_doc": fmt.Sprintf("%s/api/swagger/index.html", c.BaseURL()),
-		})
-	})
-
 	api := app.Group("/api")
 	routes.EventsRoute(api.Group("/events"))
 	routes.SwaggerRoute(api.Group("/swagger"))
@@ -35,6 +29,12 @@ func main() {
 
 	app.Use(cors.New())
 	app.Use(logger.New())
+	app.Use(cache.New(cache.Config{
+		Expiration: 60 * 3 * time.Minute,
+		KeyGenerator: func(c *fiber.Ctx) string {
+			return utils.CopyString(c.OriginalURL())
+		},
+	}))
 
 	config.ConnectDB()
 
