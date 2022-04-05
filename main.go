@@ -30,6 +30,9 @@ func main() {
 	app.Use(cors.New())
 	app.Use(logger.New())
 	app.Use(cache.New(cache.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")
+		},
 		Expiration: 60 * 3 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return utils.CopyString(c.OriginalURL())
