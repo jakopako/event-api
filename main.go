@@ -33,7 +33,7 @@ func main() {
 		Next: func(c *fiber.Ctx) bool {
 			return c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")
 		},
-		Expiration: 60 * 3 * time.Minute,
+		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return utils.CopyString(c.OriginalURL())
 		},
