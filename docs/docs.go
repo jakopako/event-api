@@ -56,6 +56,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "date search string",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "page number",
                         "name": "page",
