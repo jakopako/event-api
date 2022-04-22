@@ -25,6 +25,7 @@ import (
 // @Param title query string false "title search string"
 // @Param location query string false "location search string"
 // @Param city query string false "city search string"
+// @Param date query string false "date search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
 // @Success 200 {array} models.Event
@@ -35,17 +36,46 @@ func GetAllEvents(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var events []models.Event
-	d := time.Now()
-	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
-
-	filter := bson.M{
-		"$and": []bson.M{
-			{
-				"date": bson.M{
-					"$gt": today,
+	var filter primitive.M
+	if dateString := c.Query("date"); dateString == "" {
+		d := time.Now()
+		today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
+	
+		filter = bson.M{
+			"$and": []bson.M{
+				{
+					"date": bson.M{
+						"$gt": today,
+					},
 				},
 			},
-		},
+		}
+	} else {
+		d, err := time.Parse(time.RFC3339, dateString)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"success": false,
+				"message": "Couldn't parse date",
+				"error":   err,
+			})
+		}
+		dayStart := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
+		dayEnd := time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
+		filter = bson.M{
+			"$and": []bson.M{
+				{
+					"date": bson.M{
+						"$gte": dayStart,
+					},
+				},
+				{
+					"date": bson.M{
+						"$lte": dayEnd,
+					},
+				},
+
+			},
+		}
 	}
 
 	findOptions := options.Find()

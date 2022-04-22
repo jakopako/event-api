@@ -82,6 +82,10 @@ paths:
         in: query
         name: city
         type: string
+      - description: date search string
+        in: query
+        name: date
+        type: string
       - description: page number
         in: query
         name: page
