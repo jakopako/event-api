@@ -40,7 +40,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 	if dateString := c.Query("date"); dateString == "" {
 		d := time.Now()
 		today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
-	
+
 		filter = bson.M{
 			"$and": []bson.M{
 				{
@@ -73,7 +73,6 @@ func GetAllEvents(c *fiber.Ctx) error {
 						"$lte": dayEnd,
 					},
 				},
-
 			},
 		}
 	}
@@ -180,10 +179,11 @@ func AddEvent(c *fiber.Ctx) error {
 	// In future versions we might need to take more factors into account to decide whether
 	// an existing event needs to be updated or a new event needs to be added.
 	filterEvent := models.Event{
-		Title:    event.Title,
-		Date:     event.Date,
-		Location: event.Location,
-		URL:      event.URL,
+		Title:     event.Title,
+		Date:      event.Date,
+		Location:  event.Location,
+		URL:       event.URL,
+		SourceURL: event.SourceURL,
 	}
 	result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
 	if err != nil {
@@ -291,7 +291,7 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BasicAuth
-// @Param location query string true "location string"
+// @Param sourceUrl query string false "sourceUrl string"
 // @Param datetime query string false "datetime string"
 // @Success 200 {object} string "A success message"
 // @Failure 500 {object} string "Failed to delete events"
@@ -300,12 +300,12 @@ func DeleteEvents(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
-	loc := c.Query("location")
+	src := c.Query("sourceUrl")
 
 	datetimeString := c.Query("datetime")
 	var filter bson.M
 	if datetimeString == "" {
-		filter = bson.M{"location": loc}
+		filter = bson.M{"sourceUrl": src}
 	} else {
 		t, err := time.Parse("2006-01-02 15:04", datetimeString)
 		if err != nil {
@@ -315,17 +315,21 @@ func DeleteEvents(c *fiber.Ctx) error {
 				"error":   err,
 			})
 		}
-		filter = bson.M{
-			"$and": []bson.M{
-				{
-					"date": bson.M{
-						"$gte": t,
+		if src == "" {
+			filter = bson.M{"date": bson.M{"$gte": t}}
+		} else {
+			filter = bson.M{
+				"$and": []bson.M{
+					{
+						"date": bson.M{
+							"$gte": t,
+						},
+					},
+					{
+						"sourceUrl": src,
 					},
 				},
-				{
-					"location": loc,
-				},
-			},
+			}
 		}
 	}
 
@@ -334,13 +338,13 @@ func DeleteEvents(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": fmt.Sprintf("Failed to delete events at location %s", loc),
+			"message": fmt.Sprintf("Failed to delete events from source %s", src),
 			"error":   err,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"message": fmt.Sprintf("Successfully deleted %d events at location %s", result.DeletedCount, loc),
+		"message": fmt.Sprintf("Successfully deleted %d events with source %s", result.DeletedCount, src),
 	})
 }
 

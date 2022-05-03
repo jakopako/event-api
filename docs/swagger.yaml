@@ -13,6 +13,9 @@ definitions:
       location:
         example: SuperLocation
         type: string
+      sourceUrl:
+        example: http://link.to/source
+        type: string
       title:
         example: ExcitingTitle
         type: string
@@ -26,6 +29,7 @@ definitions:
     - city
     - date
     - location
+    - sourceUrl
     - title
     - type
     - url
@@ -39,10 +43,9 @@ paths:
       - application/json
       description: Delete events.
       parameters:
-      - description: location string
+      - description: sourceUrl string
         in: query
-        name: location
-        required: true
+        name: sourceUrl
         type: string
       - description: datetime string
         in: query
