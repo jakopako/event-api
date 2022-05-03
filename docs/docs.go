@@ -155,10 +155,9 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "location string",
-                        "name": "location",
-                        "in": "query",
-                        "required": true
+                        "description": "sourceUrl string",
+                        "name": "sourceUrl",
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -249,6 +248,7 @@ var doc = `{
                 "city",
                 "date",
                 "location",
+                "sourceUrl",
                 "title",
                 "type",
                 "url"
@@ -269,6 +269,10 @@ var doc = `{
                 "location": {
                     "type": "string",
                     "example": "SuperLocation"
+                },
+                "sourceUrl": {
+                    "type": "string",
+                    "example": "http://link.to/source"
                 },
                 "title": {
                     "type": "string",
