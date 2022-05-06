@@ -28,7 +28,9 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New())
-	app.Use(logger.New())
+	app.Use(logger.New(logger.Config{
+		Format: "[${time}] ${status} ${latency} ${method} ${url}\n",
+	}))
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
 			return c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")
