@@ -116,14 +116,16 @@ paths:
     post:
       consumes:
       - application/json
-      description: Add a new event to the database.
+      description: Add new events to the database.
       parameters:
       - description: Event Info
         in: body
         name: message
         required: true
         schema:
-          $ref: '#/definitions/models.Event'
+          items:
+            $ref: '#/definitions/models.Event'
+          type: array
       produces:
       - application/json
       responses:
@@ -132,12 +134,12 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to insert event
+          description: Failed to insert events
           schema:
             type: string
       security:
       - BasicAuth: []
-      summary: Add a new event.
+      summary: Add new events.
       tags:
       - events
   /api/events/{field}:

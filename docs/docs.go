@@ -98,7 +98,7 @@ var doc = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Add a new event to the database.",
+                "description": "Add new events to the database.",
                 "consumes": [
                     "application/json"
                 ],
@@ -108,7 +108,7 @@ var doc = `{
                 "tags": [
                     "events"
                 ],
-                "summary": "Add a new event.",
+                "summary": "Add new events.",
                 "parameters": [
                     {
                         "description": "Event Info",
@@ -116,7 +116,10 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Event"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Event"
+                            }
                         }
                     }
                 ],
@@ -128,7 +131,7 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to insert event",
+                        "description": "Failed to insert events",
                         "schema": {
                             "type": "string"
                         }

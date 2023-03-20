@@ -12,6 +12,7 @@ import (
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/go-playground/validator.v9"
 )
@@ -137,23 +138,23 @@ func GetAllEvents(c *fiber.Ctx) error {
 	})
 }
 
-// AddEvent func for adding a new event to the database.
-// @Description Add a new event to the database.
-// @Summary Add a new event.
+// AddEvent func for adding new events to the database.
+// @Description Add new events to the database.
+// @Summary Add new events.
 // @Tags events
 // @Accept json
 // @Produce json
 // @Security BasicAuth
-// @Param message body models.Event true "Event Info"
+// @Param message body []models.Event true "Event Info"
 // @Failure 400 {object} string "Failed to parse body"
-// @Failure 500 {object} string "Failed to insert event"
+// @Failure 500 {object} string "Failed to insert events"
 // @Router /api/events [post]
-func AddEvent(c *fiber.Ctx) error {
+func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	event := new(models.Event)
+	events := new([]models.Event)
 
-	if err := c.BodyParser(event); err != nil {
+	if err := c.BodyParser(events); err != nil {
 		//log.Println(err)
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
@@ -162,41 +163,53 @@ func AddEvent(c *fiber.Ctx) error {
 		})
 	}
 
+	var operations []mongo.WriteModel
 	validate := validator.New()
-	err := validate.Struct(event)
+	for _, event := range *events {
+		err := validate.Struct(event)
+		if err != nil {
+			//log.Println(err)
+			return c.Status(400).JSON(fiber.Map{
+				"succes":  false,
+				"message": "Failed to parse body",
+				"error":   fmt.Sprint(err),
+			})
+		}
 
-	if err != nil {
-		//log.Println(err)
-		return c.Status(400).JSON(fiber.Map{
-			"succes":  false,
-			"message": "Failed to parse body",
-			"error":   fmt.Sprint(err),
-		})
+		op := mongo.NewReplaceOneModel()
+		// The filter ignores the comment assuming that the comment might be updated over time.
+		// In future versions we might need to take more factors into account to decide whether
+		// an existing event needs to be updated or a new event needs to be added.
+		filterEvent := models.Event{
+			Title:     event.Title,
+			Date:      event.Date,
+			Location:  event.Location,
+			URL:       event.URL,
+			SourceURL: event.SourceURL,
+		}
+		op.SetFilter(filterEvent)
+		op.SetUpsert(true)
+		op.SetReplacement(event)
+		operations = append(operations, op)
 	}
 
-	opts := options.Replace().SetUpsert(true)
-	// The filter ignores the comment assuming that the comment might be updated over time.
-	// In future versions we might need to take more factors into account to decide whether
-	// an existing event needs to be updated or a new event needs to be added.
-	filterEvent := models.Event{
-		Title:     event.Title,
-		Date:      event.Date,
-		Location:  event.Location,
-		URL:       event.URL,
-		SourceURL: event.SourceURL,
-	}
-	result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
+	bulkOption := options.BulkWriteOptions{}
+	bulkOption.SetOrdered(true)
+	result, err := eventCollection.BulkWrite(ctx, operations, &bulkOption)
+
+	// opts := options.Replace().SetUpsert(true)
+	// result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "Failed to insert event",
+			"message": "Failed to insert events",
 			"error":   err,
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data":    result,
 		"success": true,
-		"message": "Event inserted successfully",
+		"message": "Events inserted successfully",
 	})
 
 }
