@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -19,9 +20,15 @@ func fetchGeolocFromNominatim(name string) (*models.MongoGeolocation, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
 	var places []models.NominatimPlace
-	json.NewDecoder(resp.Body).Decode(places)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(body, &places); err != nil {
+		return nil, err
+	}
 	if len(places) > 0 {
 		lonFloat, err := strconv.ParseFloat(places[0].Lon, 64)
 		if err != nil {

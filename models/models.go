@@ -21,7 +21,7 @@ type Event struct {
 	Comment          string           `bson:"comment,omitempty" json:"comment,omitempty" example:"Super exciting comment."`
 	Type             EventType        `bson:"type,omitempty" json:"type,omitempty" validate:"required" example:"concert"`
 	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required" example:"http://link.to/source"`
-	Geolocation      [2]float64       `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
+	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
 }
 
