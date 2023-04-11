@@ -269,6 +269,16 @@ var doc = `{
                     "type": "string",
                     "example": "2021-10-31T19:00:00.000Z"
                 },
+                "geolocation": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "example": [
+                        7.4514512,
+                        46.9482713
+                    ]
+                },
                 "location": {
                     "type": "string",
                     "example": "SuperLocation"

@@ -151,6 +151,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Router /api/events [post]
 func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
+	cityCollection := config.MI.DB.Collection("cities")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	events := new([]models.Event)
 
@@ -174,6 +175,25 @@ func AddEvents(c *fiber.Ctx) error {
 				"message": "Failed to parse body",
 				"error":   fmt.Sprint(err),
 			})
+		}
+
+		// check geolocation
+		if len(event.Geolocation) != 2 {
+			// lookup location based on city AND cache this info to not flood the geoloc service
+			geoLoc, err := translateCityToGeoLoc(event.City, cityCollection, ctx)
+			if err != nil {
+				// maybe we shouldn't return on error but just leave the location empty...
+				return c.Status(500).JSON(fiber.Map{
+					"success": false,
+					"message": fmt.Sprintf("Failed to find city location of city %s", event.City),
+					"error":   err,
+				})
+			}
+			event.MongoGeolocation = *geoLoc
+
+		} else {
+			event.MongoGeolocation.GeoJSONType = "Point"
+			event.MongoGeolocation.Coordinates = event.Geolocation[:]
 		}
 
 		op := mongo.NewReplaceOneModel()

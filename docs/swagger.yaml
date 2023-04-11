@@ -10,6 +10,13 @@ definitions:
       date:
         example: "2021-10-31T19:00:00.000Z"
         type: string
+      geolocation:
+        example:
+        - 7.4514512
+        - 46.9482713
+        items:
+          type: number
+        type: array
       location:
         example: SuperLocation
         type: string
