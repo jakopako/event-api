@@ -36,12 +36,8 @@ func InitGeolocCache() {
 }
 
 func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, error) {
-	// for now we only updateIfMissing when inserting new events and not when a user enters a search.
+	// this function is used when inserting new events and not when a user enters a search.
 	// Otherwise we risk flooding the external geo service.
-	//
-	// later we'll probably have to do some kind of fuzzy search ??
-	// For inserting events this is not necessary but for searching it is.
-	// Otherwise one has to enter the exact matching city name.
 	city = strings.ToLower(city)
 	country = strings.ToLower(country)
 	searchKey := city
@@ -112,11 +108,9 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	return geolocs, nil
 }
 
-func fetchGeolocFromNominatim(name string) (*models.MongoGeolocation, error) {
-	// this will probably have to be refined in the future
-	// only the city name results in wrong results, eg Cully (there is a 'cully' in france too)
+func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 	client := &http.Client{}
-	url := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", name)
+	url := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", query)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("accept-language", "en-US")
 	resp, err := client.Do(req)
@@ -163,8 +157,8 @@ func fetchGeolocFromNominatim(name string) (*models.MongoGeolocation, error) {
 				Coordinates: []float64{lonFloat, latFloat},
 			}, nil
 		} else {
-			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", name, countries)
+			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", query, countries)
 		}
 	}
-	return nil, fmt.Errorf("no relevant coordinates found for %s", name)
+	return nil, fmt.Errorf("no relevant coordinates found for %s", query)
 }
