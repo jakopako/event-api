@@ -57,6 +57,18 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "country search string",
+                        "name": "country",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "radius around given city in kilometers",
+                        "name": "radius",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "date search string",
                         "name": "date",
                         "in": "query"
@@ -265,9 +277,23 @@ var doc = `{
                     "type": "string",
                     "example": "Super exciting comment."
                 },
+                "country": {
+                    "type": "string",
+                    "example": "SuperCountry"
+                },
                 "date": {
                     "type": "string",
                     "example": "2021-10-31T19:00:00.000Z"
+                },
+                "geolocation": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "example": [
+                        7.4514512,
+                        46.9482713
+                    ]
                 },
                 "location": {
                     "type": "string",

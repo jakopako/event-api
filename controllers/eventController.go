@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jakopako/event-api/config"
+	"github.com/jakopako/event-api/geo"
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -26,6 +27,8 @@ import (
 // @Param title query string false "title search string"
 // @Param location query string false "location search string"
 // @Param city query string false "city search string"
+// @Param country query string false "country search string"
+// @Param radius query int false "radius around given city in kilometers"
 // @Param date query string false "date search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
@@ -57,7 +60,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{
 				"success": false,
 				"message": "Couldn't parse date",
-				"error":   err,
+				"error":   err.Error(),
 			})
 		}
 		dayStart := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
@@ -81,21 +84,48 @@ func GetAllEvents(c *fiber.Ctx) error {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
 
-	for _, searchString := range []string{"title", "location", "city"} {
+	for _, searchString := range []string{"title", "location", "country"} {
 		if s := c.Query(searchString); s != "" {
 			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
-				"$or": []bson.M{
-					{
-						searchString: bson.M{
-							"$regex": primitive.Regex{
-								Pattern: s,
-								Options: "i",
-							},
-						},
+				searchString: bson.M{
+					"$regex": primitive.Regex{
+						Pattern: s,
+						Options: "i",
 					},
 				},
 			})
 		}
+	}
+
+	if city := c.Query("city"); city != "" {
+		cityFilter := bson.M{
+			"$or": []bson.M{
+				{
+					"city": bson.M{
+						"$regex": primitive.Regex{
+							Pattern: c.Query("city"),
+							Options: "i",
+						},
+					},
+				},
+			},
+		}
+		radius, _ := strconv.Atoi(c.Query("radius", "0"))
+		if radius > 0 {
+			// near in or not supported: https://jira.mongodb.org/browse/SERVER-13974
+			if geolocs, err := geo.AllMatchesCityCoordinates(c.Query("city"), c.Query("country")); err == nil && len(geolocs) > 0 {
+				earthRadiusKm := 6378.1
+				radiusFilter := bson.D{
+					{"geolocation", bson.D{
+						{"$geoWithin", bson.D{ // we need to use geoWithin for CountDocuments to properly work, see https://www.mongodb.com/docs/manual/reference/method/db.collection.countDocuments/#query-restrictions
+							{"$centerSphere", bson.A{geolocs[0].Coordinates, float64(radius) / earthRadiusKm}},
+						}},
+					}},
+				}
+				cityFilter["$or"] = append(cityFilter["$or"].([]bson.M), radiusFilter.Map())
+			}
+		}
+		filter["$and"] = append(filter["$and"].([]bson.M), cityFilter)
 	}
 
 	page, _ := strconv.Atoi(c.Query("page", "1"))
@@ -108,15 +138,14 @@ func GetAllEvents(c *fiber.Ctx) error {
 	findOptions.SetLimit(limit)
 
 	cursor, err := eventCollection.Find(ctx, filter, findOptions)
-	defer cursor.Close(ctx)
-
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success": false,
 			"message": "events not found",
-			"error":   err,
+			"error":   err.Error(),
 		})
 	}
+	defer cursor.Close(ctx)
 
 	for cursor.Next(ctx) {
 		var event models.Event
@@ -159,7 +188,7 @@ func AddEvents(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": "Failed to parse body",
-			"error":   err,
+			"error":   err.Error(),
 		})
 	}
 
@@ -172,21 +201,49 @@ func AddEvents(c *fiber.Ctx) error {
 			return c.Status(400).JSON(fiber.Map{
 				"succes":  false,
 				"message": "Failed to parse body",
-				"error":   fmt.Sprint(err),
+				"error":   err.Error(),
 			})
+		}
+
+		// check geolocation
+		if len(event.Geolocation) != 2 {
+			// lookup location based on city AND cache this info to not flood the geoloc service
+			// It's the client's responsibility to provide enough info (ie country if necessary)
+			// for the following function to find the right coordinates
+			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
+			if err != nil {
+				// maybe we shouldn't return on error but just leave the location empty...
+				return c.Status(500).JSON(fiber.Map{
+					"success": false,
+					"message": fmt.Sprintf("Failed to find city location of city %s", event.City),
+					"error":   err.Error(),
+				})
+			}
+			event.MongoGeolocation = *geoLoc
+
+		} else {
+			event.MongoGeolocation.GeoJSONType = "Point"
+			event.MongoGeolocation.Coordinates = event.Geolocation[:]
 		}
 
 		op := mongo.NewReplaceOneModel()
 		// The filter ignores the comment assuming that the comment might be updated over time.
 		// In future versions we might need to take more factors into account to decide whether
 		// an existing event needs to be updated or a new event needs to be added.
-		filterEvent := models.Event{
-			Title:     event.Title,
-			Date:      event.Date,
-			Location:  event.Location,
-			URL:       event.URL,
-			SourceURL: event.SourceURL,
-		}
+		// UPDATE: the following filter does not work anymore with the additional geolocation field.
+		// filterEvent := models.Event{
+		// 	Title:     event.Title,
+		// 	Date:      event.Date,
+		// 	Location:  event.Location,
+		// 	URL:       event.URL,
+		// 	SourceURL: event.SourceURL,
+		// }
+		filterEvent := bson.D{
+			{"title", event.Title},
+			{"date", event.Date},
+			{"location", event.Location},
+			{"url", event.URL},
+			{"sourceUrl", event.SourceURL}}
 		op.SetFilter(filterEvent)
 		op.SetUpsert(true)
 		op.SetReplacement(event)
@@ -197,13 +254,11 @@ func AddEvents(c *fiber.Ctx) error {
 	bulkOption.SetOrdered(true)
 	result, err := eventCollection.BulkWrite(ctx, operations, &bulkOption)
 
-	// opts := options.Replace().SetUpsert(true)
-	// result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
 			"message": "Failed to insert events",
-			"error":   err,
+			"error":   err.Error(),
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{

@@ -7,9 +7,19 @@ definitions:
       comment:
         example: Super exciting comment.
         type: string
+      country:
+        example: SuperCountry
+        type: string
       date:
         example: "2021-10-31T19:00:00.000Z"
         type: string
+      geolocation:
+        example:
+        - 7.4514512
+        - 46.9482713
+        items:
+          type: number
+        type: array
       location:
         example: SuperLocation
         type: string
@@ -85,6 +95,14 @@ paths:
         in: query
         name: city
         type: string
+      - description: country search string
+        in: query
+        name: country
+        type: string
+      - description: radius around given city in kilometers
+        in: query
+        name: radius
+        type: integer
       - description: date search string
         in: query
         name: date
