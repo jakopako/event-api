@@ -230,13 +230,20 @@ func AddEvents(c *fiber.Ctx) error {
 		// The filter ignores the comment assuming that the comment might be updated over time.
 		// In future versions we might need to take more factors into account to decide whether
 		// an existing event needs to be updated or a new event needs to be added.
-		filterEvent := models.Event{
-			Title:     event.Title,
-			Date:      event.Date,
-			Location:  event.Location,
-			URL:       event.URL,
-			SourceURL: event.SourceURL,
-		}
+		// UPDATE: the following filter does not work anymore with the additional geolocation field.
+		// filterEvent := models.Event{
+		// 	Title:     event.Title,
+		// 	Date:      event.Date,
+		// 	Location:  event.Location,
+		// 	URL:       event.URL,
+		// 	SourceURL: event.SourceURL,
+		// }
+		filterEvent := bson.D{
+			{"title", event.Title},
+			{"date", event.Date},
+			{"location", event.Location},
+			{"url", event.URL},
+			{"sourceUrl", event.SourceURL}}
 		op.SetFilter(filterEvent)
 		op.SetUpsert(true)
 		op.SetReplacement(event)
@@ -247,8 +254,6 @@ func AddEvents(c *fiber.Ctx) error {
 	bulkOption.SetOrdered(true)
 	result, err := eventCollection.BulkWrite(ctx, operations, &bulkOption)
 
-	// opts := options.Replace().SetUpsert(true)
-	// result, err := eventCollection.ReplaceOne(ctx, filterEvent, event, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
