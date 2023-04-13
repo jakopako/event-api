@@ -99,10 +99,14 @@ func GetAllEvents(c *fiber.Ctx) error {
 
 	if city := c.Query("city"); city != "" {
 		cityFilter := bson.M{
-			"city": bson.M{
-				"$regex": primitive.Regex{
-					Pattern: c.Query("city"),
-					Options: "i",
+			"$or": []bson.M{
+				{
+					"city": bson.M{
+						"$regex": primitive.Regex{
+							Pattern: c.Query("city"),
+							Options: "i",
+						},
+					},
 				},
 			},
 		}
@@ -110,9 +114,6 @@ func GetAllEvents(c *fiber.Ctx) error {
 		if radius > 0 {
 			// near in or not supported: https://jira.mongodb.org/browse/SERVER-13974
 			if geolocs, err := geo.AllMatchesCityCoordinates(c.Query("city"), c.Query("country")); err == nil && len(geolocs) > 0 {
-				// for now we only take the first geoloc because of the near / or issue
-				// TODO think of better solution NOTE maybe multiple 'near' are now possible
-				// since we don't use near anymore but 'geoWithin'
 				earthRadiusKm := 6378.1
 				radiusFilter := bson.D{
 					{"geolocation", bson.D{
@@ -121,8 +122,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 						}},
 					}},
 				}
-				// cityRadiusFilter["$or"] = append(cityRadiusFilter["$or"].([]bson.M), radiusFilter.Map())
-				cityFilter = radiusFilter.Map()
+				cityFilter["$or"] = append(cityFilter["$or"].([]bson.M), radiusFilter.Map())
 			}
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), cityFilter)
