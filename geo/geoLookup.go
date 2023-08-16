@@ -134,7 +134,7 @@ func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 	}
 	countries := map[string]bool{}
 	for i := 0; i < max; i++ {
-		if places[i].Importance > 0.4 {
+		if places[i].Importance > 0.4 || max == 1 {
 			places[j] = places[i]
 			j++
 			tokens := strings.Split(places[i].DisplayName, ", ")
