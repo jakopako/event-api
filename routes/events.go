@@ -20,3 +20,8 @@ func EventsRoute(route fiber.Router) {
 	route.Get("/:field", controllers.GetDistinct)
 	route.Post("/today/slack", controllers.GetTodaysEventsSlack)
 }
+
+func NotificationsRoute(route fiber.Router) {
+	route.Post("/add", controllers.AddNotification)
+	route.Get("/activate", controllers.ActivateNotification)
+}

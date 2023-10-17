@@ -59,7 +59,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
 				"success": false,
-				"message": "Couldn't parse date",
+				"message": "couldn't parse date",
 				"error":   err.Error(),
 			})
 		}
@@ -175,8 +175,8 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param message body []models.Event true "Event Info"
-// @Failure 400 {object} string "Failed to parse body"
-// @Failure 500 {object} string "Failed to insert events"
+// @Failure 400 {object} string "failed to parse body"
+// @Failure 500 {object} string "failed to insert events"
 // @Router /api/events [post]
 func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
@@ -187,7 +187,7 @@ func AddEvents(c *fiber.Ctx) error {
 		//log.Println(err)
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
-			"message": "Failed to parse body",
+			"message": "failed to parse body",
 			"error":   err.Error(),
 		})
 	}
@@ -200,7 +200,7 @@ func AddEvents(c *fiber.Ctx) error {
 			//log.Println(err)
 			return c.Status(400).JSON(fiber.Map{
 				"succes":  false,
-				"message": "Failed to parse body",
+				"message": "failed to parse body",
 				"error":   err.Error(),
 			})
 		}
@@ -215,7 +215,7 @@ func AddEvents(c *fiber.Ctx) error {
 				// maybe we shouldn't return on error but just leave the location empty...
 				return c.Status(500).JSON(fiber.Map{
 					"success": false,
-					"message": fmt.Sprintf("Failed to find city location of city %s", event.City),
+					"message": fmt.Sprintf("failed to find city location of city %s", event.City),
 					"error":   err.Error(),
 				})
 			}
@@ -230,14 +230,6 @@ func AddEvents(c *fiber.Ctx) error {
 		// The filter ignores the comment assuming that the comment might be updated over time.
 		// In future versions we might need to take more factors into account to decide whether
 		// an existing event needs to be updated or a new event needs to be added.
-		// UPDATE: the following filter does not work anymore with the additional geolocation field.
-		// filterEvent := models.Event{
-		// 	Title:     event.Title,
-		// 	Date:      event.Date,
-		// 	Location:  event.Location,
-		// 	URL:       event.URL,
-		// 	SourceURL: event.SourceURL,
-		// }
 		filterEvent := bson.D{
 			{"title", event.Title},
 			{"date", event.Date},
@@ -257,14 +249,14 @@ func AddEvents(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "Failed to insert events",
+			"message": "failed to insert events",
 			"error":   err.Error(),
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data":    result,
 		"success": true,
-		"message": "Events inserted successfully",
+		"message": "events inserted successfully",
 	})
 
 }
@@ -362,7 +354,7 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Param sourceUrl query string false "sourceUrl string"
 // @Param datetime query string false "datetime string"
 // @Success 200 {object} string "A success message"
-// @Failure 500 {object} string "Failed to delete events"
+// @Failure 500 {object} string "failed to delete events"
 // @Router /api/events [delete]
 func DeleteEvents(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
@@ -379,7 +371,7 @@ func DeleteEvents(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
 				"success": false,
-				"message": "Couldn't parse datetime",
+				"message": "couldn't parse datetime",
 				"error":   err,
 			})
 		}
@@ -406,13 +398,13 @@ func DeleteEvents(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": fmt.Sprintf("Failed to delete events from source %s", src),
+			"message": fmt.Sprintf("failed to delete events from source %s", src),
 			"error":   err,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"message": fmt.Sprintf("Successfully deleted %d events with source %s", result.DeletedCount, src),
+		"message": fmt.Sprintf("successfully deleted %d events with source %s", result.DeletedCount, src),
 	})
 }
 
@@ -422,7 +414,7 @@ func DeleteEvents(c *fiber.Ctx) error {
 // @Tags events
 // @Produce json
 // @Param field path string true "field name, can only be location or city"
-// @Failure 500 {object} string "Failed to retrieve values"
+// @Failure 500 {object} string "failed to retrieve values"
 // @Failure 400 {object} string "Bad request"
 // @Router /api/events/{field} [get]
 func GetDistinct(c *fiber.Ctx) error {
@@ -433,8 +425,8 @@ func GetDistinct(c *fiber.Ctx) error {
 	if field != "location" && field != "city" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
-			"message": "Invalid value for the field parameter",
-			"error":   "The field parameter has to be 'location' or 'city'",
+			"message": "invalid value for the field parameter",
+			"error":   "the field parameter has to be 'location' or 'city'",
 		})
 	}
 
@@ -455,7 +447,7 @@ func GetDistinct(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "Failed to query database.",
+			"message": "failed to query database.",
 			"error":   err,
 		})
 	}

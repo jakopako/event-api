@@ -44,6 +44,18 @@ definitions:
     - type
     - url
     type: object
+  models.Notification:
+    properties:
+      email:
+        example: email.address@example.com
+        type: string
+      query:
+        example: title=kamaal&city=Zurich
+        type: string
+    required:
+    - email
+    - query
+    type: object
 info:
   contact: {}
 paths:
@@ -69,7 +81,7 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to delete events
+          description: failed to delete events
           schema:
             type: string
       security:
@@ -148,11 +160,11 @@ paths:
       - application/json
       responses:
         "400":
-          description: Failed to parse body
+          description: failed to parse body
           schema:
             type: string
         "500":
-          description: Failed to insert events
+          description: failed to insert events
           schema:
             type: string
       security:
@@ -178,7 +190,7 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to retrieve values
+          description: failed to retrieve values
           schema:
             type: string
       summary: Get distinct field values.
@@ -200,4 +212,56 @@ paths:
       summary: Get today's events.
       tags:
       - events
+  /api/notification/activate:
+    get:
+      description: This endpoint activates a notification that has been added previously.
+      parameters:
+      - description: email
+        in: query
+        name: email
+        type: string
+      - description: token
+        in: query
+        name: token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Failed to activate notification
+          schema:
+            type: string
+        "500":
+          description: Failed to activate notification
+          schema:
+            type: string
+      summary: Activate notification.
+      tags:
+      - notifications
+  /api/notification/add:
+    post:
+      consumes:
+      - application/json
+      description: Add new notification to the database.
+      parameters:
+      - description: Notification Info
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.Notification'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Failed to parse body
+          schema:
+            type: string
+        "500":
+          description: Failed to insert notification
+          schema:
+            type: string
+      summary: Add new notification.
+      tags:
+      - notifications
 swagger: "2.0"

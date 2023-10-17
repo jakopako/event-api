@@ -35,3 +35,11 @@ type NominatimPlace struct {
 	DisplayName string  `json:"display_name"`
 	Importance  float64 `json:"importance"`
 }
+
+type Notification struct {
+	Email     string    `bson:"email" json:"email" validate:"required,email" example:"email.address@example.com"`
+	Query     string    `bson:"query" json:"query" validate:"required" example:"title=kamaal&city=Zurich"`
+	SetupDate time.Time `bson:"setupDate" json:"-"`
+	Token     string    `bson:"token" json:"-"`
+	Active    bool      `bson:"active" json:"-"`
+}

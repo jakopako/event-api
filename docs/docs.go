@@ -137,13 +137,13 @@ var doc = `{
                 ],
                 "responses": {
                     "400": {
-                        "description": "Failed to parse body",
+                        "description": "failed to parse body",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Failed to insert events",
+                        "description": "failed to insert events",
                         "schema": {
                             "type": "string"
                         }
@@ -189,7 +189,7 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to delete events",
+                        "description": "failed to delete events",
                         "schema": {
                             "type": "string"
                         }
@@ -247,7 +247,87 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to retrieve values",
+                        "description": "failed to retrieve values",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notification/activate": {
+            "get": {
+                "description": "This endpoint activates a notification that has been added previously.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Activate notification.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Failed to activate notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to activate notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notification/add": {
+            "post": {
+                "description": "Add new notification to the database.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Add new notification.",
+                "parameters": [
+                    {
+                        "description": "Notification Info",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Notification"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Failed to parse body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to insert notification",
                         "schema": {
                             "type": "string"
                         }
@@ -314,6 +394,23 @@ var doc = `{
                 "url": {
                     "type": "string",
                     "example": "http://link.to/concert/page"
+                }
+            }
+        },
+        "models.Notification": {
+            "type": "object",
+            "required": [
+                "email",
+                "query"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "email.address@example.com"
+                },
+                "query": {
+                    "type": "string",
+                    "example": "title=kamaal\u0026city=Zurich"
                 }
             }
         }
