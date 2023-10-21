@@ -20,7 +20,7 @@ import (
 func setupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 	routes.EventsRoute(api.Group("/events"))
-	routes.NotificationsRoute(api.Group("/notification"))
+	routes.NotificationsRoute(api.Group("/notifications"))
 	routes.SwaggerRoute(api.Group("/swagger"))
 }
 

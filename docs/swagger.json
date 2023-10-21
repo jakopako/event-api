@@ -236,7 +236,7 @@
                 }
             }
         },
-        "/api/notification/activate": {
+        "/api/notifications/activate": {
             "get": {
                 "description": "This endpoint activates a notification that has been added previously.",
                 "produces": [
@@ -276,12 +276,9 @@
                 }
             }
         },
-        "/api/notification/add": {
-            "post": {
+        "/api/notifications/add": {
+            "get": {
                 "description": "Add new notification to the database.",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -291,13 +288,46 @@
                 "summary": "Add new notification.",
                 "parameters": [
                     {
-                        "description": "Notification Info",
-                        "name": "message",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Notification"
-                        }
+                        "type": "string",
+                        "description": "title search string",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "location search string",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "city search string",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "country search string",
+                        "name": "country",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "radius around given city in kilometers",
+                        "name": "radius",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "date search string",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -375,23 +405,6 @@
                 "url": {
                     "type": "string",
                     "example": "http://link.to/concert/page"
-                }
-            }
-        },
-        "models.Notification": {
-            "type": "object",
-            "required": [
-                "email",
-                "query"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "email.address@example.com"
-                },
-                "query": {
-                    "type": "string",
-                    "example": "title=kamaal\u0026city=Zurich"
                 }
             }
         }

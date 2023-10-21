@@ -37,9 +37,17 @@ type NominatimPlace struct {
 }
 
 type Notification struct {
-	Email     string    `bson:"email" json:"email" validate:"required,email" example:"email.address@example.com"`
-	Query     string    `bson:"query" json:"query" validate:"required" example:"title=kamaal&city=Zurich"`
-	SetupDate time.Time `bson:"setupDate" json:"-"`
-	Token     string    `bson:"token" json:"-"`
-	Active    bool      `bson:"active" json:"-"`
+	Email     string    `bson:"email"`
+	Query     Query     `bson:"query"`
+	SetupDate time.Time `bson:"setupDate"`
+	Token     string    `bson:"token"`
+	Active    bool      `bson:"active"`
+}
+
+type Query struct {
+	Title   string `bson:"title"`
+	City    string `bson:"city"`
+	Country string `bson:"country"`
+	Date    string `bson:"date"`
+	Radius  int    `bson:"radius"`
 }

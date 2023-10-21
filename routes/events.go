@@ -22,6 +22,6 @@ func EventsRoute(route fiber.Router) {
 }
 
 func NotificationsRoute(route fiber.Router) {
-	route.Post("/add", controllers.AddNotification)
+	route.Get("/add", controllers.AddNotification)
 	route.Get("/activate", controllers.ActivateNotification)
 }

@@ -44,18 +44,6 @@ definitions:
     - type
     - url
     type: object
-  models.Notification:
-    properties:
-      email:
-        example: email.address@example.com
-        type: string
-      query:
-        example: title=kamaal&city=Zurich
-        type: string
-    required:
-    - email
-    - query
-    type: object
 info:
   contact: {}
 paths:
@@ -212,7 +200,7 @@ paths:
       summary: Get today's events.
       tags:
       - events
-  /api/notification/activate:
+  /api/notifications/activate:
     get:
       description: This endpoint activates a notification that has been added previously.
       parameters:
@@ -238,18 +226,38 @@ paths:
       summary: Activate notification.
       tags:
       - notifications
-  /api/notification/add:
-    post:
-      consumes:
-      - application/json
+  /api/notifications/add:
+    get:
       description: Add new notification to the database.
       parameters:
-      - description: Notification Info
-        in: body
-        name: message
-        required: true
-        schema:
-          $ref: '#/definitions/models.Notification'
+      - description: title search string
+        in: query
+        name: title
+        type: string
+      - description: location search string
+        in: query
+        name: location
+        type: string
+      - description: city search string
+        in: query
+        name: city
+        type: string
+      - description: country search string
+        in: query
+        name: country
+        type: string
+      - description: radius around given city in kilometers
+        in: query
+        name: radius
+        type: integer
+      - description: date search string
+        in: query
+        name: date
+        type: string
+      - description: email
+        in: query
+        name: email
+        type: string
       produces:
       - application/json
       responses:

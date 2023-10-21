@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"net/mail"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,40 +12,48 @@ import (
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 // AddNotification func for adding a new notification to the database.
 // @Description Add new notification to the database.
 // @Summary Add new notification.
 // @Tags notifications
-// @Accept json
 // @Produce json
-// @Param message body models.Notification true "Notification Info"
+// @Param title query string false "title search string"
+// @Param location query string false "location search string"
+// @Param city query string false "city search string"
+// @Param country query string false "country search string"
+// @Param radius query int false "radius around given city in kilometers"
+// @Param date query string false "date search string"
+// @Param email query string false "email"
 // @Failure 400 {object} string "Failed to parse body"
 // @Failure 500 {object} string "Failed to insert notification"
-// @Router /api/notification/add [post]
+// @Router /api/notifications/add [get]
 func AddNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
-	n := new(models.Notification)
-	if err := c.BodyParser(n); err != nil {
-		//log.Println(err)
-		return c.Status(400).JSON(fiber.Map{
+	// verify date
+	date := ""
+	if dateString := c.Query("date"); dateString != "" {
+		_, err := time.Parse(time.RFC3339, dateString)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"success": false,
+				"message": "couldn't parse date",
+				"error":   err.Error(),
+			})
+		}
+		date = dateString
+	}
+	// verify email
+	email := c.Query("email")
+	if _, err := mail.ParseAddress(email); err != nil {
+		return c.Status(500).JSON(fiber.Map{
 			"success": false,
-			"message": "failed to parse body",
+			"message": "couldn't parse email address",
 			"error":   err.Error(),
 		})
 	}
-
-	validate := validator.New()
-	if err := validate.Struct(n); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to parse body",
-			"error":   err.Error(),
-		})
-	}
-
+	// generate token
 	token, err := generateRandomString(40)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -53,8 +62,48 @@ func AddNotification(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
-	n.Token = token
-	n.SetupDate = time.Now().UTC()
+	n := models.Notification{
+		Email:     email,
+		Token:     token,
+		SetupDate: time.Now().UTC(),
+		Active:    false,
+		Query: models.Query{
+			Title:   c.Query("title"),
+			City:    c.Query("city"),
+			Country: c.Query("country"),
+			Date:    date,
+			Radius:  c.QueryInt("radius"),
+		},
+	}
+
+	// if err := c.BodyParser(n); err != nil {
+	// 	//log.Println(err)
+	// 	return c.Status(400).JSON(fiber.Map{
+	// 		"success": false,
+	// 		"message": "failed to parse body",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
+
+	// validate := validator.New()
+	// if err := validate.Struct(n); err != nil {
+	// 	return c.Status(400).JSON(fiber.Map{
+	// 		"success": false,
+	// 		"message": "failed to parse body",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
+
+	// token, err := generateRandomString(40)
+	// if err != nil {
+	// 	return c.Status(500).JSON(fiber.Map{
+	// 		"success": false,
+	// 		"message": "failed to generate random token",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
+	// n.Token = token
+	// n.SetupDate = time.Now().UTC()
 	filter := bson.D{{"email", n.Email}, {"query", n.Query}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	opts := options.Replace().SetUpsert(true)
@@ -82,7 +131,7 @@ func AddNotification(c *fiber.Ctx) error {
 // @Param token query string false "token"
 // @Failure 400 {object} string "Failed to activate notification"
 // @Failure 500 {object} string "Failed to activate notification"
-// @Router /api/notification/activate [get]
+// @Router /api/notifications/activate [get]
 func ActivateNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
 	email := c.Query("email")
@@ -102,6 +151,18 @@ func ActivateNotification(c *fiber.Ctx) error {
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
+}
+
+func DeleteNotifiction(c *fiber.Ctx) error {
+	return nil
+}
+
+func DeleteInactiveNotifictions(c *fiber.Ctx) error {
+	return nil
+}
+
+func SendNotifications(c *fiber.Ctx) error {
+	return nil
 }
 
 func generateRandomString(length int) (string, error) {
