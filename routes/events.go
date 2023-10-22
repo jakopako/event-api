@@ -9,6 +9,7 @@ import (
 )
 
 func EventsRoute(route fiber.Router) {
+	// for some reason auth cannot be defined outside this function
 	auth := basicauth.New(basicauth.Config{
 		Users: map[string]string{
 			os.Getenv("API_USER"): os.Getenv("API_PASSWORD"),
@@ -22,6 +23,14 @@ func EventsRoute(route fiber.Router) {
 }
 
 func NotificationsRoute(route fiber.Router) {
+	// for some reason auth cannot be defined outside this function
+	auth := basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			os.Getenv("API_USER"): os.Getenv("API_PASSWORD"),
+		},
+	})
 	route.Get("/add", controllers.AddNotification)
 	route.Get("/activate", controllers.ActivateNotification)
+	route.Delete("/delete", controllers.DeleteNotifiction)
+	route.Delete("/deleteInactive", auth, controllers.DeleteInactiveNotifictions)
 }

@@ -257,7 +257,7 @@ var doc = `{
         },
         "/api/notifications/activate": {
             "get": {
-                "description": "This endpoint activates a notification that has been added previously.",
+                "description": "This endpoint activates a notification that has been added previously if the inactive notification hasn't expired yet (expires after 24h).",
                 "produces": [
                     "application/json"
                 ],
@@ -358,6 +358,65 @@ var doc = `{
                     },
                     "500": {
                         "description": "Failed to insert notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/delete": {
+            "delete": {
+                "description": "This endpoint deletes a notification that has been added previously based on the email address and the token.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete notification.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Failed to delete notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/deleteInactive": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint deletes all inactive notification that are older than 24h.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete inactive notifications.",
+                "responses": {
+                    "500": {
+                        "description": "Failed to delete notifications",
                         "schema": {
                             "type": "string"
                         }

@@ -76,38 +76,14 @@ func AddNotification(c *fiber.Ctx) error {
 		},
 	}
 
-	// if err := c.BodyParser(n); err != nil {
-	// 	//log.Println(err)
-	// 	return c.Status(400).JSON(fiber.Map{
-	// 		"success": false,
-	// 		"message": "failed to parse body",
-	// 		"error":   err.Error(),
-	// 	})
-	// }
+	update := bson.M{
+		"$setOnInsert": n,
+	}
 
-	// validate := validator.New()
-	// if err := validate.Struct(n); err != nil {
-	// 	return c.Status(400).JSON(fiber.Map{
-	// 		"success": false,
-	// 		"message": "failed to parse body",
-	// 		"error":   err.Error(),
-	// 	})
-	// }
-
-	// token, err := generateRandomString(40)
-	// if err != nil {
-	// 	return c.Status(500).JSON(fiber.Map{
-	// 		"success": false,
-	// 		"message": "failed to generate random token",
-	// 		"error":   err.Error(),
-	// 	})
-	// }
-	// n.Token = token
-	// n.SetupDate = time.Now().UTC()
 	filter := bson.D{{"email", n.Email}, {"query", n.Query}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	opts := options.Replace().SetUpsert(true)
-	result, err := notificationCollection.ReplaceOne(ctx, filter, n, opts)
+	opts := options.Update().SetUpsert(true)
+	result, err := notificationCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
@@ -115,15 +91,57 @@ func AddNotification(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
+
+	if result.MatchedCount == 1 {
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"data":    result,
+			"success": true,
+			"message": "notification already exists in database",
+		})
+	}
+
+	// send activation email
+	// publicKey := os.Getenv("MJ_APIKEY_PUBLIC")
+	// secretKey := os.Getenv("MJ_APIKEY_PRIVATE")
+	// mj := mailjet.NewMailjetClient(publicKey, secretKey)
+	// recipientName := strings.Split(n.Email, "@")[0]
+	// messagesInfo := []mailjet.InfoMessagesV31{
+	// 	{
+	// 		From: &mailjet.RecipientV31{
+	// 			Email: "activation@concertcloud.live",
+	// 			Name:  "ConcertCloud",
+	// 		},
+	// 		To: &mailjet.RecipientsV31{
+	// 			mailjet.RecipientV31{
+	// 				Email: n.Email,
+	// 				Name:  recipientName,
+	// 			},
+	// 		},
+	// 		Subject:  "Activate your notification",
+	// 		TextPart: fmt.Sprintf("Hi,\n\n please activate your notification with the following token %s", token),
+	// 		HTMLPart: fmt.Sprintf("Hi,\n\n please activate your notification with the following token %s", token),
+	// 	},
+	// }
+	// messages := mailjet.MessagesV31{Info: messagesInfo}
+	// res, err := mj.SendMailV31(&messages)
+	// if err != nil {
+	// 	return c.Status(500).JSON(fiber.Map{
+	// 		"success": false,
+	// 		"message": "failed to send activation email",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
+	// fmt.Printf("Data: %+v\n", res)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"data":    result,
+		"data": "res",
+		// "data":    res,
 		"success": true,
-		"message": "notification inserted successfully",
+		"message": "successfully added notification to the database",
 	})
 }
 
 // ActivateNotification func for activating a new notification.
-// @Description This endpoint activates a notification that has been added previously.
+// @Description This endpoint activates a notification that has been added previously if the inactive notification hasn't expired yet (expires after 24h).
 // @Summary Activate notification.
 // @Tags notifications
 // @Produce json
@@ -153,12 +171,56 @@ func ActivateNotification(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// DeleteNotification func for deleting an existing notification.
+// @Description This endpoint deletes a notification that has been added previously based on the email address and the token.
+// @Summary Delete notification.
+// @Tags notifications
+// @Produce json
+// @Param email query string false "email"
+// @Param token query string false "token"
+// @Failure 500 {object} string "Failed to delete notification"
+// @Router /api/notifications/delete [delete]
 func DeleteNotifiction(c *fiber.Ctx) error {
-	return nil
+	notificationCollection := config.MI.DB.Collection("notifications")
+	email := c.Query("email")
+	token := c.Query("token")
+
+	filter := bson.D{{"email", email}, {"token", token}}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	_, err := notificationCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to delete notification",
+			"error":   err.Error(),
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
+
 }
 
+// DeleteInactiveNotifictions func for deleting all inactive notifications.
+// @Description This endpoint deletes all inactive notification that are older than 24h.
+// @Summary Delete inactive notifications.
+// @Tags notifications
+// @Produce json
+// @Security BasicAuth
+// @Failure 500 {object} string "Failed to delete notifications"
+// @Router /api/notifications/deleteInactive [delete]
 func DeleteInactiveNotifictions(c *fiber.Ctx) error {
-	return nil
+	notificationCollection := config.MI.DB.Collection("notifications")
+
+	filter := bson.D{{"active", false}}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	_, err := notificationCollection.DeleteMany(ctx, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to delete notification",
+			"error":   err.Error(),
+		})
+	}
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func SendNotifications(c *fiber.Ctx) error {

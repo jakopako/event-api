@@ -202,7 +202,8 @@ paths:
       - events
   /api/notifications/activate:
     get:
-      description: This endpoint activates a notification that has been added previously.
+      description: This endpoint activates a notification that has been added previously
+        if the inactive notification hasn't expired yet (expires after 24h).
       parameters:
       - description: email
         in: query
@@ -270,6 +271,45 @@ paths:
           schema:
             type: string
       summary: Add new notification.
+      tags:
+      - notifications
+  /api/notifications/delete:
+    delete:
+      description: This endpoint deletes a notification that has been added previously
+        based on the email address and the token.
+      parameters:
+      - description: email
+        in: query
+        name: email
+        type: string
+      - description: token
+        in: query
+        name: token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Failed to delete notification
+          schema:
+            type: string
+      summary: Delete notification.
+      tags:
+      - notifications
+  /api/notifications/deleteInactive:
+    delete:
+      description: This endpoint deletes all inactive notification that are older
+        than 24h.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Failed to delete notifications
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Delete inactive notifications.
       tags:
       - notifications
 swagger: "2.0"
