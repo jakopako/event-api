@@ -4,7 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 	"net/mail"
+	"net/smtp"
+	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -101,36 +104,14 @@ func AddNotification(c *fiber.Ctx) error {
 	}
 
 	// send activation email
-	// publicKey := os.Getenv("MJ_APIKEY_PUBLIC")
-	// secretKey := os.Getenv("MJ_APIKEY_PRIVATE")
-	// mj := mailjet.NewMailjetClient(publicKey, secretKey)
-	// recipientName := strings.Split(n.Email, "@")[0]
-	// messagesInfo := []mailjet.InfoMessagesV31{
-	// 	{
-	// 		From: &mailjet.RecipientV31{
-	// 			Email: "activation@concertcloud.live",
-	// 			Name:  "ConcertCloud",
-	// 		},
-	// 		To: &mailjet.RecipientsV31{
-	// 			mailjet.RecipientV31{
-	// 				Email: n.Email,
-	// 				Name:  recipientName,
-	// 			},
-	// 		},
-	// 		Subject:  "Activate your notification",
-	// 		TextPart: fmt.Sprintf("Hi,\n\n please activate your notification with the following token %s", token),
-	// 		HTMLPart: fmt.Sprintf("Hi,\n\n please activate your notification with the following token %s", token),
-	// 	},
-	// }
-	// messages := mailjet.MessagesV31{Info: messagesInfo}
-	// res, err := mj.SendMailV31(&messages)
-	// if err != nil {
-	// 	return c.Status(500).JSON(fiber.Map{
-	// 		"success": false,
-	// 		"message": "failed to send activation email",
-	// 		"error":   err.Error(),
-	// 	})
-	// }
+	message := fmt.Sprintf("Hi, this is your activation token: %s", n.Token)
+	if err := sendEmail(n.Email, "notification activation", message); err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to send activation email",
+			"error":   err.Error(),
+		})
+	}
 	// fmt.Printf("Data: %+v\n", res)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"data": "res",
@@ -210,7 +191,9 @@ func DeleteNotifiction(c *fiber.Ctx) error {
 func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
 
-	filter := bson.D{{"active", false}}
+	now := time.Now().UTC()
+	then := now.AddDate(0, 0, -1)
+	filter := bson.D{{"active", false}, {"setupDate", bson.M{"$lt": then}}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	_, err := notificationCollection.DeleteMany(ctx, filter)
 	if err != nil {
@@ -234,4 +217,26 @@ func generateRandomString(length int) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(b), nil
+}
+
+func sendEmail(to, subject, message string) error {
+	user := os.Getenv("SMTP_USER")
+	password := os.Getenv("SMTP_PASSWORD")
+
+	from := user
+	toList := []string{
+		to,
+	}
+
+	host := os.Getenv("SMTP_HOST")
+	addr := fmt.Sprintf("%s:%s", host, os.Getenv("SMTP_PORT"))
+
+	msg := []byte(fmt.Sprintf("From: %s\r\n"+
+		"To: %s\r\n"+
+		"Subject: %s\r\n\r\n"+
+		"%s\r\n", from, to, subject, message))
+
+	auth := smtp.PlainAuth("", user, password, host)
+
+	return smtp.SendMail(addr, auth, from, toList, msg)
 }
