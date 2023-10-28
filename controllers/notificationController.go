@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -76,6 +77,8 @@ func AddNotification(c *fiber.Ctx) error {
 			Country: c.Query("country"),
 			Date:    date,
 			Radius:  c.QueryInt("radius"),
+			Limit:   10,
+			Page:    1,
 		},
 	}
 
@@ -112,10 +115,7 @@ func AddNotification(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
-	// fmt.Printf("Data: %+v\n", res)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"data": "res",
-		// "data":    res,
 		"success": true,
 		"message": "successfully added notification to the database",
 	})
@@ -128,20 +128,37 @@ func AddNotification(c *fiber.Ctx) error {
 // @Produce json
 // @Param email query string false "email"
 // @Param token query string false "token"
-// @Failure 400 {object} string "Failed to activate notification"
-// @Failure 500 {object} string "Failed to activate notification"
+// @Failure 400 {object} string "failed to activate notification"
+// @Failure 500 {object} string "failed to activate notification"
 // @Router /api/notifications/activate [get]
 func ActivateNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
 	email := c.Query("email")
 	token := c.Query("token")
-	update := bson.D{{"$set", bson.D{{"active", true}}}}
 
+	// check notifications
 	now := time.Now().UTC()
 	then := now.AddDate(0, 0, -1)
 	filter := bson.D{{"email", email}, {"token", token}, {"setupDate", bson.M{"$gt": then}}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	_, err := notificationCollection.UpdateOne(ctx, filter, update)
+	var not models.Notification
+	err := notificationCollection.FindOne(ctx, filter).Decode(&not)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to activate notification",
+		})
+	}
+
+	if not.Active {
+		return c.Status(200).JSON(fiber.Map{
+			"success": true,
+			"message": "notification already activated",
+		})
+	}
+
+	update := bson.D{{"$set", bson.D{{"active", true}}}}
+	_, err = notificationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
@@ -149,7 +166,12 @@ func ActivateNotification(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
-	return c.SendStatus(fiber.StatusOK)
+	not.Active = true
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"data":    not,
+		"success": true,
+		"message": "successfully activated notification",
+	})
 }
 
 // DeleteNotification func for deleting an existing notification.
@@ -206,8 +228,57 @@ func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+// SendNotifications func for sending all notifications via email.
+// @Description This endpoint sends an email for every active notification whose query returns a result.
+// @Summary Send notifications.
+// @Tags notifications
+// @Produce json
+// @Security BasicAuth
+// @Failure 500 {object} string "failed to send notifications"
+// @Router /api/notifications/send [get]
 func SendNotifications(c *fiber.Ctx) error {
-	return nil
+	// fetch active notifications
+	notificationCollection := config.MI.DB.Collection("notifications")
+	filter := bson.D{{"active", true}}
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	cursor, err := notificationCollection.Find(ctx, filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to retreive active notification from database",
+			"error":   err.Error(),
+		})
+	}
+	// end find
+
+	var results []models.Notification
+	if err = cursor.All(ctx, &results); err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to retreive active notification from database",
+			"error":   err.Error(),
+		})
+	}
+
+	for _, result := range results {
+		cursor.Decode(&result)
+		_, total, _, err := fetchEvents(result.Query)
+		if err != nil {
+			log.Errorf("couldn't fetch events for query %v", result.Query)
+		}
+		if total > 0 {
+			// send notification email
+			err = sendEmail(result.Email, "hurray, a match", "Hi, we found a concert for you! Checkout TODO")
+			if err != nil {
+				log.Errorf("couldn't send notification email to %s. Error: %v", result.Email, err)
+			} else {
+				log.Infof("sent notification email to %s", result.Email)
+			}
+		}
+	}
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 func generateRandomString(length int) (string, error) {

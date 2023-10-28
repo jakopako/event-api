@@ -281,13 +281,13 @@ var doc = `{
                 ],
                 "responses": {
                     "400": {
-                        "description": "Failed to activate notification",
+                        "description": "failed to activate notification",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Failed to activate notification",
+                        "description": "failed to activate notification",
                         "schema": {
                             "type": "string"
                         }
@@ -417,6 +417,31 @@ var doc = `{
                 "responses": {
                     "500": {
                         "description": "Failed to delete notifications",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/send": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint sends an email for every active notification whose query returns a result.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Send notifications.",
+                "responses": {
+                    "500": {
+                        "description": "failed to send notifications",
                         "schema": {
                             "type": "string"
                         }

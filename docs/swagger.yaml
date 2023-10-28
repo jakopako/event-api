@@ -217,11 +217,11 @@ paths:
       - application/json
       responses:
         "400":
-          description: Failed to activate notification
+          description: failed to activate notification
           schema:
             type: string
         "500":
-          description: Failed to activate notification
+          description: failed to activate notification
           schema:
             type: string
       summary: Activate notification.
@@ -310,6 +310,22 @@ paths:
       security:
       - BasicAuth: []
       summary: Delete inactive notifications.
+      tags:
+      - notifications
+  /api/notifications/send:
+    get:
+      description: This endpoint sends an email for every active notification whose
+        query returns a result.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: failed to send notifications
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Send notifications.
       tags:
       - notifications
 swagger: "2.0"
