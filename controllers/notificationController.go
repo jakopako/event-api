@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+	"net/url"
 	"os"
 	"time"
 
@@ -34,6 +35,14 @@ import (
 // @Failure 500 {object} string "Failed to insert notification"
 // @Router /api/notifications/add [get]
 func AddNotification(c *fiber.Ctx) error {
+	baseAURL := os.Getenv("ACTIVATION_URL")
+	if baseAURL == "" {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to add new notification",
+			"error":   "ACTIVATION_URL has to be provided as environment variable",
+		})
+	}
 	notificationCollection := config.MI.DB.Collection("notifications")
 	// verify date
 	date := ""
@@ -107,7 +116,17 @@ func AddNotification(c *fiber.Ctx) error {
 	}
 
 	// send activation email
-	message := fmt.Sprintf("Hi, this is your activation token: %s", n.Token)
+	aUrl := fmt.Sprintf("%s?email=%s&token=%s", baseAURL, url.QueryEscape(n.Email), url.QueryEscape(n.Token))
+	mTempl := `
+Hi,
+<br><br>
+Click <a href=%s>here</a> to activate your concertcloud.live notification.
+<br><br>
+If you did not subscribe to any notification on concertcloud.live you can safely ignore this email.
+<br><br>
+Your ConcertCloud team
+`
+	message := fmt.Sprintf(mTempl, aUrl)
 	if err := sendEmail(n.Email, "notification activation", message); err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
@@ -182,7 +201,7 @@ func ActivateNotification(c *fiber.Ctx) error {
 // @Param email query string false "email"
 // @Param token query string false "token"
 // @Failure 500 {object} string "Failed to delete notification"
-// @Router /api/notifications/delete [delete]
+// @Router /api/notifications/delete [get]
 func DeleteNotifiction(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
 	email := c.Query("email")
@@ -250,7 +269,6 @@ func SendNotifications(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
-	// end find
 
 	var results []models.Notification
 	if err = cursor.All(ctx, &results); err != nil {
@@ -261,19 +279,47 @@ func SendNotifications(c *fiber.Ctx) error {
 		})
 	}
 
-	for _, result := range results {
-		cursor.Decode(&result)
-		_, total, _, err := fetchEvents(result.Query)
+	baseQURL := os.Getenv("QUERY_URL")
+	baseUURL := os.Getenv("UNSUBSCRIBE_URL")
+	if baseQURL == "" || baseUURL == "" {
+		return c.Status(500).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to send emails",
+			"error":   "QUERY_URL and UNSUBSCRIBE_URL have to be provided as environment variables",
+		})
+	}
+
+	for _, n := range results {
+		cursor.Decode(&n)
+		_, total, _, err := fetchEvents(n.Query)
 		if err != nil {
-			log.Errorf("couldn't fetch events for query %v", result.Query)
+			log.Errorf("couldn't fetch events for query %v", n.Query)
 		}
 		if total > 0 {
 			// send notification email
-			err = sendEmail(result.Email, "hurray, a match", "Hi, we found a concert for you! Checkout TODO")
+			qUrl := fmt.Sprintf("%s?title=%s&city=%s&country=%s&location=%s&radius=%d",
+				baseQURL,
+				url.QueryEscape(n.Query.Title),
+				url.QueryEscape(n.Query.City),
+				url.QueryEscape(n.Query.Country),
+				url.QueryEscape(n.Query.Location),
+				n.Query.Radius)
+			uUrl := fmt.Sprintf("%s?token=%s&email=%s", baseUURL, url.QueryEscape(n.Token), url.QueryEscape(n.Email))
+			mTempl := `
+Hi,
+<br><br>
+We found a concert for you! Click <a href=%s>here</a> for more information.
+<br><br>
+To unsubscribe from this notification click <a href=%s>here</a>.
+<br><br>
+Your ConcertCloud team
+`
+			message := fmt.Sprintf(mTempl, qUrl, uUrl)
+			err = sendEmail(n.Email, "Hurray, a match!", message)
 			if err != nil {
-				log.Errorf("couldn't send notification email to %s. Error: %v", result.Email, err)
+				log.Errorf("couldn't send notification email to %s. Error: %v", n.Email, err)
 			} else {
-				log.Infof("sent notification email to %s", result.Email)
+				log.Infof("sent notification email to %s", n.Email)
 			}
 		}
 	}
@@ -304,7 +350,8 @@ func sendEmail(to, subject, message string) error {
 
 	msg := []byte(fmt.Sprintf("From: %s\r\n"+
 		"To: %s\r\n"+
-		"Subject: %s\r\n\r\n"+
+		"Subject: %s\r\n"+
+		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\r\n\r\n"+
 		"%s\r\n", from, to, subject, message))
 
 	auth := smtp.PlainAuth("", user, password, host)

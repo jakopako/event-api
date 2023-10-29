@@ -366,7 +366,7 @@ var doc = `{
             }
         },
         "/api/notifications/delete": {
-            "delete": {
+            "get": {
                 "description": "This endpoint deletes a notification that has been added previously based on the email address and the token.",
                 "produces": [
                     "application/json"
