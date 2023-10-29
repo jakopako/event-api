@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,6 +21,7 @@ import (
 func setupRoutes(app *fiber.App) {
 	api := app.Group("/api")
 	routes.EventsRoute(api.Group("/events"))
+	routes.NotificationsRoute(api.Group("/notifications"))
 	routes.SwaggerRoute(api.Group("/swagger"))
 }
 
@@ -34,7 +36,7 @@ func main() {
 	}))
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
-			return c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")
+			return (c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")) || strings.HasPrefix(c.Path(), "/api/notifications")
 		},
 		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {

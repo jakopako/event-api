@@ -137,13 +137,13 @@ var doc = `{
                 ],
                 "responses": {
                     "400": {
-                        "description": "Failed to parse body",
+                        "description": "failed to parse body",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Failed to insert events",
+                        "description": "failed to insert events",
                         "schema": {
                             "type": "string"
                         }
@@ -189,7 +189,7 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to delete events",
+                        "description": "failed to delete events",
                         "schema": {
                             "type": "string"
                         }
@@ -247,7 +247,201 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to retrieve values",
+                        "description": "failed to retrieve values",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/activate": {
+            "get": {
+                "description": "This endpoint activates a notification that has been added previously if the inactive notification hasn't expired yet (expires after 24h).",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Activate notification.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "failed to activate notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "failed to activate notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/add": {
+            "get": {
+                "description": "Add new notification to the database.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Add new notification.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "title search string",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "location search string",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "city search string",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "country search string",
+                        "name": "country",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "radius around given city in kilometers",
+                        "name": "radius",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "date search string",
+                        "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Failed to parse body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to insert notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/delete": {
+            "get": {
+                "description": "This endpoint deletes a notification that has been added previously based on the email address and the token.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete notification.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Failed to delete notification",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/deleteInactive": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint deletes all inactive notification that are older than 24h.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Delete inactive notifications.",
+                "responses": {
+                    "500": {
+                        "description": "Failed to delete notifications",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/send": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint sends an email for every active notification whose query returns a result.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Send notifications.",
+                "responses": {
+                    "500": {
+                        "description": "failed to send notifications",
                         "schema": {
                             "type": "string"
                         }

@@ -69,7 +69,7 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to delete events
+          description: failed to delete events
           schema:
             type: string
       security:
@@ -148,11 +148,11 @@ paths:
       - application/json
       responses:
         "400":
-          description: Failed to parse body
+          description: failed to parse body
           schema:
             type: string
         "500":
-          description: Failed to insert events
+          description: failed to insert events
           schema:
             type: string
       security:
@@ -178,7 +178,7 @@ paths:
           schema:
             type: string
         "500":
-          description: Failed to retrieve values
+          description: failed to retrieve values
           schema:
             type: string
       summary: Get distinct field values.
@@ -200,4 +200,132 @@ paths:
       summary: Get today's events.
       tags:
       - events
+  /api/notifications/activate:
+    get:
+      description: This endpoint activates a notification that has been added previously
+        if the inactive notification hasn't expired yet (expires after 24h).
+      parameters:
+      - description: email
+        in: query
+        name: email
+        type: string
+      - description: token
+        in: query
+        name: token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: failed to activate notification
+          schema:
+            type: string
+        "500":
+          description: failed to activate notification
+          schema:
+            type: string
+      summary: Activate notification.
+      tags:
+      - notifications
+  /api/notifications/add:
+    get:
+      description: Add new notification to the database.
+      parameters:
+      - description: title search string
+        in: query
+        name: title
+        type: string
+      - description: location search string
+        in: query
+        name: location
+        type: string
+      - description: city search string
+        in: query
+        name: city
+        type: string
+      - description: country search string
+        in: query
+        name: country
+        type: string
+      - description: radius around given city in kilometers
+        in: query
+        name: radius
+        type: integer
+      - description: date search string
+        in: query
+        name: date
+        type: string
+      - description: email
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Failed to parse body
+          schema:
+            type: string
+        "500":
+          description: Failed to insert notification
+          schema:
+            type: string
+      summary: Add new notification.
+      tags:
+      - notifications
+  /api/notifications/delete:
+    get:
+      description: This endpoint deletes a notification that has been added previously
+        based on the email address and the token.
+      parameters:
+      - description: email
+        in: query
+        name: email
+        type: string
+      - description: token
+        in: query
+        name: token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Failed to delete notification
+          schema:
+            type: string
+      summary: Delete notification.
+      tags:
+      - notifications
+  /api/notifications/deleteInactive:
+    delete:
+      description: This endpoint deletes all inactive notification that are older
+        than 24h.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Failed to delete notifications
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Delete inactive notifications.
+      tags:
+      - notifications
+  /api/notifications/send:
+    get:
+      description: This endpoint sends an email for every active notification whose
+        query returns a result.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: failed to send notifications
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Send notifications.
+      tags:
+      - notifications
 swagger: "2.0"

@@ -35,3 +35,22 @@ type NominatimPlace struct {
 	DisplayName string  `json:"display_name"`
 	Importance  float64 `json:"importance"`
 }
+
+type Notification struct {
+	Email     string    `bson:"email" json:"email"`
+	Query     Query     `bson:"query" json:"query"`
+	SetupDate time.Time `bson:"setupDate" json:"setupDate"`
+	Token     string    `bson:"token" json:"token"`
+	Active    bool      `bson:"active" json:"active"`
+}
+
+type Query struct {
+	Title    string `bson:"title" json:"title"`
+	City     string `bson:"city" json:"city"`
+	Country  string `bson:"country" json:"country"`
+	Location string `bson:"location" json:"location"`
+	Date     string `bson:"date" json:"date"`
+	Radius   int    `bson:"radius" json:"radius"`
+	Page     int    `bson:"page" json:"-"`
+	Limit    int64  `bson:"limit" json:"-"`
+}
