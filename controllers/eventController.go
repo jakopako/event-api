@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -425,7 +426,7 @@ func fetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
 				searchKey: bson.M{
 					"$regex": primitive.Regex{
-						Pattern: searchValue,
+						Pattern: fmt.Sprintf("^%s", regexp.QuoteMeta(searchValue)),
 						Options: "i",
 					},
 				},
