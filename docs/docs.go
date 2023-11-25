@@ -489,9 +489,16 @@ var doc = `{
                         46.9482713
                     ]
                 },
+                "imageUrl": {
+                    "type": "string",
+                    "example": "http://link.to/concert/image.jpg"
+                },
                 "location": {
                     "type": "string",
                     "example": "SuperLocation"
+                },
+                "offset": {
+                    "type": "integer"
                 },
                 "sourceUrl": {
                     "type": "string",

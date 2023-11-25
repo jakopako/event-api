@@ -10,10 +10,12 @@ type Event struct {
 	City             string           `bson:"city,omitempty" json:"city,omitempty" validate:"required" example:"SuperCity"`
 	Country          string           `bson:"country,omitempty" json:"country,omitempty" example:"SuperCountry"`
 	Date             time.Time        `bson:"date,omitempty" json:"date,omitempty" validate:"required" example:"2021-10-31T19:00:00.000Z"`
+	Offset           int              `bson:"offset,omitempty" json:"offset,omitempty"`
 	URL              string           `bson:"url,omitempty" json:"url,omitempty" validate:"required,url" example:"http://link.to/concert/page"`
+	ImageURL         string           `bson:"imageUrl,omitempty" json:"imageUrl,omitempty" validate:"omitempty,url" example:"http://link.to/concert/image.jpg"`
 	Comment          string           `bson:"comment,omitempty" json:"comment,omitempty" example:"Super exciting comment."`
 	Type             EventType        `bson:"type,omitempty" json:"type,omitempty" validate:"required" example:"concert"`
-	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required" example:"http://link.to/source"`
+	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required,url" example:"http://link.to/source"`
 	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
 }

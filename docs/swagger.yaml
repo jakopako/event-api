@@ -20,9 +20,14 @@ definitions:
         items:
           type: number
         type: array
+      imageUrl:
+        example: http://link.to/concert/image.jpg
+        type: string
       location:
         example: SuperLocation
         type: string
+      offset:
+        type: integer
       sourceUrl:
         example: http://link.to/source
         type: string
