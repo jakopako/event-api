@@ -131,6 +131,10 @@ func AddEvents(c *fiber.Ctx) error {
 			event.MongoGeolocation.Coordinates = event.Geolocation[:]
 		}
 
+		// add offset
+		_, offset := event.Date.Zone()
+		event.Offset = offset
+
 		op := mongo.NewReplaceOneModel()
 		// The filter ignores the comment assuming that the comment might be updated over time.
 		// In future versions we might need to take more factors into account to decide whether
@@ -394,11 +398,6 @@ func fetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 		d, err := time.Parse(time.RFC3339, q.Date)
 		if err != nil {
 			return events, 0, 0, fmt.Errorf("couldn't parse date: %v", err)
-			// return c.Status(500).JSON(fiber.Map{
-			// 	"success": false,
-			// 	"message": "couldn't parse date",
-			// 	"error":   err.Error(),
-			// })
 		}
 		dayStart := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 		dayEnd := time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
