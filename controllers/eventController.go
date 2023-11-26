@@ -102,6 +102,7 @@ func AddEvents(c *fiber.Ctx) error {
 	for _, event := range *events {
 		err := validate.Struct(event)
 		if err != nil {
+			// a bit ugly to abort the entire request because of one validation failure..
 			return c.Status(400).JSON(fiber.Map{
 				"succes":  false,
 				"message": fmt.Sprintf("failed to validate event %+v", event),
