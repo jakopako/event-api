@@ -102,10 +102,9 @@ func AddEvents(c *fiber.Ctx) error {
 	for _, event := range *events {
 		err := validate.Struct(event)
 		if err != nil {
-			//log.Println(err)
 			return c.Status(400).JSON(fiber.Map{
 				"succes":  false,
-				"message": "failed to parse body",
+				"message": fmt.Sprintf("failed to validate event %+v", event),
 				"error":   err.Error(),
 			})
 		}
