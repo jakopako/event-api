@@ -99,15 +99,15 @@ func AddEvents(c *fiber.Ctx) error {
 
 	var operations []mongo.WriteModel
 	validate := validator.New()
+	errors := []fiber.Map{}
 	for _, event := range *events {
 		err := validate.Struct(event)
 		if err != nil {
-			// a bit ugly to abort the entire request because of one validation failure..
-			return c.Status(400).JSON(fiber.Map{
-				"succes":  false,
+			errors = append(errors, fiber.Map{
 				"message": fmt.Sprintf("failed to validate event %+v", event),
 				"error":   err.Error(),
 			})
+			continue
 		}
 
 		// check geolocation
@@ -117,12 +117,11 @@ func AddEvents(c *fiber.Ctx) error {
 			// for the following function to find the right coordinates
 			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
 			if err != nil {
-				// maybe we shouldn't return on error but just leave the location empty...
-				return c.Status(500).JSON(fiber.Map{
-					"success": false,
-					"message": fmt.Sprintf("failed to find city location of city %s", event.City),
+				errors = append(errors, fiber.Map{
+					"message": fmt.Sprintf("failed to find city location of city %s for event %+v", event.City, event),
 					"error":   err.Error(),
 				})
+				continue
 			}
 			event.MongoGeolocation = *geoLoc
 
@@ -151,15 +150,28 @@ func AddEvents(c *fiber.Ctx) error {
 		operations = append(operations, op)
 	}
 
-	bulkOption := options.BulkWriteOptions{}
-	bulkOption.SetOrdered(true)
-	result, err := eventCollection.BulkWrite(ctx, operations, &bulkOption)
+	var result *mongo.BulkWriteResult
+	if len(operations) > 0 {
+		var err error
+		bulkOption := options.BulkWriteOptions{}
+		bulkOption.SetOrdered(true)
+		result, err = eventCollection.BulkWrite(ctx, operations, &bulkOption)
 
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to insert events",
-			"error":   err.Error(),
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"success": false,
+				"message": "failed to insert events",
+				"error":   err.Error(),
+			})
+		}
+	}
+
+	if len(errors) > 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"succes":  false,
+			"data":    result,
+			"message": "some events could not be inserted into the database",
+			"errors":  errors,
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
