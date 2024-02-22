@@ -7,12 +7,10 @@ require (
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/gofiber/fiber/v2 v2.50.0
+	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/joho/godotenv v1.4.0
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/mailjet/mailjet-apiv3-go/v3 v3.2.0 // indirect
-	github.com/mailjet/mailjet-apiv3-go/v4 v4.0.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/swaggo/swag v1.8.1
 	github.com/xdg-go/scram v1.1.1 // indirect
