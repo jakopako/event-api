@@ -17,7 +17,7 @@ func NotificationsRoute(route fiber.Router) {
 	})
 	route.Get("/add", controllers.AddNotification)
 	route.Get("/activate", controllers.ActivateNotification)
-	route.Get("/delete", controllers.DeleteNotifiction)
+	route.Get("/delete", controllers.DeleteNotification)
 	route.Delete("/deleteInactive", auth, controllers.DeleteInactiveNotifictions)
 	route.Get("/send", auth, controllers.SendNotifications)
 }

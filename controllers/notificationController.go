@@ -128,6 +128,7 @@ Your ConcertCloud team
 `
 	message := fmt.Sprintf(mTempl, aUrl)
 	if err := sendEmail(n.Email, "notification activation", message); err != nil {
+		// TODO: we should delete the notification in the database again
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
 			"message": "failed to send activation email",
@@ -202,7 +203,7 @@ func ActivateNotification(c *fiber.Ctx) error {
 // @Param token query string false "token"
 // @Failure 500 {object} string "Failed to delete notification"
 // @Router /api/notifications/delete [get]
-func DeleteNotifiction(c *fiber.Ctx) error {
+func DeleteNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection("notifications")
 	email := c.Query("email")
 	token := c.Query("token")
