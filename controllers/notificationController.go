@@ -36,6 +36,7 @@ import (
 // @Router /api/notifications/add [get]
 func AddNotification(c *fiber.Ctx) error {
 	baseAURL := os.Getenv("ACTIVATION_URL")
+	baseUURL := os.Getenv("UNSUBSCRIBE_URL")
 	if baseAURL == "" {
 		return c.Status(500).JSON(fiber.Map{
 			"success": false,
@@ -116,6 +117,7 @@ func AddNotification(c *fiber.Ctx) error {
 	}
 
 	// send activation email
+	uUrl := fmt.Sprintf("%s?email=%s&token=%s", baseUURL, url.QueryEscape(n.Email), url.QueryEscape(n.Token))
 	aUrl := fmt.Sprintf("%s?email=%s&token=%s", baseAURL, url.QueryEscape(n.Email), url.QueryEscape(n.Token))
 	mTempl := `
 Hi,
@@ -124,9 +126,11 @@ Click <a href=%s>here</a> to activate your concertcloud.live notification.
 <br><br>
 If you did not subscribe to any notification on concertcloud.live you can safely ignore this email.
 <br><br>
+To unsubscribe from this notification in the future click <a href=%s>here</a>.
+<br><br>
 Your ConcertCloud team
 `
-	message := fmt.Sprintf(mTempl, aUrl)
+	message := fmt.Sprintf(mTempl, aUrl, uUrl)
 	if err := sendEmail(n.Email, "notification activation", message); err != nil {
 		// TODO: we should delete the notification in the database again
 		return c.Status(500).JSON(fiber.Map{
