@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/jakopako/event-api/config"
@@ -33,6 +34,14 @@ func main() {
 	app.Use(cors.New())
 	app.Use(logger.New(logger.Config{
 		Format: "[${time}] ${status} ${latency} ${method} ${url}\n",
+	}))
+	app.Use(limiter.New(limiter.Config{
+		Next: func(c *fiber.Ctx) bool {
+			return !strings.HasPrefix(c.Path(), "/api/notifications")
+		},
+		Max:               20,
+		Expiration:        1 * time.Minute,
+		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
