@@ -18,6 +18,7 @@ type Event struct {
 	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required,url" example:"http://link.to/source"`
 	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
+	Genres           []string         `bson:"genres,omitempty", json:"genres,omitempty" example:"german trap"`
 }
 
 type MongoGeolocation struct {

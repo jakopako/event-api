@@ -10,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jakopako/event-api/config"
+	"github.com/jakopako/event-api/genre"
 	"github.com/jakopako/event-api/geo"
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -110,7 +111,7 @@ func AddEvents(c *fiber.Ctx) error {
 			continue
 		}
 
-		// check geolocation
+		// lookup geolocation if not given
 		if len(event.Geolocation) != 2 {
 			// lookup location based on city AND cache this info to not flood the geoloc service
 			// It's the client's responsibility to provide enough info (ie country if necessary)
@@ -128,6 +129,18 @@ func AddEvents(c *fiber.Ctx) error {
 		} else {
 			event.MongoGeolocation.GeoJSONType = "Point"
 			event.MongoGeolocation.Coordinates = event.Geolocation[:]
+		}
+
+		// lookup genres if not given
+		if len(event.Genres) == 0 {
+			genres, err := genre.LookupGenres(event.Title)
+			if err != nil {
+				errors = append(errors, fiber.Map{
+					"message": fmt.Sprintf("failed to find genre for event %+v", event),
+					"error":   err.Error(),
+				})
+			}
+			event.Genres = genres
 		}
 
 		// add offset
