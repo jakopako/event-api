@@ -183,7 +183,7 @@ func AddEvents(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{
 			"succes":  false,
 			"data":    result,
-			"message": "some events could not be inserted into the database",
+			"message": "some events were not inserted successfully into the database",
 			"errors":  errors,
 		})
 	}

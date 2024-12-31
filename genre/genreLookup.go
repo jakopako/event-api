@@ -25,9 +25,9 @@ type GenreCache struct {
 }
 
 type spotifyTokenResponse struct {
-	AccessToken string `json:access_token"`
-	TokenType   string `json:token_type"`
-	ExpiresIn   int    `json:expires_in"` // minutes
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	ExpiresIn   int    `json:"expires_in"` // minutes
 }
 
 var GC *GenreCache
@@ -48,23 +48,24 @@ func (gc *GenreCache) renewSpotifyToken() error {
 		form.Add("client_secret", clientSecret)
 
 		req, _ := http.NewRequest("POST", tokenUrl, strings.NewReader(form.Encode()))
-		// req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		resp, err := client.Do(req)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to do token request. %+w", err)
 		}
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read token response body. %+w", err)
 		}
 
 		var tokenResp spotifyTokenResponse
 		if err := json.Unmarshal(body, &tokenResp); err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal token response. %+w", err)
 		}
 
 		gc.spotifyToken = tokenResp.AccessToken
+		// the following does not seem quite correct
 		gc.spotifyTokenExpiry = time.Now().UTC().Add(time.Minute * time.Duration(tokenResp.ExpiresIn-1))
 	}
 	return nil
@@ -74,7 +75,9 @@ func (gc *GenreCache) getSpoticyGenres(artist string) ([]string, error) {
 	genres := []string{}
 
 	if gc.lookupSpotifyGenre {
-		gc.renewSpotifyToken()
+		if err := gc.renewSpotifyToken(); err != nil {
+			return genres, err
+		}
 
 		// find genres
 	}

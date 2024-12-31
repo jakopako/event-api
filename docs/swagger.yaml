@@ -13,6 +13,12 @@ definitions:
       date:
         example: "2021-10-31T19:00:00.000Z"
         type: string
+      genres:
+        example:
+        - german trap
+        items:
+          type: string
+        type: array
       geolocation:
         example:
         - 7.4514512

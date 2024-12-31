@@ -479,6 +479,15 @@ var doc = `{
                     "type": "string",
                     "example": "2021-10-31T19:00:00.000Z"
                 },
+                "genres": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "german trap"
+                    ]
+                },
                 "geolocation": {
                     "type": "array",
                     "items": {
