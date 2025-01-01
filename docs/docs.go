@@ -25,7 +25,7 @@ var doc = `{
     "paths": {
         "/api/events": {
             "get": {
-                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned, ie no past events.",
+                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned if no date is passed, ie no past events.",
                 "consumes": [
                     "application/json"
                 ],
@@ -334,12 +334,6 @@ var doc = `{
                         "type": "integer",
                         "description": "radius around given city in kilometers",
                         "name": "radius",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "date search string",
-                        "name": "date",
                         "in": "query"
                     },
                     {

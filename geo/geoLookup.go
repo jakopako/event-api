@@ -115,8 +115,8 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 
 func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 	client := &http.Client{}
-	url := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(query))
-	req, _ := http.NewRequest("GET", url, nil)
+	requestUrl := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(query))
+	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
 	resp, err := client.Do(req)
 	if err != nil {

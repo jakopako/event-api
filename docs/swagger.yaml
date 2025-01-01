@@ -92,7 +92,8 @@ paths:
       consumes:
       - application/json
       description: This endpoint returns all events matching the search terms. Note
-        that only events from today on will be returned, ie no past events.
+        that only events from today on will be returned if no date is passed, ie no
+        past events.
       parameters:
       - description: title search string
         in: query
@@ -262,10 +263,6 @@ paths:
         in: query
         name: radius
         type: integer
-      - description: date search string
-        in: query
-        name: date
-        type: string
       - description: email
         in: query
         name: email

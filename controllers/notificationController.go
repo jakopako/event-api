@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/models"
+	"github.com/jakopako/event-api/shared"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -29,7 +30,6 @@ import (
 // @Param city query string false "city search string"
 // @Param country query string false "country search string"
 // @Param radius query int false "radius around given city in kilometers"
-// @Param date query string false "date search string"
 // @Param email query string false "email"
 // @Failure 400 {object} string "Failed to parse body"
 // @Failure 500 {object} string "Failed to insert notification"
@@ -45,19 +45,7 @@ func AddNotification(c *fiber.Ctx) error {
 		})
 	}
 	notificationCollection := config.MI.DB.Collection("notifications")
-	// verify date
-	date := ""
-	if dateString := c.Query("date"); dateString != "" {
-		_, err := time.Parse(time.RFC3339, dateString)
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"success": false,
-				"message": "couldn't parse date",
-				"error":   err.Error(),
-			})
-		}
-		date = dateString
-	}
+
 	// verify email
 	email := c.Query("email")
 	if _, err := mail.ParseAddress(email); err != nil {
@@ -67,6 +55,7 @@ func AddNotification(c *fiber.Ctx) error {
 			"error":   err.Error(),
 		})
 	}
+
 	// generate token
 	token, err := generateRandomString(40)
 	if err != nil {
@@ -85,7 +74,6 @@ func AddNotification(c *fiber.Ctx) error {
 			Title:   c.Query("title"),
 			City:    c.Query("city"),
 			Country: c.Query("country"),
-			Date:    date,
 			Radius:  c.QueryInt("radius"),
 			Limit:   10,
 			Page:    1,
@@ -296,7 +284,10 @@ func SendNotifications(c *fiber.Ctx) error {
 
 	for _, n := range results {
 		cursor.Decode(&n)
-		_, total, _, err := fetchEvents(n.Query)
+		// the start date of a notification query is always now, the moment the notification is sent
+		now := time.Now().UTC()
+		n.Query.StartDate = &now
+		_, total, _, err := shared.FetchEvents(n.Query)
 		if err != nil {
 			log.Errorf("couldn't fetch events for query %v", n.Query)
 		}

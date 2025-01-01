@@ -18,7 +18,7 @@ type Event struct {
 	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required,url" example:"http://link.to/source"`
 	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
-	Genres           []string         `bson:"genres,omitempty" json:"genres,omitempty" example:"german trap"`
+	Genres           []string         `bson:"genres" json:"genres" example:"german trap"`
 }
 
 type MongoGeolocation struct {
@@ -48,12 +48,13 @@ type Notification struct {
 }
 
 type Query struct {
-	Title    string `bson:"title" json:"title"`
-	City     string `bson:"city" json:"city"`
-	Country  string `bson:"country" json:"country"`
-	Location string `bson:"location" json:"location"`
-	Date     string `bson:"date" json:"date"`
-	Radius   int    `bson:"radius" json:"radius"`
-	Page     int    `bson:"page" json:"-"`
-	Limit    int64  `bson:"limit" json:"-"`
+	Title     string     `bson:"title" json:"title"`
+	City      string     `bson:"city" json:"city"`
+	Country   string     `bson:"country" json:"country"`
+	Location  string     `bson:"location" json:"location"`
+	StartDate *time.Time `bson:"startDate" json:"startDate"`
+	EndDate   *time.Time `bson:"endDate" json:"endDate"`
+	Radius    int        `bson:"radius" json:"radius"`
+	Page      int        `bson:"page" json:"-"`
+	Limit     int64      `bson:"limit" json:"-"`
 }
