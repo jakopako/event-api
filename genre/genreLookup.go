@@ -19,8 +19,6 @@ import (
 )
 
 // GenreCache defines what is needed for querying and caching artist's genres
-// Contrary to the geolocation cache an in-memory cache probably doesn't make
-// sense for the artist genres since there'd be a looot
 type GenreCache struct {
 	memCache *cache.Cache
 	// we use an extra collection to make search faster
@@ -140,7 +138,6 @@ func (gc *GenreCache) querySpotifyGenres(artist string) ([]string, error) {
 
 	for _, a := range sar.Artists.Items {
 		if strings.Contains(strings.ToLower(artist), strings.ToLower(a.Name)) {
-			// if strings.EqualFold(a.Name, artist) {
 			return a.Genres, nil
 		}
 	}
@@ -205,7 +202,6 @@ func (gc *GenreCache) lookupGenres(ctx context.Context, artist string) ([]string
 
 func InitGenreCache() {
 	// this code assumes that the DB has already been initialized
-
 	GC = &GenreCache{
 		lookupSpotifyGenre: os.Getenv("LOOKUP_SPOTIFY_GENRE") == "true",
 		memCache:           cache.New(10*time.Minute, 15*time.Minute),
