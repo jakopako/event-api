@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/jakopako/event-api/config"
 	_ "github.com/jakopako/event-api/docs"
+	"github.com/jakopako/event-api/genre"
 	"github.com/jakopako/event-api/geo"
 	"github.com/jakopako/event-api/routes"
 	_ "github.com/joho/godotenv/autoload"
@@ -56,6 +57,7 @@ func main() {
 	// initialize DB and geoloc cache
 	config.ConnectDB()
 	geo.InitGeolocCache()
+	genre.InitGenreCache()
 
 	setupRoutes(app)
 

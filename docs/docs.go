@@ -25,7 +25,7 @@ var doc = `{
     "paths": {
         "/api/events": {
             "get": {
-                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned, ie no past events.",
+                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned if no date is passed, ie no past events.",
                 "consumes": [
                     "application/json"
                 ],
@@ -338,12 +338,6 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "date search string",
-                        "name": "date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
                         "description": "email",
                         "name": "email",
                         "in": "query"
@@ -478,6 +472,15 @@ var doc = `{
                 "date": {
                     "type": "string",
                     "example": "2021-10-31T19:00:00.000Z"
+                },
+                "genres": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "german trap"
+                    ]
                 },
                 "geolocation": {
                     "type": "array",
