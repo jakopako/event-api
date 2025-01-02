@@ -150,7 +150,7 @@ func AddEvents(c *fiber.Ctx) error {
 
 		// lookup genres if not given
 		if len(event.Genres) == 0 {
-			genres, err := genre.LookupGenres(event.Title)
+			genres, err := genre.LookupGenres(ctx, event.Title)
 			if err != nil {
 				errors = append(errors, fiber.Map{
 					"message": fmt.Sprintf("failed to find genre for event %+v", event),

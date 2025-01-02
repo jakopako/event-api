@@ -21,6 +21,11 @@ type Event struct {
 	Genres           []string         `bson:"genres" json:"genres" example:"german trap"`
 }
 
+type TitleGenre struct {
+	Title  string   `bson:"title"`
+	Genres []string `bson:"genres"`
+}
+
 type MongoGeolocation struct {
 	GeoJSONType string    `json:"type" bson:"type,omitempty"`
 	Coordinates []float64 `json:"coordinates" bson:"coordinates,omitempty"`

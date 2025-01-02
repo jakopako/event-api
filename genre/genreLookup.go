@@ -1,6 +1,7 @@
 package genre
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,16 +11,27 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/models"
-	"github.com/jakopako/event-api/shared"
 	cache "github.com/patrickmn/go-cache"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // GenreCache defines what is needed for querying and caching artist's genres
 // Contrary to the geolocation cache an in-memory cache probably doesn't make
 // sense for the artist genres since there'd be a looot
 type GenreCache struct {
-	memCache           *cache.Cache
+	memCache *cache.Cache
+	// we use an extra collection to make search faster
+	// this way we can store all the titles in lowercase and
+	// lowercase the input too when searching for a genre. In
+	// the events collection we want to keep the title's case
+	// so searching we need to use regex every time which is
+	// slow. We're doing that currently in shared.FetchEvents
+	// but there it doesn't matter to much for now since these
+	// are mostly user-triggered queries.
+	genresColl         *mongo.Collection
 	lookupSpotifyGenre bool
 	spotifyToken       string
 	spotifyTokenExpiry time.Time
@@ -136,27 +148,29 @@ func (gc *GenreCache) querySpotifyGenres(artist string) ([]string, error) {
 	return []string{}, nil
 }
 
-func (gc *GenreCache) queryDBGenres(artist string) ([]string, error) {
+func (gc *GenreCache) queryDBGenres(ctx context.Context, artist string) []string {
 	// different results for list in non-error case:
 	// - nil : we have never queried the genres for that artist
 	// - empty list: we have queried the genres in the past and the answer from Spotify was empty
 	// - non-empty list: we have queried the genres in the past and the answer was non-empty
 	// only in the first case do we want to query Spotify at a later in querySpotifyGenres
-	events, _, _, err := shared.FetchEvents(models.Query{Title: artist, Page: 1, Limit: 10})
+	filter := bson.D{{"title", strings.ToLower(artist)}}
+
+	var result models.TitleGenre
+	err := gc.genresColl.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
-	for _, e := range events {
-		if e.Genres != nil {
-			return e.Genres, nil
-		}
-	}
-
-	return nil, nil
+	return result.Genres
 }
 
-func (gc *GenreCache) lookupGenres(artist string) ([]string, error) {
+func (gc *GenreCache) writeDBGenres(ctx context.Context, artist string, genres []string) {
+	// we ignore errors for now
+	_, _ = gc.genresColl.InsertOne(ctx, models.TitleGenre{Title: strings.ToLower(artist), Genres: genres})
+}
+
+func (gc *GenreCache) lookupGenres(ctx context.Context, artist string) ([]string, error) {
 	if gc.lookupSpotifyGenre {
 		// check cache
 		genresMem, found := gc.memCache.Get(artist)
@@ -165,10 +179,7 @@ func (gc *GenreCache) lookupGenres(artist string) ([]string, error) {
 		}
 
 		// find genres in own database
-		genres, err := gc.queryDBGenres(artist)
-		if err != nil {
-			return nil, err
-		}
+		genres := gc.queryDBGenres(ctx, artist)
 		if genres != nil {
 			gc.memCache.Set(artist, genres, cache.DefaultExpiration)
 			return genres, nil
@@ -179,11 +190,12 @@ func (gc *GenreCache) lookupGenres(artist string) ([]string, error) {
 			return nil, err
 		}
 
-		genres, err = gc.querySpotifyGenres(artist)
+		genres, err := gc.querySpotifyGenres(artist)
 		if err != nil {
 			return nil, err
 		}
 
+		gc.writeDBGenres(ctx, artist, genres)
 		gc.memCache.Set(artist, genres, cache.DefaultExpiration)
 		return genres, nil
 	}
@@ -197,9 +209,10 @@ func InitGenreCache() {
 	GC = &GenreCache{
 		lookupSpotifyGenre: os.Getenv("LOOKUP_SPOTIFY_GENRE") == "true",
 		memCache:           cache.New(10*time.Minute, 15*time.Minute),
+		genresColl:         config.MI.DB.Collection("genres"),
 	}
 }
 
-func LookupGenres(artist string) ([]string, error) {
-	return GC.lookupGenres(artist)
+func LookupGenres(ctx context.Context, artist string) ([]string, error) {
+	return GC.lookupGenres(ctx, artist)
 }
