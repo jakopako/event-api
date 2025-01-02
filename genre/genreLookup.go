@@ -12,12 +12,14 @@ import (
 
 	"github.com/jakopako/event-api/models"
 	"github.com/jakopako/event-api/shared"
+	cache "github.com/patrickmn/go-cache"
 )
 
 // GenreCache defines what is needed for querying and caching artist's genres
 // Contrary to the geolocation cache an in-memory cache probably doesn't make
 // sense for the artist genres since there'd be a looot
 type GenreCache struct {
+	memCache           *cache.Cache
 	lookupSpotifyGenre bool
 	spotifyToken       string
 	spotifyTokenExpiry time.Time
@@ -125,7 +127,8 @@ func (gc *GenreCache) querySpotifyGenres(artist string) ([]string, error) {
 	}
 
 	for _, a := range sar.Artists.Items {
-		if strings.EqualFold(a.Name, artist) {
+		if strings.Contains(strings.ToLower(artist), strings.ToLower(a.Name)) {
+			// if strings.EqualFold(a.Name, artist) {
 			return a.Genres, nil
 		}
 	}
@@ -155,12 +158,19 @@ func (gc *GenreCache) queryDBGenres(artist string) ([]string, error) {
 
 func (gc *GenreCache) lookupGenres(artist string) ([]string, error) {
 	if gc.lookupSpotifyGenre {
+		// check cache
+		genresMem, found := gc.memCache.Get(artist)
+		if found {
+			return genresMem.([]string), nil
+		}
+
 		// find genres in own database
 		genres, err := gc.queryDBGenres(artist)
 		if err != nil {
 			return nil, err
 		}
 		if genres != nil {
+			gc.memCache.Set(artist, genres, cache.DefaultExpiration)
 			return genres, nil
 		}
 
@@ -169,7 +179,13 @@ func (gc *GenreCache) lookupGenres(artist string) ([]string, error) {
 			return nil, err
 		}
 
-		return gc.querySpotifyGenres(artist)
+		genres, err = gc.querySpotifyGenres(artist)
+		if err != nil {
+			return nil, err
+		}
+
+		gc.memCache.Set(artist, genres, cache.DefaultExpiration)
+		return genres, nil
 	}
 
 	return nil, nil
@@ -180,6 +196,7 @@ func InitGenreCache() {
 
 	GC = &GenreCache{
 		lookupSpotifyGenre: os.Getenv("LOOKUP_SPOTIFY_GENRE") == "true",
+		memCache:           cache.New(10*time.Minute, 15*time.Minute),
 	}
 }
 

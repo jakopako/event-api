@@ -103,7 +103,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Router /api/events [post]
 func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
