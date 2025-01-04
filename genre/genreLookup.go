@@ -137,7 +137,7 @@ func (gc *GenreCache) querySpotifyGenres(artist string) ([]string, error) {
 	}
 
 	for _, a := range sar.Artists.Items {
-		if strings.Contains(strings.ToLower(artist), strings.ToLower(a.Name)) {
+		if strings.EqualFold(artist, a.Name) {
 			return a.Genres, nil
 		}
 	}
@@ -167,18 +167,23 @@ func (gc *GenreCache) writeDBGenres(ctx context.Context, artist string, genres [
 	_, _ = gc.genresColl.InsertOne(ctx, models.TitleGenre{Title: strings.ToLower(artist), Genres: genres})
 }
 
-func (gc *GenreCache) lookupGenres(ctx context.Context, artist string) ([]string, error) {
+func (gc *GenreCache) lookupGenres(ctx context.Context, title string) ([]string, error) {
 	if gc.lookupSpotifyGenre {
+		// TODO try to split the title into multiple artists if necessary/possible
+		// and lookup the genre for each artist. Sometimes titles contain just
+		// one single artist name but sometimes it contains multiple artist names
+		// or even other (irrelevant) text.
+
 		// check cache
-		genresMem, found := gc.memCache.Get(artist)
+		genresMem, found := gc.memCache.Get(title)
 		if found {
 			return genresMem.([]string), nil
 		}
 
 		// find genres in own database
-		genres := gc.queryDBGenres(ctx, artist)
+		genres := gc.queryDBGenres(ctx, title)
 		if genres != nil {
-			gc.memCache.Set(artist, genres, cache.DefaultExpiration)
+			gc.memCache.Set(title, genres, cache.DefaultExpiration)
 			return genres, nil
 		}
 
@@ -187,13 +192,13 @@ func (gc *GenreCache) lookupGenres(ctx context.Context, artist string) ([]string
 			return nil, err
 		}
 
-		genres, err := gc.querySpotifyGenres(artist)
+		genres, err := gc.querySpotifyGenres(title)
 		if err != nil {
 			return nil, err
 		}
 
-		gc.writeDBGenres(ctx, artist, genres)
-		gc.memCache.Set(artist, genres, cache.DefaultExpiration)
+		gc.writeDBGenres(ctx, title, genres)
+		gc.memCache.Set(title, genres, cache.DefaultExpiration)
 		return genres, nil
 	}
 
@@ -209,6 +214,6 @@ func InitGenreCache() {
 	}
 }
 
-func LookupGenres(ctx context.Context, artist string) ([]string, error) {
-	return GC.lookupGenres(ctx, artist)
+func LookupGenres(ctx context.Context, title string) ([]string, error) {
+	return GC.lookupGenres(ctx, title)
 }
