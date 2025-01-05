@@ -482,6 +482,10 @@ var doc = `{
                         "german trap"
                     ]
                 },
+                "genresText": {
+                    "type": "string",
+                    "example": "begleitet von diversen Berner Hip-Hop Acts. Von Trap und Phonk bis zu Afrobeats - Free Quenzy's Produktionen bieten eine breite Palette an Sounds."
+                },
                 "geolocation": {
                     "type": "array",
                     "items": {

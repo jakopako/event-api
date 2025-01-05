@@ -19,6 +19,7 @@ type Event struct {
 	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
 	Genres           []string         `bson:"genres" json:"genres" example:"german trap"`
+	GenresText       string           `bson:"-" json:"genresText,omitempty" example:"begleitet von diversen Berner Hip-Hop Acts. Von Trap und Phonk bis zu Afrobeats - Free Quenzy's Produktionen bieten eine breite Palette an Sounds."`
 }
 
 type TitleGenre struct {

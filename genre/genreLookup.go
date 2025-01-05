@@ -1,6 +1,7 @@
 package genre
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -30,6 +32,7 @@ type GenreCache struct {
 	// but there it doesn't matter to much for now since these
 	// are mostly user-triggered queries.
 	genresColl         *mongo.Collection
+	allGenres          map[string]bool
 	lookupSpotifyGenre bool
 	spotifyToken       string
 	spotifyTokenExpiry time.Time
@@ -162,18 +165,45 @@ func (gc *GenreCache) queryDBGenres(ctx context.Context, artist string) []string
 	return result.Genres
 }
 
+func (gc *GenreCache) extractGenresFromText(genresText string) []string {
+	genres := map[string]bool{}
+	maxTokens := 4
+	genresText = strings.ToLower(strings.ReplaceAll(genresText, "-", " "))
+	genresText = regexp.MustCompile(`[^a-z0-9 ]+`).ReplaceAllString(genresText, "")
+	tokens := strings.Split(genresText, " ")
+	for i := range tokens {
+		for j := 0; j < i+maxTokens && j < len(tokens)-i; j++ {
+			potGenre := strings.Join(tokens[i:i+j+1], " ")
+			if _, found := gc.allGenres[potGenre]; found {
+				genres[potGenre] = true
+			}
+		}
+	}
+
+	genresList := []string{}
+	for g, _ := range genres {
+		genresList = append(genresList, g)
+	}
+	return genresList
+}
+
 func (gc *GenreCache) writeDBGenres(ctx context.Context, artist string, genres []string) {
 	// we ignore errors for now
 	_, _ = gc.genresColl.InsertOne(ctx, models.TitleGenre{Title: strings.ToLower(artist), Genres: genres})
 }
 
-func (gc *GenreCache) lookupGenres(ctx context.Context, title string) ([]string, error) {
+func (gc *GenreCache) lookupGenres(ctx context.Context, event models.Event) ([]string, error) {
 	if gc.lookupSpotifyGenre {
+		genres := gc.extractGenresFromText(event.GenresText)
+		if len(genres) > 0 {
+			return genres, nil
+		}
+
 		// TODO try to split the title into multiple artists if necessary/possible
 		// and lookup the genre for each artist. Sometimes titles contain just
 		// one single artist name but sometimes it contains multiple artist names
 		// or even other (irrelevant) text.
-
+		title := event.Title
 		// check cache
 		genresMem, found := gc.memCache.Get(title)
 		if found {
@@ -181,7 +211,7 @@ func (gc *GenreCache) lookupGenres(ctx context.Context, title string) ([]string,
 		}
 
 		// find genres in own database
-		genres := gc.queryDBGenres(ctx, title)
+		genres = gc.queryDBGenres(ctx, title)
 		if genres != nil {
 			gc.memCache.Set(title, genres, cache.DefaultExpiration)
 			return genres, nil
@@ -205,15 +235,33 @@ func (gc *GenreCache) lookupGenres(ctx context.Context, title string) ([]string,
 	return nil, nil
 }
 
+func loadGenresFromFile() map[string]bool {
+	allGenres := map[string]bool{}
+	file, err := os.Open("genre-data/genres.txt")
+	if err != nil {
+		// we ignore errors and simply return the empty map
+		return allGenres
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		allGenres[strings.ReplaceAll(scanner.Text(), "-", " ")] = true
+	}
+
+	return allGenres
+}
+
 func InitGenreCache() {
 	// this code assumes that the DB has already been initialized
 	GC = &GenreCache{
 		lookupSpotifyGenre: os.Getenv("LOOKUP_SPOTIFY_GENRE") == "true",
 		memCache:           cache.New(10*time.Minute, 15*time.Minute),
 		genresColl:         config.MI.DB.Collection("genres"),
+		allGenres:          loadGenresFromFile(),
 	}
 }
 
-func LookupGenres(ctx context.Context, title string) ([]string, error) {
-	return GC.lookupGenres(ctx, title)
+func LookupGenres(ctx context.Context, event models.Event) ([]string, error) {
+	return GC.lookupGenres(ctx, event)
 }

@@ -19,6 +19,11 @@ definitions:
         items:
           type: string
         type: array
+      genresText:
+        example: begleitet von diversen Berner Hip-Hop Acts. Von Trap und Phonk bis
+          zu Afrobeats - Free Quenzy's Produktionen bieten eine breite Palette an
+          Sounds.
+        type: string
       geolocation:
         example:
         - 7.4514512

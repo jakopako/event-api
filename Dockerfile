@@ -20,6 +20,7 @@ FROM gcr.io/distroless/base-debian10
 # Copy binary and config files from /build 
 # to root folder of scratch container.
 COPY --from=builder ["/build/apiserver", "/"]
+COPY genre-data/genres.txt /genre-data/
 
 ENV IN_CONTAINER=Yes
 
