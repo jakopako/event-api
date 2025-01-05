@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -167,24 +168,14 @@ func (gc *GenreCache) queryDBGenres(ctx context.Context, artist string) []string
 func (gc *GenreCache) extractGenresFromText(genresText string) []string {
 	genres := map[string]bool{}
 	maxTokens := 4
+	genresText = strings.ToLower(strings.ReplaceAll(genresText, "-", " "))
+	genresText = regexp.MustCompile(`[^a-z0-9 ]+`).ReplaceAllString(genresText, "")
 	tokens := strings.Split(genresText, " ")
 	for i := range tokens {
 		for j := 0; j < i+maxTokens && j < len(tokens)-i; j++ {
-			potGenre := strings.ToLower(strings.Join(tokens[i:i+j], " "))
+			potGenre := strings.Join(tokens[i:i+j+1], " ")
 			if _, found := gc.allGenres[potGenre]; found {
 				genres[potGenre] = true
-			}
-
-			// we also try with '-' replaced by ' '
-			potGenreSpace := strings.ReplaceAll(potGenre, "-", " ")
-			if _, found := gc.allGenres[potGenreSpace]; found {
-				genres[potGenreSpace] = true
-			}
-
-			// we also try with ' ' replaced by '-'
-			potGenreDash := strings.ReplaceAll(potGenre, " ", "-")
-			if _, found := gc.allGenres[potGenreDash]; found {
-				genres[potGenreDash] = true
 			}
 		}
 	}
@@ -203,15 +194,15 @@ func (gc *GenreCache) writeDBGenres(ctx context.Context, artist string, genres [
 
 func (gc *GenreCache) lookupGenres(ctx context.Context, event models.Event) ([]string, error) {
 	if gc.lookupSpotifyGenre {
-		// TODO try to split the title into multiple artists if necessary/possible
-		// and lookup the genre for each artist. Sometimes titles contain just
-		// one single artist name but sometimes it contains multiple artist names
-		// or even other (irrelevant) text.
-
 		genres := gc.extractGenresFromText(event.GenresText)
 		if len(genres) > 0 {
 			return genres, nil
 		}
+
+		// TODO try to split the title into multiple artists if necessary/possible
+		// and lookup the genre for each artist. Sometimes titles contain just
+		// one single artist name but sometimes it contains multiple artist names
+		// or even other (irrelevant) text.
 		title := event.Title
 		// check cache
 		genresMem, found := gc.memCache.Get(title)
@@ -255,7 +246,7 @@ func loadGenresFromFile() map[string]bool {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		allGenres[scanner.Text()] = true
+		allGenres[strings.ReplaceAll(scanner.Text(), "-", " ")] = true
 	}
 
 	return allGenres

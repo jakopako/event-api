@@ -28,7 +28,6 @@ eurobeat
 unblack metal
 surf
 nu-disco
-event
 classical
 nasheed
 jovem guarda
@@ -118,6 +117,7 @@ psychedelic folk
 punk rock
 classic rock
 zydeco
+afrobeat
 afrobeats
 salsa
 banda
@@ -449,6 +449,7 @@ black metal
 visual kei
 soundtrack
 axé
+hardcore
 hardcore punk
 western
 blackgaze
@@ -598,3 +599,10 @@ pop rock
 blackened death metal
 shibuya-kei
 electronica
+balkan music
+rap
+goa
+psy trance
+psychedelic trance
+punk
+sevdah
