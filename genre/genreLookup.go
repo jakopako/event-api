@@ -171,17 +171,27 @@ func (gc *GenreCache) extractGenresFromText(genresText string) []string {
 	genresText = strings.ToLower(strings.ReplaceAll(genresText, "-", " "))
 	genresText = regexp.MustCompile(`[^a-z0-9 ]+`).ReplaceAllString(genresText, "")
 	tokens := strings.Split(genresText, " ")
-	for i := range tokens {
-		for j := 0; j < i+maxTokens && j < len(tokens)-i; j++ {
-			potGenre := strings.Join(tokens[i:i+j+1], " ")
-			if _, found := gc.allGenres[potGenre]; found {
-				genres[potGenre] = true
+	for i := 0; i < len(tokens); i++ {
+		prevPotGenre := ""
+		j := i
+		for ; j < i+maxTokens && j < len(tokens); j++ {
+			potGenre := strings.Join(tokens[i:j+1], " ")
+			if _, found := gc.allGenres[potGenre]; !found {
+				if prevPotGenre != "" {
+					break
+				}
+			} else {
+				prevPotGenre = potGenre
 			}
+		}
+		if prevPotGenre != "" {
+			genres[prevPotGenre] = true
+			i = j - 1
 		}
 	}
 
 	genresList := []string{}
-	for g, _ := range genres {
+	for g := range genres {
 		genresList = append(genresList, g)
 	}
 	return genresList
