@@ -197,6 +197,23 @@ func (gc *GenreCache) extractGenresFromText(genresText string) []string {
 	return genresList
 }
 
+func (gc *GenreCache) extractArtistsFromTitle(title string) []string {
+	// this function is still pretty basic and might not work for all cases
+	regex := regexp.MustCompile(`(?i)(?:,|»|:|!|&|and|feat\.|feat|ft|with|vs\.|vs|versus|presenting|presents|performed by|performed|performed live by|performed live|live by|live|live at|live from|live in|live on|live performance|live recording|live version|live vocals|\([^\)]+\)|\[[^\]]+\]|{[^\}]+\}|<.+>)`)
+	title = regex.ReplaceAllString(title, ",")
+	title = strings.ToLower(title)
+	artists := strings.Split(title, ",")
+	j := 0
+	for i := range artists {
+		a := strings.TrimSpace(artists[i])
+		if a != "" {
+			artists[j] = a
+			j++
+		}
+	}
+	return artists[:j]
+}
+
 func (gc *GenreCache) writeDBGenres(ctx context.Context, artist string, genres []string) {
 	// we ignore errors for now
 	_, _ = gc.genresColl.InsertOne(ctx, models.TitleGenre{Title: strings.ToLower(artist), Genres: genres})
@@ -209,36 +226,47 @@ func (gc *GenreCache) lookupGenres(ctx context.Context, event models.Event) ([]s
 			return genres, nil
 		}
 
-		// TODO try to split the title into multiple artists if necessary/possible
-		// and lookup the genre for each artist. Sometimes titles contain just
-		// one single artist name but sometimes it contains multiple artist names
-		// or even other (irrelevant) text.
-		title := event.Title
-		// check cache
-		genresMem, found := gc.memCache.Get(title)
-		if found {
-			return genresMem.([]string), nil
-		}
+		genresMap := map[string]bool{}
+		artists := gc.extractArtistsFromTitle(event.Title)
+		for _, a := range artists {
+			// check cache
+			genresMem, found := gc.memCache.Get(a)
+			if found {
+				for _, g := range genresMem.([]string) {
+					genresMap[g] = true
+				}
+				continue
+			}
 
-		// find genres in own database
-		genres = gc.queryDBGenres(ctx, title)
-		if genres != nil {
-			gc.memCache.Set(title, genres, cache.DefaultExpiration)
-			return genres, nil
-		}
+			// find genres in own database
+			genresA := gc.queryDBGenres(ctx, a)
+			if genresA != nil {
+				gc.memCache.Set(a, genresA, cache.DefaultExpiration)
+				for _, g := range genresA {
+					genresMap[g] = true
+				}
+				continue
+			}
 
-		// query spotify
-		if err := gc.renewSpotifyToken(); err != nil {
-			return nil, err
-		}
+			// query spotify
+			if err := gc.renewSpotifyToken(); err != nil {
+				return nil, err
+			}
 
-		genres, err := gc.querySpotifyGenres(title)
-		if err != nil {
-			return nil, err
-		}
+			genresA, err := gc.querySpotifyGenres(a)
+			if err != nil {
+				return nil, err
+			}
 
-		gc.writeDBGenres(ctx, title, genres)
-		gc.memCache.Set(title, genres, cache.DefaultExpiration)
+			gc.writeDBGenres(ctx, a, genresA)
+			gc.memCache.Set(a, genresA, cache.DefaultExpiration)
+			for _, g := range genresA {
+				genresMap[g] = true
+			}
+		}
+		for g := range genresMap {
+			genres = append(genres, g)
+		}
 		return genres, nil
 	}
 
