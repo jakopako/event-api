@@ -57,7 +57,7 @@ func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{"date", 1}})
 
-	for searchKey, searchValue := range map[string]string{"title": q.Title, "location": q.Location, "country": q.Country} {
+	for searchKey, searchValue := range map[string]string{"title": q.Title, "location": q.Location, "country": q.Country, "type": q.Type} {
 		if searchValue != "" {
 			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
 				searchKey: bson.M{

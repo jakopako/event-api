@@ -51,6 +51,12 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "type search string",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "city search string",
                         "name": "city",
                         "in": "query"

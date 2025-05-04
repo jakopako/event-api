@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -27,6 +28,7 @@ import (
 // @Produce json
 // @Param title query string false "title search string"
 // @Param location query string false "location search string"
+// @Param type query string false "type search string"
 // @Param city query string false "city search string"
 // @Param country query string false "country search string"
 // @Param radius query int false "radius around given city in kilometers"
@@ -66,6 +68,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 		City:      c.Query("city"),
 		Country:   c.Query("country"),
 		Location:  c.Query("location"),
+		Type:      c.Query("type"),
 		StartDate: startDate,
 		EndDate:   endDate,
 		Radius:    radius,
@@ -128,6 +131,9 @@ func AddEvents(c *fiber.Ctx) error {
 			continue
 		}
 
+		// lower case type
+		event.Type = strings.ToLower(event.Type)
+
 		// lookup geolocation if not given
 		if len(event.Geolocation) != 2 {
 			// lookup location based on city AND cache this info to not flood the geoloc service
@@ -148,8 +154,8 @@ func AddEvents(c *fiber.Ctx) error {
 			event.MongoGeolocation.Coordinates = event.Geolocation[:]
 		}
 
-		// lookup genres if not given
-		if len(event.Genres) == 0 {
+		// lookup genres if not given and if the event type is 'concert'
+		if len(event.Genres) == 0 && event.Type == "concert" {
 			genres, err := genre.LookupGenres(ctx, event)
 			if err != nil {
 				errors = append(errors, fiber.Map{

@@ -108,6 +108,10 @@ paths:
         in: query
         name: location
         type: string
+      - description: type search string
+        in: query
+        name: type
+        type: string
       - description: city search string
         in: query
         name: city

@@ -2,8 +2,6 @@ package models
 
 import "time"
 
-type EventType string
-
 type Event struct {
 	Title            string           `bson:"title,omitempty" json:"title,omitempty" validate:"required" example:"ExcitingTitle"`
 	Location         string           `bson:"location,omitempty" json:"location,omitempty" validate:"required" example:"SuperLocation"`
@@ -14,7 +12,7 @@ type Event struct {
 	URL              string           `bson:"url,omitempty" json:"url,omitempty" validate:"required,url" example:"http://link.to/concert/page"`
 	ImageURL         string           `bson:"imageUrl,omitempty" json:"imageUrl,omitempty" validate:"omitempty,url" example:"http://link.to/concert/image.jpg"`
 	Comment          string           `bson:"comment,omitempty" json:"comment,omitempty" example:"Super exciting comment."`
-	Type             EventType        `bson:"type,omitempty" json:"type,omitempty" validate:"required" example:"concert"`
+	Type             string           `bson:"type,omitempty" json:"type,omitempty" validate:"required" example:"concert"`
 	SourceURL        string           `bson:"sourceUrl,omitempty" json:"sourceUrl,omitempty" validate:"required,url" example:"http://link.to/source"`
 	Geolocation      []float64        `bson:"-" json:"geolocation,omitempty" example:"7.4514512,46.9482713"`
 	MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
@@ -58,6 +56,7 @@ type Query struct {
 	City      string     `bson:"city" json:"city"`
 	Country   string     `bson:"country" json:"country"`
 	Location  string     `bson:"location" json:"location"`
+	Type      string     `bson:"type" json:"type"`
 	StartDate *time.Time `bson:"startDate" json:"startDate"`
 	EndDate   *time.Time `bson:"endDate" json:"endDate"`
 	Radius    int        `bson:"radius" json:"radius"`
