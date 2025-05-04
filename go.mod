@@ -1,7 +1,6 @@
 module github.com/jakopako/event-api
 
-go 1.22
-toolchain go1.24.1
+go 1.24
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
