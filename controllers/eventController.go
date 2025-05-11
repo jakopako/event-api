@@ -93,6 +93,43 @@ func GetAllEvents(c *fiber.Ctx) error {
 	})
 }
 
+// ValidateEvents func for validating events without inserting them into the database.
+// @Description This endpoint validates events.
+// @Summary Validate events.
+// @Tags events
+// @Accept json
+// @Produce json
+// @Param message body []models.Event true "Event Info"
+// @Success 200 {object} string "A json with the results"
+// @Failure 400 {object} string "failed to validate events"
+// @Router /api/events/validate [post]
+func ValidateEvents(c *fiber.Ctx) error {
+	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	events := new([]models.Event)
+
+	if err := c.BodyParser(events); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "failed to parse body",
+			"error":   err.Error(),
+		})
+	}
+
+	_, validationErrs := validateAndSanitizeEvents(ctx, events)
+
+	if len(validationErrs) > 0 {
+		return c.Status(400).JSON(fiber.Map{
+			"succes":  false,
+			"message": "some events have not been validated successfully",
+			"errors":  validationErrs,
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "events validated successfully",
+	})
+}
+
 // AddEvent func for adding new events to the database.
 // @Description Add new events to the database.
 // @Summary Add new events.
@@ -101,6 +138,7 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param message body []models.Event true "Event Info"
+// @Success 201 {object} string "A json with the results"
 // @Failure 400 {object} string "failed to parse body"
 // @Failure 500 {object} string "failed to insert events"
 // @Router /api/events [post]
@@ -110,7 +148,6 @@ func AddEvents(c *fiber.Ctx) error {
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
-		//log.Println(err)
 		return c.Status(400).JSON(fiber.Map{
 			"success": false,
 			"message": "failed to parse body",
@@ -118,58 +155,10 @@ func AddEvents(c *fiber.Ctx) error {
 		})
 	}
 
+	validatedEvents, validationErrs := validateAndSanitizeEvents(ctx, events)
+
 	var operations []mongo.WriteModel
-	validate := validator.New()
-	errors := []fiber.Map{}
-	for _, event := range *events {
-		err := validate.Struct(event)
-		if err != nil {
-			errors = append(errors, fiber.Map{
-				"message": fmt.Sprintf("failed to validate event %+v", event),
-				"error":   err.Error(),
-			})
-			continue
-		}
-
-		// lower case type
-		event.Type = strings.ToLower(event.Type)
-
-		// lookup geolocation if not given
-		if len(event.Geolocation) != 2 {
-			// lookup location based on city AND cache this info to not flood the geoloc service
-			// It's the client's responsibility to provide enough info (ie country if necessary)
-			// for the following function to find the right coordinates
-			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
-			if err != nil {
-				errors = append(errors, fiber.Map{
-					"message": fmt.Sprintf("failed to find city location of city %s for event %+v", event.City, event),
-					"error":   err.Error(),
-				})
-				continue
-			}
-			event.MongoGeolocation = *geoLoc
-
-		} else {
-			event.MongoGeolocation.GeoJSONType = "Point"
-			event.MongoGeolocation.Coordinates = event.Geolocation[:]
-		}
-
-		// lookup genres if not given and if the event type is 'concert'
-		if len(event.Genres) == 0 && event.Type == "concert" {
-			genres, err := genre.LookupGenres(ctx, event)
-			if err != nil {
-				errors = append(errors, fiber.Map{
-					"message": fmt.Sprintf("failed to find genre for event %+v", event),
-					"error":   err.Error(),
-				})
-			}
-			event.Genres = genres
-		}
-
-		// add offset
-		_, offset := event.Date.Zone()
-		event.Offset = offset
-
+	for _, event := range *validatedEvents {
 		op := mongo.NewReplaceOneModel()
 		// The filter ignores the comment assuming that the comment might be updated over time.
 		// In future versions we might need to take more factors into account to decide whether
@@ -202,12 +191,12 @@ func AddEvents(c *fiber.Ctx) error {
 		}
 	}
 
-	if len(errors) > 0 {
+	if len(validationErrs) > 0 {
 		return c.Status(400).JSON(fiber.Map{
 			"succes":  false,
 			"data":    result,
 			"message": "some events were not inserted successfully into the database",
-			"errors":  errors,
+			"errors":  validationErrs,
 		})
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
@@ -421,4 +410,66 @@ func GetMarkdownSummary(events []models.Event) string {
 		result += fmt.Sprintf("<%s|%s> @%s, %s\n", c.URL, c.Title, c.Location, c.Date)
 	}
 	return result
+}
+
+// validateAndSanitizeEvents validates and sanitizes events
+func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]models.Event, []fiber.Map) {
+	validate := validator.New()
+	validationErrs := []fiber.Map{}
+	validatedEvents := []models.Event{}
+
+	for _, event := range *events {
+		err := validate.Struct(event)
+		if err != nil {
+			validationErrs = append(validationErrs, fiber.Map{
+				"message": fmt.Sprintf("failed to validate event %+v", event),
+				"error":   err.Error(),
+			})
+			continue
+		}
+
+		// lower case type
+		event.Type = strings.ToLower(event.Type)
+
+		// lookup geolocation if not given
+		if len(event.Geolocation) != 2 {
+			// lookup location based on city AND cache this info to not flood the geoloc service
+			// It's the client's responsibility to provide enough info (ie country if necessary)
+			// for the following function to find the right coordinates
+			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
+			if err != nil {
+				validationErrs = append(validationErrs, fiber.Map{
+					"message": fmt.Sprintf("failed to find relevant coordinates for {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
+					"error":   err.Error(),
+				})
+				continue
+			}
+			event.MongoGeolocation = *geoLoc
+
+		} else {
+			event.MongoGeolocation.GeoJSONType = "Point"
+			event.MongoGeolocation.Coordinates = event.Geolocation[:]
+		}
+
+		// lookup genres if not given and if the event type is 'concert'
+		if len(event.Genres) == 0 && event.Type == "concert" {
+			genres, err := genre.LookupGenres(ctx, event)
+			if err != nil {
+				validationErrs = append(validationErrs, fiber.Map{
+					"message": fmt.Sprintf("failed to find genre for event %+v", event),
+					"error":   err.Error(),
+				})
+			}
+			event.Genres = genres
+		}
+
+		// add offset
+		_, offset := event.Date.Zone()
+		event.Offset = offset
+
+		// append to validated events
+		validatedEvents = append(validatedEvents, event)
+	}
+
+	return &validatedEvents, validationErrs
 }

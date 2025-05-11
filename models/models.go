@@ -41,6 +41,7 @@ type NominatimPlace struct {
 	Lon         string  `json:"lon"`
 	DisplayName string  `json:"display_name"`
 	Importance  float64 `json:"importance"`
+	AddressType string  `json:"addresstype"`
 }
 
 type Notification struct {

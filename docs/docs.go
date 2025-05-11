@@ -142,6 +142,12 @@ var doc = `{
                     }
                 ],
                 "responses": {
+                    "201": {
+                        "description": "A json with the results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     "400": {
                         "description": "failed to parse body",
                         "schema": {
@@ -219,6 +225,49 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "A json with the results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/validate": {
+            "post": {
+                "description": "This endpoint validates events.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Validate events.",
+                "parameters": [
+                    {
+                        "description": "Event Info",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Event"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A json with the results",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "failed to validate events",
                         "schema": {
                             "type": "string"
                         }
