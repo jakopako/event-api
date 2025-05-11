@@ -36,14 +36,16 @@ func main() {
 	app.Use(logger.New(logger.Config{
 		Format: "[${time}] ${status} ${latency} ${method} ${url}\n",
 	}))
+
 	app.Use(limiter.New(limiter.Config{
 		Next: func(c *fiber.Ctx) bool {
-			return !strings.HasPrefix(c.Path(), "/api/notifications")
+			return !strings.HasPrefix(c.Path(), "/api/notifications") && !strings.HasPrefix(c.Path(), "/api/events/validate")
 		},
 		Max:               20,
 		Expiration:        1 * time.Minute,
 		LimiterMiddleware: limiter.SlidingWindow{},
 	}))
+
 	app.Use(cache.New(cache.Config{
 		Next: func(c *fiber.Ctx) bool {
 			return (c.Path() == "/api/events" && (c.Method() == "POST" || c.Method() == "DELETE")) || strings.HasPrefix(c.Path(), "/api/notifications")

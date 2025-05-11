@@ -168,6 +168,10 @@ paths:
       produces:
       - application/json
       responses:
+        "201":
+          description: A json with the results
+          schema:
+            type: string
         "400":
           description: failed to parse body
           schema:
@@ -219,6 +223,34 @@ paths:
           schema:
             type: string
       summary: Get today's events.
+      tags:
+      - events
+  /api/events/validate:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint validates events.
+      parameters:
+      - description: Event Info
+        in: body
+        name: message
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/models.Event'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: A json with the results
+          schema:
+            type: string
+        "400":
+          description: failed to validate events
+          schema:
+            type: string
+      summary: Validate events.
       tags:
       - events
   /api/notifications/activate:

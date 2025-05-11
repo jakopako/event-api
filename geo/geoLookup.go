@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"slices"
+
 	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/models"
 	"go.mongodb.org/mongo-driver/bson"
@@ -133,17 +135,17 @@ func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 	}
 	// try to figure out whether the result is unambiguous enough
 	j := 0
-	max := 2
-	if len(places) < max {
-		max = len(places)
-	}
+	max := min(len(places), 2)
 	countries := map[string]bool{}
-	for i := 0; i < max; i++ {
-		if places[i].Importance > 0.4 || max == 1 {
-			places[j] = places[i]
-			j++
-			tokens := strings.Split(places[i].DisplayName, ", ")
-			countries[tokens[len(tokens)-1]] = true
+	for i := range max {
+		// extract country from display name and filter out irrelevant results
+		if isValidAddressType(places[i].AddressType) {
+			if places[i].Importance > 0.4 || max == 1 {
+				places[j] = places[i]
+				j++
+				tokens := strings.Split(places[i].DisplayName, ", ")
+				countries[tokens[len(tokens)-1]] = true
+			}
 		}
 	}
 	places = places[:j]
@@ -166,4 +168,10 @@ func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 		}
 	}
 	return nil, fmt.Errorf("no relevant coordinates found for %s", query)
+}
+
+func isValidAddressType(addressType string) bool {
+	// we only want to accept cities, towns and villages
+	validTypes := []string{"city", "town", "village"}
+	return slices.Contains(validTypes, addressType)
 }
