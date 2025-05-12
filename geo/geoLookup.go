@@ -16,6 +16,7 @@ import (
 
 	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/models"
+	cache "github.com/patrickmn/go-cache"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -23,9 +24,15 @@ import (
 )
 
 type GeolocCache struct {
+	// for memCache it's ok to use a map since we only
+	// add existing locations to it and there are only so many locations
+	// in the world.
 	memCache map[string]*models.MongoGeolocation
-	cityColl *mongo.Collection
-	mu       sync.RWMutex
+	// for the negative cache (non-existing locations) we use a cache library
+	// to be able to set expiration times and not worry about memory
+	negMemCache *cache.Cache
+	cityColl    *mongo.Collection
+	mu          sync.RWMutex
 }
 
 var GC *GeolocCache
@@ -33,8 +40,9 @@ var GC *GeolocCache
 func InitGeolocCache() {
 	// this code assumes that the DB has already been initialized
 	GC = &GeolocCache{
-		memCache: make(map[string]*models.MongoGeolocation),
-		cityColl: config.MI.DB.Collection("cities"),
+		memCache:    make(map[string]*models.MongoGeolocation),
+		negMemCache: cache.New(10*time.Minute, 15*time.Minute),
+		cityColl:    config.MI.DB.Collection("cities"),
 	}
 }
 
@@ -66,8 +74,17 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 	// fetch if not in database and write
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
+			// check if we've gotten a negative result from nominatim in the past
+			nominatimErr, found := GC.negMemCache.Get(searchKey)
+			if found {
+				return nil, nominatimErr.(error)
+			}
+
 			geoLoc, err := fetchGeolocFromNominatim(searchKey)
 			if err != nil {
+				// write error to negative cache
+				// we don't want to flood the external service
+				GC.negMemCache.Set(searchKey, err, cache.DefaultExpiration)
 				return nil, err
 			}
 			// write city to database and cache
