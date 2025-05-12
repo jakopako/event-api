@@ -1,610 +1,578 @@
-electroclash
+2-tone
+a cappella
+acid house
+acid jazz
 acid rock
-christian metal
-pop rock
-gothic
-big beat
-psychedelic rock
-funk carioca
-bebop
-dance punk
-trad jazz
-romantic
-andean music
-volksmusik
-coldwave
-gospel blues
-italian folk
-disney
-dark wave
-powerviolence
-bachata
-soft rock
-bubblegum dance
-western swing
-alternative country
-latin pop
-eurobeat
-unblack metal
-surf
-nu-disco
-classical
-nasheed
-jovem guarda
-british blues
-bossa nova
-detroit blues
-rock
-contemporary christian
-dark ambient
-noise rock
-axé
-soca
-dance-rock
-contemporary jazz
-appalachian folk
-humppa
-ambient
-funeral doom
-southern gospel
-video game
-hip hop
-glitch hop
-krautrock
-breakcore
-ska
-traditional folk
-psychedelic trance
-reggae
-noise pop
-drumstep
-house
-teen pop
-sea shanties
-junkanoo
-mandopop
-pre-war blues
-doom metal
-oi-punk
-swamp rock
-crunkcore
-rap rock
-roots
-country rap
-avant-garde
-cumbia
-glam metal
-groove metal
-electric blues
-new orleans rhythm and blues
-canadian hip hop
-freestyle
-deathgrind
-idm
-comedy rock
-art punk
-progg
-work songs
-art pop
-conjunto
-persian
-parody
-jazz-funk
-french hip hop
-spirituals
+acid techno
+acoustic
+acoustic blues
+adult contemporary
 african
-middle-eastern
-minimal
-ranchera
-industrial rock
-electro house
-celtic rock
-death doom
-grupera
-jazz fusion
-political folk
-christian punk
-rapcore
-j-pop
-mashup
-metalcore
-progressive country
-power noise
-hip house
-crossover thrash
-electropop
-psychedelic folk
-punk rock
-classic rock
-zydeco
+african blues
+african folk
 afrobeat
 afrobeats
-salsa
-banda
-chill-out
-morna
-minnesang
-alternative metal
-djent
-african folk
-mambo
-sertanejo
-classic pop
-soul
-australian hip hop
-symphonic rock
-celtic punk
-synthpop
-synth pop
-europop
-funk
-jazz blues
-vocal trance
-celtic fusion
-industrial
-kirtan
-slowcore
-flamenco
-piano blues
-texas blues
+afropop
 aggrotech
-steampunk
-opera
-folktronica
-klezmer
-nwobhm
-goregrind
-rac
-neo-psychedelia
-post-rock
-hard bop
-gypsy jazz
-new orleans blues
-doo-wop
-soul blues
-trap
-indietronica
-psychobilly
-euro disco
-neo-progressive rock
-canterbury
-freak folk
-midwest rap
-instrumental rock
-dance-pop
-avant-garde metal
-edm
-deep house
-progressive bluegrass
-rave
-australian folk
-comic opera
-sunshine pop
-gregorian chant
-psychedelic rock
-honky tonk
-rock 'n' roll
-television
-nintendocore
-jump blues
-roots reggae
-traditional bluegrass
-operatic pop
-skate punk
-reggaeton
-manele
-middle-eastern hip hop
-skiffle
-nsbm
-nu jazz
-disco
-horrorcore
-early music
-post-bop
-gothic rock
-crack rock steady
-easy listening
-psychedelic
-christian
-brutal death metal
-experimental rock
-modern classical
-drum and bass
-dark wave
-dubstep
-grunge
-christian hip hop
-latin jazz
-r&b
-free jazz
-experimental hip hop
-swing
-smooth jazz
-southern metal
-religious
-progressive death metal
-contemporary folk
-j-rock
-jazz
-hamburger schule
-teen pop
-crossover
-italo disco
-deathcore
-blues
-crunk
-jangle pop
-indian classical music
-big band
-proto-punk
-dirty blues
-garage punk
-extreme metal
-folk metal
-neo soul
-electric folk
-synthwave
-arena rock
-post-grunge
-indie rock
-acoustic blues
-native american
-progressive trance
-nu metal
-digital hardcore
-brazilian rock
-funky house
-symphonic black metal
-lounge music
-brega
-trance
-industrial metal
-austropop
-bhangra
-new wave
-neoclassical
-post-metal
-dub
-industrial metal
-irish folk
-deutschrock
-gypsy
-dark electro
-alternative hip hop
-mbaqanga
-swamp blues
-french pop
-tango
-rockabilly
-old-time music
-blues rock
-scottish folk
-indie folk
-nazi-punk
-deutschpunk
-piedmont blues
-beatbox
-worship
-heavy metal
-underground hip  hop
-mixed
-electro
-tropicalismo
-jazz fusion
-worldbeat
-hill country blues
-a cappella
-dixieland
-hi-nrg
-punk blues
-anti-folk
-east coast blues
-polka
-mod revival
-soundtrack/musical
-movie
-outlaw country
-rock against communism
-barbershop
-math rock
-avant-garde
-psychedelic pop
-synthpop
-post-punk
-queercore
-death metal
-political hip hop
-thrashcore
-acid house
-post-hardcore
-electro-industrial
-rio
-southern hip hop
-filk
-duranguense
-latin hip hop
-pop punk
-space rock
-j-rap
-deep house
-baroque pop
-chiptune
-heartland rock
-dancehall
-experimental pop
-adult contemporary
-boogie woogie
-country pop
-power pop
-west coast hip hop
-thrash metal
-avant-pop
-enka
-k-pop
-post-britpop
-vocalese
-volkslied
-reggae fusion
-funk rock
-tech house
-adult contemporary
-death 'n' roll
-russian rock
-latin rock
-folk punk
-west coast blues
-progressive black metal
-progressive metal
-cajun
-sophisti-pop
-rock 'n' roll
-post-punk
-symphonic metal
-beat
-alternative rock
-art rock
-bakersfield sound
-indie pop
-folk
-acid jazz
-dream pop
-pop-rap
-eurodance
-vaudeville
-louisiana blues
-baião
-downtempo
-jug band
-neo-psychedelia
-sufi
-medieval
-singer-songwriter
-outsider music
-pop-folk
-martial industrial
-samba
+alternative country
 alternative dance
-children's music
+alternative hip hop
+alternative metal
+alternative rock
+ambient
+american folk
+americana
 anarcho-punk
-dark rock
-rock en español
+andean music
+anime
+anti-folk
+appalachian folk
+arena rock
+art pop
+art punk
+art rock
+atmospheric black metal
+australian folk
+australian hip hop
+austropop
+avant-garde
+avant-garde metal
+avant-pop
+axé
+bachata
+baião
+bakersfield sound
 balearic beat
-electropunk
-urban contemporary
-ragtime
-british invasion
-bubblegum pop
-rap metal
-soundtrack/television
+balkan music
+ballad
+banda
+barbershop
+baroque
+baroque pop
+beat
+beatbox
+bebop
+bhangra
+big band
+big beat
+black metal
+blackened death metal
+blackgaze
+blue-eyed soul
+bluegrass
+blues
 blues revival
-reggae
-schlager
-dance band
-video game
-crust punk
-cabaret
-ska punk
+blues rock
 bolero
+boogie
+boogie rock
+boogie woogie
+bossa nova
+brazilian rock
+breakbeat
+breakcore
+brega
+british blues
+british invasion
+britpop
+bro-country
+brutal death metal
+bubblegum dance
+bubblegum pop
+cabaret
+cajun
+calypso
 canadian folk
-neofolk
-shoegazing
-acoustic
-modern classical
-swamp pop
+canadian hip hop
+canterbury
+cantopop
 celtic
+celtic folk
+celtic fusion
+celtic punk
+celtic rock
+chamber music
+chanson
+chicago blues
+children's music
+chill-out
+chillwave
+chiptune
+choral
+christian
+christian hardcore
+christian hip hop
+christian hymns
+christian metal
+christian punk
+christian rock
+christian ska
+christmas
+classic female blues
+classic pop
+classic rock
+classical
+coldwave
+comedy
+comedy rock
+comic opera
+conjunto
+contemporary christian
+contemporary folk
+contemporary jazz
+contemporary r&b
+cool jazz
+corrido
+country
+country blues
+country pop
+country rap
+country rock
+cowpunk
+crack rock steady
+crossover
+crossover thrash
+crunk
+crunkcore
+crust punk
+cumbia
+dance
+dance band
+dance punk
+dance-pop
+dance-rock
+dancehall
+dark ambient
+dark cabaret
+dark electro
+dark metal
+dark rock
+dark wave
+death  metal
+death 'n' roll
+death doom
+death metal
+deathcore
+deathgrind
+deathrock
+deep house
+delta blues
+detroit blues
+deutschpunk
+deutschrock
+digital hardcore
+dirty blues
+disco
+disney
+dixieland
+djent
+doo-wop
+doom metal
+downtempo
+dream pop
+drone doom
+drone music
+drum and bass
+drumstep
+dub
+dubstep
+duranguense
+early music
+east coast blues
+east coast hip hop
+easy listening
+ebm
+edm
+electric blues
+electric folk
+electro
+electro house
+electro swing
+electro-industrial
+electroclash
+electronic
+electronic rock
+electronica
+electronicore
+electropop
+electropunk
+elektro
+emo
+english folk
+enka
+ethereal wave
+euro disco
+eurobeat
+eurodance
+europop
+exotica
+experimental
+experimental hip hop
+experimental pop
+experimental rock
+extreme metal
+fado
+filk
+finnish folk
+flamenco
+folk
+folk metal
+folk punk
+folk rock
+folktronica
+forró
+francophone
+freak folk
+free jazz
+freestyle
+french hip hop
+french house
+french pop
+funeral doom
+funk
+funk carioca
+funk melody
+funk metal
+funk rock
+funky house
+future garage
 futurepop
 g-funk
-norteño
-orchestral
-boogie rock
-tejano
-new age
-soul jazz
-cantopop
-progressive metalcore
-mathcore
-new rave
-neue deutsche welle
-delta blues
-lo-fi
-poetry
-hatecore
-chanson
-underground hip hop
-pirate metal
-trip hop
-fado
-americana
-hardcore hip hop
-post-industrial
-grime
-southern rock
-grindcore
-musical
-hard trance
-ska punk
-post-rock
-uk garage
-melodic metalcore
-black metal
-visual kei
-soundtrack
-axé
-hardcore
-hardcore punk
-western
-blackgaze
-christian rock
-technical death metal
-christian hardcore
-christmas
-breakbeat
-francophone
-choral
-progressive folk
-mystic folk
-melodic death metal
-horror punk
-country blues
-nederpop
-post-hardcore
-future garage
-techno
-swiss rock
-dance-pop
-electronicore
-post-punk revival
-glitch
-calypso
-ragga
-britpop
-rock opera
-cowpunk
-la confusion des genres
-alternative rock
-surf rock
-ballad
-latin
-contemporary r&b
-forró
-ethereal wave
-electro swing
-novelty
-funk melody
-punk cabaret
-symphonic metal
-pop
-paisley underground
-neue deutsche härte
-glam rock
-nerdcore hip hop
-bluegrass
-hardstyle
-happy hardcore
-baroque
-speed metal
-country
-electropop
-memphis blues
-pagan metal
-horror punk
-mariachi
-singer-songwriter
-children's music
-boogie
-gothic metal
-electronic rock
-emo
-gospel
-ebm
-roots rock
-vocal
-celtic folk
-electronic
-death  metal
 gabber
-deathrock
-experimental
-spoken word
-screamo
-finnish folk
-singer only
-new jack swing
-acid techno
-corrido
-english folk
-american folk
-raï
-drone doom
-hard rock
-piano rock
-hawaiian
-humppa
-east coast hip hop
-gypsy punk
-country rock
-jazz
-mpb
-harmonica blues
-melodic hardcore
-string band
-anime
-nu metalcore
-progressive  rock
-garage rock
-dance
-reggae rock
-contemporary christian
-sludge metal
-minimal techno
-folk rock
-drone music
-stoner rock
-speedcore
-chillwave
-riot grrrl
-chamber music
-cool jazz
-noise
-vocal jazz
-progressive rock
-afropop
-bro-country
-goa trance
-2-tone
-miami bass
-quiet storm
-pub rock
-power metal
-blue-eyed soul
-viking metal
 gangsta rap
-country pop
-exotica
-christian ska
-jam band
-chicago blues
-street punk
-funk metal
-rap  metal
-christian hymns
-classic female blues
-kizomba
-comedy
-dark cabaret
-french house
-progressive house
-african blues
-atmospheric black metal
-pop rock
-blackened death metal
-shibuya-kei
-electronica
-balkan music
-rap
+garage punk
+garage rock
+glam metal
+glam rock
+glitch
+glitch hop
 goa
+goa trance
+goregrind
+gospel
+gospel blues
+gothic
+gothic metal
+gothic rock
+gregorian chant
+grime
+grindcore
+groove metal
+grunge
+grupera
+gypsy
+gypsy jazz
+gypsy punk
+hamburger schule
+happy hardcore
+hard bop
+hard rock
+hard trance
+hardcore
+hardcore hip hop
+hardcore punk
+hardstyle
+harmonica blues
+hatecore
+hawaiian
+heartland rock
+heavy metal
+hi-nrg
+hill country blues
+hip hop
+hip house
+honky tonk
+horror punk
+horrorcore
+house
+humppa
+idm
+indian classical music
+indie folk
+indie pop
+indie rock
+indietronica
+industrial
+industrial metal
+industrial rock
+instrumental rock
+irish folk
+italian folk
+italo disco
+j-pop
+j-rap
+j-rock
+jam band
+jangle pop
+jazz
+jazz blues
+jazz fusion
+jazz-funk
+jovem guarda
+jug band
+jump blues
+junkanoo
+k-pop
+kirtan
+kizomba
+klezmer
+krautrock
+la confusion des genres
+latin
+latin hip hop
+latin jazz
+latin pop
+latin rock
+lo-fi
+louisiana blues
+lounge music
+mambo
+mandopop
+manele
+mariachi
+martial industrial
+mashup
+math rock
+mathcore
+mbaqanga
+medieval
+melodic death metal
+melodic hardcore
+melodic metalcore
+memphis blues
+metalcore
+miami bass
+middle-eastern
+middle-eastern hip hop
+midwest rap
+minimal
+minimal techno
+minnesang
+mixed
+mod revival
+modern classical
+morna
+movie
+mpb
+musical
+mystic folk
+nasheed
+native american
+nazi-punk
+nederpop
+neo soul
+neo-progressive rock
+neo-psychedelia
+neoclassical
+neofolk
+nerdcore hip hop
+neue deutsche härte
+neue deutsche welle
+new age
+new jack swing
+new orleans blues
+new orleans rhythm and blues
+new rave
+new wave
+nintendocore
+noise
+noise pop
+noise rock
+norteño
+novelty
+nsbm
+nu jazz
+nu metal
+nu metalcore
+nu-disco
+nwobhm
+oi-punk
+old-time music
+opera
+operatic pop
+orchestral
+outlaw country
+outsider music
+pagan metal
+paisley underground
+parody
+persian
+piano blues
+piano rock
+piedmont blues
+pirate metal
+poetry
+political folk
+political hip hop
+polka
+pop
+pop punk
+pop rock
+pop-folk
+pop-rap
+post-bop
+post-britpop
+post-grunge
+post-hardcore
+post-industrial
+post-metal
+post-punk
+post-punk revival
+post-rock
+power metal
+power noise
+power pop
+powerviolence
+pre-war blues
+progg
+progressive  rock
+progressive black metal
+progressive bluegrass
+progressive country
+progressive death metal
+progressive folk
+progressive house
+progressive metal
+progressive metalcore
+progressive rock
+progressive trance
+proto-punk
 psy trance
+psychedelic
+psychedelic folk
+psychedelic pop
+psychedelic rock
 psychedelic trance
+psychobilly
+pub rock
 punk
+punk blues
+punk cabaret
+punk rock
+queercore
+quiet storm
+r&b
+rac
+ragga
+ragtime
+ranchera
+rap
+rap  metal
+rap metal
+rap rock
+rapcore
+rave
+raï
+reggae
+reggae fusion
+reggae rock
+reggaeton
+religious
+rio
+riot grrrl
+rock
+rock 'n' roll
+rock against communism
+rock en español
+rock opera
+rockabilly
+romantic
+roots
+roots reggae
+roots rock
+russian rock
+salsa
+samba
+schlager
+scottish folk
+screamo
+sea shanties
+sertanejo
 sevdah
-elektro
+shibuya-kei
+shoegazing
+singer only
+singer-songwriter
+ska
+ska punk
+skate punk
+skiffle
+slowcore
+sludge metal
+smooth jazz
+soca
+soft rock
+sophisti-pop
+soul
+soul blues
+soul jazz
+soundtrack
+soundtrack/musical
+soundtrack/television
+southern gospel
+southern hip hop
+southern metal
+southern rock
+space rock
+speed metal
+speedcore
+spirituals
+spoken word
+steampunk
+stoner rock
+street punk
+string band
+sufi
+sunshine pop
+surf
+surf rock
+swamp blues
+swamp pop
+swamp rock
+swing
+swiss rock
+symphonic black metal
+symphonic metal
+symphonic rock
+synth pop
+synthpop
+synthwave
+tango
+tech house
+technical death metal
+techno
+teen pop
+tejano
+television
+texas blues
+thrash metal
+thrashcore
+trad jazz
+traditional bluegrass
+traditional folk
+trance
+trap
+trip hop
+tropicalismo
+uk garage
+unblack metal
+underground hip hop
+urban contemporary
+vaudeville
+video game
+viking metal
+visual kei
+vocal
+vocal jazz
+vocal trance
+vocalese
+volkslied
+volksmusik
+west coast blues
+west coast hip hop
+western
+western swing
+work songs
+worldbeat
+worship
+zydeco

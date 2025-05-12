@@ -115,18 +115,20 @@ func ValidateEvents(c *fiber.Ctx) error {
 		})
 	}
 
-	_, validationErrs := validateAndSanitizeEvents(ctx, events)
+	validatedEvents, validationErrs := validateAndSanitizeEvents(ctx, events)
 
 	if len(validationErrs) > 0 {
 		return c.Status(400).JSON(fiber.Map{
 			"succes":  false,
 			"message": "some events have not been validated successfully",
 			"errors":  validationErrs,
+			"data":    validatedEvents,
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "events validated successfully",
+		"success":         true,
+		"message":         "events validated successfully",
+		"validatedEvents": validatedEvents,
 	})
 }
 

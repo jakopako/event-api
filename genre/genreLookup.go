@@ -169,7 +169,19 @@ func (gc *GenreCache) extractGenresFromText(genresText string) []string {
 	genres := map[string]bool{}
 	maxTokens := 4
 	genresText = strings.ToLower(strings.ReplaceAll(genresText, "-", " "))
+	// replace letters with accents and umlauts
+	genresText = strings.ReplaceAll(genresText, "ä", "a")
+	genresText = strings.ReplaceAll(genresText, "ö", "o")
+	genresText = strings.ReplaceAll(genresText, "ü", "u")
+	genresText = strings.ReplaceAll(genresText, "é", "e")
+	genresText = strings.ReplaceAll(genresText, "è", "e")
+	genresText = strings.ReplaceAll(genresText, "ê", "e")
+	genresText = strings.ReplaceAll(genresText, "à", "a")
+	genresText = strings.ReplaceAll(genresText, "á", "a")
+	genresText = strings.ReplaceAll(genresText, "â", "a")
+
 	genresText = regexp.MustCompile(`[^a-z0-9 ]+`).ReplaceAllString(genresText, "")
+
 	tokens := strings.Split(genresText, " ")
 	for i := 0; i < len(tokens); i++ {
 		prevPotGenre := ""
