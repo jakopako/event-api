@@ -212,9 +212,13 @@ paths:
   /api/events/today/slack:
     post:
       consumes:
-      - application/json
-      description: This endpoint returns today's events in a format that slack needs
-        for its slash command. Currently, Zurich is hardcoded as city (will be changed).
+      - application/x-www-form-urlencoded
+      description: This endpoint returns today's events for a given city in a format
+        that slack needs for its slash command.
+      parameters:
+      - in: formData
+        name: text
+        type: string
       produces:
       - application/json
       responses:

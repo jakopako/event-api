@@ -64,3 +64,7 @@ type Query struct {
 	Page      int        `bson:"page" json:"-"`
 	Limit     int64      `bson:"limit" json:"-"`
 }
+
+type SlackRequest struct {
+	Text string `json:"text" form:"text"`
+}

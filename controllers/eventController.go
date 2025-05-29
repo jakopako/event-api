@@ -210,11 +210,12 @@ func AddEvents(c *fiber.Ctx) error {
 }
 
 // GetTodayseventsSlack func for retrieving today's events, formatted as md for slack.
-// @Description This endpoint returns today's events in a format that slack needs for its slash command. Currently, Zurich is hardcoded as city (will be changed).
+// @Description This endpoint returns today's events for a given city in a format that slack needs for its slash command.
 // @Summary Get today's events.
 // @Tags events
-// @Accept json
+// @Accept x-www-form-urlencoded
 // @Produce json
+// @Param slackRequest formData models.SlackRequest true "Slack Request Info"
 // @Success 200 {object} string "A json with the results"
 // @Router /api/events/today/slack [post]
 func GetTodaysEventsSlack(c *fiber.Ctx) error {
@@ -222,22 +223,35 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var events []models.Event
-	d := time.Now()
-	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
-	tomorrow := time.Date(d.Year(), d.Month(), d.Day()+1, 0, 0, 0, 0, d.Location())
+	now := time.Now()
+	plus24h := now.Add(24 * time.Hour)
+	s := new(models.SlackRequest)
+	if err := c.BodyParser(s); err != nil {
+		fmt.Println("Error parsing request body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"response_type": "ephemeral",
+			"text":          "Failed to parse request body.",
+		})
+	}
 
-	city := "zurich" // TODO: read from post body.
+	city := strings.TrimSpace(s.Text)
+	if city == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"response_type": "ephemeral",
+			"text":          "Please provide a city.",
+		})
+	}
 
 	filter := bson.M{
 		"$and": []bson.M{
 			{
 				"date": bson.M{
-					"$gte": today,
+					"$gte": now,
 				},
 			},
 			{
 				"date": bson.M{
-					"$lte": tomorrow,
+					"$lte": plus24h,
 				},
 			},
 			{
@@ -258,7 +272,7 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	if total == 0 {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"response_type": "ephemeral",
-			"text":          "Sorry, no events tonight.",
+			"text":          fmt.Sprintf("Sorry, no events tonight for %s.", city),
 		})
 	}
 

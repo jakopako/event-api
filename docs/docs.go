@@ -211,9 +211,9 @@ var doc = `{
         },
         "/api/events/today/slack": {
             "post": {
-                "description": "This endpoint returns today's events in a format that slack needs for its slash command. Currently, Zurich is hardcoded as city (will be changed).",
+                "description": "This endpoint returns today's events for a given city in a format that slack needs for its slash command.",
                 "consumes": [
-                    "application/json"
+                    "application/x-www-form-urlencoded"
                 ],
                 "produces": [
                     "application/json"
@@ -222,6 +222,13 @@ var doc = `{
                     "events"
                 ],
                 "summary": "Get today's events.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "text",
+                        "in": "formData"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "A json with the results",
