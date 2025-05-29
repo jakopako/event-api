@@ -227,7 +227,6 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	plus24h := now.Add(24 * time.Hour)
 	s := new(models.SlackRequest)
 	if err := c.BodyParser(s); err != nil {
-		fmt.Println("Error parsing request body:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"response_type": "ephemeral",
 			"text":          "Failed to parse request body.",
