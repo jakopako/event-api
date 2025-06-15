@@ -24,15 +24,18 @@ import (
 )
 
 type GeolocCache struct {
-	// for memCache it's ok to use a map since we only
+	// for cityMemCache it's ok to use a map since we only
 	// add existing locations to it and there are only so many locations
 	// in the world.
-	memCache map[string]*models.MongoGeolocation
-	// for the negative cache (non-existing locations) we use a cache library
+	cityMemCache map[string]*models.MongoGeolocation
+	// for the negative cache (non-existing locations & cities) we use a cache library
 	// to be able to set expiration times and not worry about memory
-	negMemCache *cache.Cache
-	cityColl    *mongo.Collection
-	mu          sync.RWMutex
+	negMemCache   *cache.Cache
+	cityColl      *mongo.Collection
+	cityMu        sync.RWMutex
+	venueMemCache map[string]*models.Venue
+	venueColl     *mongo.Collection
+	venueMu       sync.RWMutex
 }
 
 var GC *GeolocCache
@@ -40,9 +43,11 @@ var GC *GeolocCache
 func InitGeolocCache() {
 	// this code assumes that the DB has already been initialized
 	GC = &GeolocCache{
-		memCache:    make(map[string]*models.MongoGeolocation),
-		negMemCache: cache.New(10*time.Minute, 15*time.Minute),
-		cityColl:    config.MI.DB.Collection("cities"),
+		cityMemCache:  make(map[string]*models.MongoGeolocation),
+		negMemCache:   cache.New(10*time.Minute, 15*time.Minute),
+		cityColl:      config.MI.DB.Collection("cities"),
+		venueMemCache: make(map[string]*models.Venue),
+		venueColl:     config.MI.DB.Collection("venues"),
 	}
 }
 
@@ -58,17 +63,18 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 	searchKey = strings.ReplaceAll(searchKey, " ", "+")
 
 	// check memory cache
-	GC.mu.RLock()
-	coords, found := GC.memCache[searchKey]
-	GC.mu.RUnlock()
+	GC.cityMu.RLock()
+	coords, found := GC.cityMemCache[searchKey]
+	GC.cityMu.RUnlock()
 	if found {
 		return coords, nil
 	}
 
 	// check database
-	filter := bson.D{{"name", city}, {"country", country}}
+	filter := bson.D{{Key: "name", Value: city}, {Key: "country", Value: country}}
 	var result models.City
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	err := GC.cityColl.FindOne(ctx, filter).Decode(&result)
 
 	// fetch if not in database and write
@@ -88,9 +94,9 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 				return nil, err
 			}
 			// write city to database and cache
-			GC.mu.Lock()
-			GC.memCache[searchKey] = geoLoc
-			GC.mu.Unlock()
+			GC.cityMu.Lock()
+			GC.cityMemCache[searchKey] = geoLoc
+			GC.cityMu.Unlock()
 			newCity := models.City{Name: city, Country: country, Geolocation: *geoLoc}
 			_, err = GC.cityColl.InsertOne(ctx, newCity)
 			return geoLoc, err
@@ -99,9 +105,9 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 		}
 	}
 	// write to cache
-	GC.mu.Lock()
-	GC.memCache[searchKey] = &result.Geolocation
-	GC.mu.Unlock()
+	GC.cityMu.Lock()
+	GC.cityMemCache[searchKey] = &result.Geolocation
+	GC.cityMu.Unlock()
 	return &result.Geolocation, nil
 }
 
@@ -113,12 +119,13 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	country = strings.ToLower(country)
 	var filter primitive.D
 	if country == "" {
-		filter = bson.D{{"name", city}}
+		filter = bson.D{{Key: "name", Value: city}}
 	} else {
-		filter = bson.D{{"name", city}, {"country", country}}
+		filter = bson.D{{Key: "name", Value: city}, {Key: "country", Value: country}}
 	}
 	var geolocs []*models.MongoGeolocation
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	cursor, err := GC.cityColl.Find(ctx, filter, &options.FindOptions{})
 	if err != nil {
 		return nil, err
@@ -191,4 +198,108 @@ func isValidAddressType(addressType string) bool {
 	// we only want to accept cities, towns and villages
 	validTypes := []string{"city", "town", "village"}
 	return slices.Contains(validTypes, addressType)
+}
+
+// LookupVenueLocation tries to find coordinates for a specific venue (location) in a city using Nominatim.
+// Returns a Venue struct if found, otherwise returns nil and an error.
+func LookupVenueLocation(location, city, country string) (*models.Venue, error) {
+	if location == "" || city == "" {
+		return nil, fmt.Errorf("location and city must be provided for venue lookup")
+	}
+	venueKey := strings.ToLower(location) + "+" + strings.ToLower(city)
+	if country != "" {
+		venueKey += "+" + strings.ToLower(country)
+	}
+	venueKey = strings.ReplaceAll(venueKey, " ", "+")
+
+	// Check memory cache first
+	GC.cityMu.RLock()
+	venueCached, found := GC.venueMemCache[venueKey]
+	GC.cityMu.RUnlock()
+	if found && venueCached != nil {
+		return venueCached, nil
+	}
+
+	// Check database
+	filter := bson.D{{Key: "name", Value: location}, {Key: "city", Value: city}, {Key: "country", Value: country}}
+	var result models.Venue
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err := GC.venueColl.FindOne(ctx, filter).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// If not found in database, query Nominatim
+			venue, err := queryNominatimForVenue(location, city, country)
+			if err != nil {
+				// Cache the error in negative cache to avoid flooding Nominatim
+				GC.negMemCache.Set(venueKey, err, cache.DefaultExpiration)
+				return nil, err
+			}
+			// Cache the venue in memory and database
+			GC.venueMu.Lock()
+			GC.venueMemCache[venueKey] = venue
+			GC.venueMu.Unlock()
+			_, err = GC.venueColl.InsertOne(ctx, venue)
+			if err != nil {
+				return nil, fmt.Errorf("failed to insert venue into database: %w", err)
+			}
+			return venue, nil
+		} else {
+			return nil, fmt.Errorf("failed to find venue in database: %w", err)
+		}
+	}
+	// If found in database, cache it
+	GC.venueMu.Lock()
+	GC.venueMemCache[venueKey] = &result
+	GC.venueMu.Unlock()
+	return &result, nil
+}
+
+func queryNominatimForVenue(location, city, country string) (*models.Venue, error) {
+	client := &http.Client{}
+	params := url.Values{}
+	params.Set("amenity", location)
+	params.Set("city", city)
+	params.Set("format", "jsonv2")
+	if country != "" {
+		params.Set("country", country)
+	}
+	requestUrl := "https://nominatim.openstreetmap.org/search?" + params.Encode()
+	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
+	req.Header.Set("accept-language", "en-US")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	var places []models.NominatimPlace
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(body, &places); err != nil {
+		return nil, err
+	}
+	if len(places) > 0 {
+		lonFloat, err := strconv.ParseFloat(places[0].Lon, 64)
+		if err != nil {
+			return nil, err
+		}
+		latFloat, err := strconv.ParseFloat(places[0].Lat, 64)
+		if err != nil {
+			return nil, err
+		}
+		venue := &models.Venue{
+			Name:     places[0].Name,
+			Locality: city,
+			Country:  country,
+			Geolocacation: models.MongoGeolocation{
+				GeoJSONType: "Point",
+				Coordinates: []float64{lonFloat, latFloat},
+			},
+		}
+
+		return venue, nil
+	}
+	return nil, fmt.Errorf("no relevant coordinates found for venue %s in city %s", location, city)
 }
