@@ -454,21 +454,24 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		// lower case type
 		event.Type = strings.ToLower(event.Type)
 
-		// First, try to lookup venue
-		venue, err := geo.LookupVenueLocation(event.Location, event.City, event.Country)
-		if err == nil && venue != nil {
-			event.Address = venue.Address
+		// Lookup the city coordinates
+		// We need to lookup the city coordinates in order to make sure that the radius search works correctly
+		cityGeoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
+		if err != nil {
+			validationErrs = append(validationErrs, fiber.Map{
+				"message": fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
+				"error":   err.Error(),
+			})
+			continue
+		}
+
+		// Lookup venue
+		address, err := geo.LookupVenueLocation(event.Location, event.City, event.Country)
+		if err == nil && address != nil {
+			event.Address = *address
 		} else {
 			// If venue lookup fails, fall back to city coordinates
-			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
-			if err != nil {
-				validationErrs = append(validationErrs, fiber.Map{
-					"message": fmt.Sprintf("failed to find relevant coordinates for venue '%s' or city {city: \"%s\", country: \"%s\"} (event %+v)", event.Location, event.City, event.Country, event),
-					"error":   err.Error(),
-				})
-				continue
-			}
-			event.Address.Geolocacation = *geoLoc
+			event.Address.Geolocacation = *cityGeoLoc
 		}
 
 		// lookup genres if not given and if the event type is 'concert'

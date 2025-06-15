@@ -18,7 +18,7 @@ type Event struct {
 	// MongoGeolocation MongoGeolocation `bson:"geolocation,omitempty" json:"-"`
 	Genres     []string `bson:"genres" json:"genres" example:"german trap"`
 	GenresText string   `bson:"-" json:"genresText,omitempty" example:"begleitet von diversen Berner Hip-Hop Acts. Von Trap und Phonk bis zu Afrobeats - Free Quenzy's Produktionen bieten eine breite Palette an Sounds."`
-	Address    Address  `bson:"address,omitempty" json:"address,omitempty"`
+	Address    Address  `bson:"address,omitempty" json:"address"`
 }
 
 type TitleGenre struct {
@@ -43,12 +43,12 @@ type Venue struct {
 }
 
 type Address struct {
-	Locality      string           `bson:"locality"`
-	PostalCode    string           `bson:"postalCode"`
-	Street        string           `bson:"street"`
-	Country       string           `bson:"country"`
-	Region        string           `bson:"region"`
-	Geolocacation MongoGeolocation `bson:"geolocation"`
+	Locality      string           `bson:"locality" json:"locality,omitempty"`
+	PostalCode    string           `bson:"postalCode" json:"postalCode,omitempty"`
+	Street        string           `bson:"street" json:"street,omitempty"`
+	Country       string           `bson:"country" json:"country,omitempty"`
+	Region        string           `bson:"region" json:"region,omitempty"`
+	Geolocacation MongoGeolocation `bson:"geolocation" json:"geolocation"`
 }
 
 type NominatimPlace struct {

@@ -221,7 +221,11 @@ func LookupVenueLocation(location, city, country string) (*models.Address, error
 	}
 
 	// Check database
-	filter := bson.D{{Key: "name", Value: location}, {Key: "city", Value: city}, {Key: "country", Value: country}}
+	filter := bson.D{{Key: "name", Value: location}, {Key: "address.locality", Value: city}}
+	if country != "" {
+		filter = append(filter, bson.E{Key: "address.country", Value: country})
+	}
+
 	var result models.Venue
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -281,6 +285,13 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 		return nil, err
 	}
 	if len(places) > 0 {
+		if places[0].AddressType != "amenity" {
+			return nil, fmt.Errorf("first result is not an amenity: %s", places[0].AddressType)
+		}
+
+		// TODO also check the type
+		// e.g.     "type": "bicycle_rental", we don't want that
+
 		lonFloat, err := strconv.ParseFloat(places[0].Lon, 64)
 		if err != nil {
 			return nil, err
@@ -289,13 +300,51 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 		if err != nil {
 			return nil, err
 		}
+
+		// TODO: don't rely on the display name, but rather use the address struct
+		// that is returned by Nominatim when using the "addressdetails=1" parameter.
+		addressParts := strings.Split(places[0].DisplayName, ", ")
+
+		// let's do some sanity checks
+		if len(addressParts) < 5 {
+			return nil, fmt.Errorf("not enough address parts found in display name: %s", places[0].DisplayName)
+		}
+
+		nomCountry := addressParts[len(addressParts)-1]
+		if country != "" && !strings.EqualFold(nomCountry, country) {
+			return nil, fmt.Errorf("country mismatch: expected %s, got %s", country, nomCountry)
+		}
+
+		// addressParts[len(addressParts)-5] is not really always the city, so we compare it for now
+		//
+		// nomCity := addressParts[len(addressParts)-5]
+		// if strings.ToLower(nomCity) != strings.ToLower(city) {
+		// 	return nil, fmt.Errorf("city mismatch: expected %s, got %s", city, nomCity)
+		// }
+
+		nomPostalCode := addressParts[len(addressParts)-2]
+		nomRegion := addressParts[len(addressParts)-3]
+		nomStreet := addressParts[1]
+		// if nomStreet contains digits, append addressParts[2] to it
+		if strings.ContainsAny(nomStreet, "0123456789") && len(addressParts) > 2 {
+			nomStreet += ", " + addressParts[2]
+		}
+
 		venue := &models.Venue{
-			Name:     places[0].Name,
-			Locality: city,
-			Country:  country,
-			Geolocacation: models.MongoGeolocation{
-				GeoJSONType: "Point",
-				Coordinates: []float64{lonFloat, latFloat},
+			// For now, instead of places[0].Name, we use the location parameter.
+			// We assume that if we found a venue in Nominatim, it is the one we are looking for
+			// and we prefer to use the provided location name instead of the one from Nominatim
+			Name: location,
+			Address: models.Address{
+				Locality:   city,
+				Country:    nomCountry,
+				Region:     nomRegion,
+				PostalCode: nomPostalCode,
+				Street:     nomStreet,
+				Geolocacation: models.MongoGeolocation{
+					GeoJSONType: "Point",
+					Coordinates: []float64{lonFloat, latFloat},
+				},
 			},
 		}
 
