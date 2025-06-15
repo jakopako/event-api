@@ -202,7 +202,7 @@ func isValidAddressType(addressType string) bool {
 
 // LookupVenueLocation tries to find coordinates for a specific venue (location) in a city using Nominatim.
 // Returns a Venue struct if found, otherwise returns nil and an error.
-func LookupVenueLocation(location, city, country string) (*models.Venue, error) {
+func LookupVenueLocation(location, city, country string) (*models.Address, error) {
 	if location == "" || city == "" {
 		return nil, fmt.Errorf("location and city must be provided for venue lookup")
 	}
@@ -217,7 +217,7 @@ func LookupVenueLocation(location, city, country string) (*models.Venue, error) 
 	venueCached, found := GC.venueMemCache[venueKey]
 	GC.cityMu.RUnlock()
 	if found && venueCached != nil {
-		return venueCached, nil
+		return &venueCached.Address, nil
 	}
 
 	// Check database
@@ -243,7 +243,7 @@ func LookupVenueLocation(location, city, country string) (*models.Venue, error) 
 			if err != nil {
 				return nil, fmt.Errorf("failed to insert venue into database: %w", err)
 			}
-			return venue, nil
+			return &venue.Address, nil
 		} else {
 			return nil, fmt.Errorf("failed to find venue in database: %w", err)
 		}
@@ -252,7 +252,7 @@ func LookupVenueLocation(location, city, country string) (*models.Venue, error) 
 	GC.venueMu.Lock()
 	GC.venueMemCache[venueKey] = &result
 	GC.venueMu.Unlock()
-	return &result, nil
+	return &result.Address, nil
 }
 
 func queryNominatimForVenue(location, city, country string) (*models.Venue, error) {
