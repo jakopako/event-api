@@ -88,9 +88,9 @@ func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 			if geolocs, err := geo.AllMatchesCityCoordinates(q.City, q.Country); err == nil && len(geolocs) > 0 {
 				earthRadiusKm := 6378.1
 				radiusFilter := bson.D{
-					{"geolocation", bson.D{
-						{"$geoWithin", bson.D{ // we need to use geoWithin for CountDocuments to properly work, see https://www.mongodb.com/docs/manual/reference/method/db.collection.countDocuments/#query-restrictions
-							{"$centerSphere", bson.A{geolocs[0].Coordinates, float64(q.Radius) / earthRadiusKm}},
+					{Key: "address.geolocation", Value: bson.D{
+						{Key: "$geoWithin", Value: bson.D{ // we need to use geoWithin for CountDocuments to properly work, see https://www.mongodb.com/docs/manual/reference/method/db.collection.countDocuments/#query-restrictions
+							{Key: "$centerSphere", Value: bson.A{geolocs[0].Coordinates, float64(q.Radius) / earthRadiusKm}},
 						}},
 					}},
 				}
