@@ -39,25 +39,40 @@ type City struct {
 
 type Venue struct {
 	Name    string  `bson:"name"`
+	Type    string  `bson:"type"`
 	Address Address `bson:"address"`
 }
 
 type Address struct {
 	Locality      string           `bson:"locality" json:"locality,omitempty"`
-	PostalCode    string           `bson:"postalCode" json:"postalCode,omitempty"`
+	PostCode      string           `bson:"postCode" json:"postCode,omitempty"`
 	Street        string           `bson:"street" json:"street,omitempty"`
+	HouseNumber   string           `bson:"houseNumber" json:"houseNumber,omitempty"`
 	Country       string           `bson:"country" json:"country,omitempty"`
-	Region        string           `bson:"region" json:"region,omitempty"`
+	State         string           `bson:"state" json:"state,omitempty"`
 	Geolocacation MongoGeolocation `bson:"geolocation" json:"geolocation"`
 }
 
 type NominatimPlace struct {
-	Lat         string  `json:"lat"`
-	Lon         string  `json:"lon"`
-	Name        string  `json:"name"`
-	DisplayName string  `json:"display_name"`
-	Importance  float64 `json:"importance"`
-	AddressType string  `json:"addresstype"`
+	Lat         string           `json:"lat"`
+	Lon         string           `json:"lon"`
+	Name        string           `json:"name"`
+	DisplayName string           `json:"display_name"`
+	Importance  float64          `json:"importance"`
+	AddressType string           `json:"addresstype"`
+	Type        string           `json:"type"`
+	Address     NominatimAddress `json:"address"`
+}
+
+type NominatimAddress struct {
+	HouseNumber string `json:"house_number"`
+	Road        string `json:"road"`
+	City        string `json:"city"`
+	Town        string `json:"town"`
+	Village     string `json:"village"`
+	State       string `json:"state"`
+	Country     string `json:"country"`
+	Postcode    string `json:"postcode"`
 }
 
 type Notification struct {

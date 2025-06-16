@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -86,7 +87,7 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 				return nil, nominatimErr.(error)
 			}
 
-			geoLoc, err := fetchGeolocFromNominatim(searchKey)
+			geoLoc, err := fetchCityGeolocFromNominatim(searchKey)
 			if err != nil {
 				// write error to negative cache
 				// we don't want to flood the external service
@@ -139,8 +140,12 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	return geolocs, nil
 }
 
-func fetchGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
+func fetchCityGeolocFromNominatim(query string) (*models.MongoGeolocation, error) {
 	client := &http.Client{}
+	// TODO: use same query structure as in LookupVenueLocation
+	// hopefully this will solve the winterthur issue
+	// https://nominatim.openstreetmap.org/search.php?q=winterthur+switzerland&format=jsonv2
+	// doesn't return the proper results
 	requestUrl := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(query))
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
@@ -232,6 +237,12 @@ func LookupVenueLocation(location, city, country string) (*models.Address, error
 	err := GC.venueColl.FindOne(ctx, filter).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
+			// check if we've gotten a negative result from nominatim in the past
+			nominatimErr, found := GC.negMemCache.Get(venueKey)
+			if found {
+				return nil, nominatimErr.(error)
+			}
+
 			// If not found in database, query Nominatim
 			venue, err := queryNominatimForVenue(location, city, country)
 			if err != nil {
@@ -264,6 +275,7 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 	params := url.Values{}
 	params.Set("amenity", location)
 	params.Set("city", city)
+	params.Set("addressdetails", "1")
 	params.Set("format", "jsonv2")
 	if country != "" {
 		params.Set("country", country)
@@ -285,49 +297,36 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 		return nil, err
 	}
 	if len(places) > 0 {
+		// TODO it is not necessary that the first result is an amenity.
+		// e.g. https://nominatim.openstreetmap.org/search?amenity=kammgarn&city=schaffhausen&country=switzerland&format=jsonv2&addressdetails=1
 		if places[0].AddressType != "amenity" {
 			return nil, fmt.Errorf("first result is not an amenity: %s", places[0].AddressType)
 		}
 
-		// TODO also check the type
-		// e.g.     "type": "bicycle_rental", we don't want that
+		place := places[0]
+		slog.Info("Checking amenity type", "type", place.Type, "location", location, "name", place.Name)
+		if !isValidAmenityType(place.Type) {
+			return nil, fmt.Errorf("invalid venue type: %s", place.Type)
+		}
 
-		lonFloat, err := strconv.ParseFloat(places[0].Lon, 64)
+		lonFloat, err := strconv.ParseFloat(place.Lon, 64)
 		if err != nil {
 			return nil, err
 		}
-		latFloat, err := strconv.ParseFloat(places[0].Lat, 64)
+		latFloat, err := strconv.ParseFloat(place.Lat, 64)
 		if err != nil {
 			return nil, err
 		}
 
-		// TODO: don't rely on the display name, but rather use the address struct
-		// that is returned by Nominatim when using the "addressdetails=1" parameter.
-		addressParts := strings.Split(places[0].DisplayName, ", ")
-
-		// let's do some sanity checks
-		if len(addressParts) < 5 {
-			return nil, fmt.Errorf("not enough address parts found in display name: %s", places[0].DisplayName)
+		locality := place.Address.City
+		if locality == "" {
+			locality = place.Address.Town
 		}
-
-		nomCountry := addressParts[len(addressParts)-1]
-		if country != "" && !strings.EqualFold(nomCountry, country) {
-			return nil, fmt.Errorf("country mismatch: expected %s, got %s", country, nomCountry)
+		if locality == "" {
+			locality = place.Address.Village
 		}
-
-		// addressParts[len(addressParts)-5] is not really always the city, so we compare it for now
-		//
-		// nomCity := addressParts[len(addressParts)-5]
-		// if strings.ToLower(nomCity) != strings.ToLower(city) {
-		// 	return nil, fmt.Errorf("city mismatch: expected %s, got %s", city, nomCity)
-		// }
-
-		nomPostalCode := addressParts[len(addressParts)-2]
-		nomRegion := addressParts[len(addressParts)-3]
-		nomStreet := addressParts[1]
-		// if nomStreet contains digits, append addressParts[2] to it
-		if strings.ContainsAny(nomStreet, "0123456789") && len(addressParts) > 2 {
-			nomStreet += ", " + addressParts[2]
+		if locality == "" {
+			locality = city // fallback to the provided city if no locality is found
 		}
 
 		venue := &models.Venue{
@@ -335,12 +334,14 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 			// We assume that if we found a venue in Nominatim, it is the one we are looking for
 			// and we prefer to use the provided location name instead of the one from Nominatim
 			Name: location,
+			Type: place.Type,
 			Address: models.Address{
-				Locality:   city,
-				Country:    nomCountry,
-				Region:     nomRegion,
-				PostalCode: nomPostalCode,
-				Street:     nomStreet,
+				Locality:    locality,
+				Country:     place.Address.Country,
+				State:       place.Address.State,
+				PostCode:    place.Address.Postcode,
+				Street:      place.Address.Road,
+				HouseNumber: place.Address.HouseNumber,
 				Geolocacation: models.MongoGeolocation{
 					GeoJSONType: "Point",
 					Coordinates: []float64{lonFloat, latFloat},
@@ -351,4 +352,11 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 		return venue, nil
 	}
 	return nil, fmt.Errorf("no relevant coordinates found for venue %s in city %s", location, city)
+}
+
+func isValidAmenityType(amenityType string) bool {
+	// We only want to accept certain types of venues
+	return true
+	// validTypes := []string{"events_venue", "nightclub"}
+	// return slices.Contains(validTypes, venueType)
 }
