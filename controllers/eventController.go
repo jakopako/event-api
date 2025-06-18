@@ -104,7 +104,9 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Failure 400 {object} string "failed to validate events"
 // @Router /api/events/validate [post]
 func ValidateEvents(c *fiber.Ctx) error {
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
@@ -146,7 +148,9 @@ func ValidateEvents(c *fiber.Ctx) error {
 // @Router /api/events [post]
 func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 60*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
@@ -166,11 +170,12 @@ func AddEvents(c *fiber.Ctx) error {
 		// In future versions we might need to take more factors into account to decide whether
 		// an existing event needs to be updated or a new event needs to be added.
 		filterEvent := bson.D{
-			{"title", event.Title},
-			{"date", event.Date},
-			{"location", event.Location},
-			{"url", event.URL},
-			{"sourceUrl", event.SourceURL}}
+			{Key: "title", Value: event.Title},
+			{Key: "date", Value: event.Date},
+			{Key: "location", Value: event.Location},
+			{Key: "url", Value: event.URL},
+			{Key: "sourceUrl", Value: event.SourceURL},
+		}
 		op.SetFilter(filterEvent)
 		op.SetUpsert(true)
 		op.SetReplacement(event)
@@ -220,7 +225,8 @@ func AddEvents(c *fiber.Ctx) error {
 // @Router /api/events/today/slack [post]
 func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	var events []models.Event
 	now := time.Now()
@@ -265,7 +271,7 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	}
 
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"date", 1}})
+	findOptions.SetSort(bson.D{{Key: "date", Value: 1}})
 
 	total, _ := eventCollection.CountDocuments(ctx, filter)
 	if total == 0 {
@@ -319,7 +325,8 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Router /api/events [delete]
 func DeleteEvents(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	src := c.Query("sourceUrl")
 
@@ -380,7 +387,8 @@ func DeleteEvents(c *fiber.Ctx) error {
 // @Router /api/events/{field} [get]
 func GetDistinct(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	field := c.Params("field")
 	if field != "location" && field != "city" {
@@ -446,24 +454,24 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		// lower case type
 		event.Type = strings.ToLower(event.Type)
 
-		// lookup geolocation if not given
-		if len(event.Geolocation) != 2 {
-			// lookup location based on city AND cache this info to not flood the geoloc service
-			// It's the client's responsibility to provide enough info (ie country if necessary)
-			// for the following function to find the right coordinates
-			geoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
-			if err != nil {
-				validationErrs = append(validationErrs, fiber.Map{
-					"message": fmt.Sprintf("failed to find relevant coordinates for {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
-					"error":   err.Error(),
-				})
-				continue
-			}
-			event.MongoGeolocation = *geoLoc
+		// Lookup the city coordinates
+		// We need to lookup the city coordinates in order to make sure that the radius search works correctly
+		cityGeoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
+		if err != nil {
+			validationErrs = append(validationErrs, fiber.Map{
+				"message": fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
+				"error":   err.Error(),
+			})
+			continue
+		}
 
+		// Lookup venue
+		address, err := geo.LookupVenueLocation(event.Location, event.City, event.Country)
+		if err == nil && address != nil {
+			event.Address = *address
 		} else {
-			event.MongoGeolocation.GeoJSONType = "Point"
-			event.MongoGeolocation.Coordinates = event.Geolocation[:]
+			// If venue lookup fails, fall back to city coordinates
+			event.Address.Geolocacation = *cityGeoLoc
 		}
 
 		// lookup genres if not given and if the event type is 'concert'

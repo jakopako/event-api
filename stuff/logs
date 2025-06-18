@@ -1,0 +1,410 @@
+[10:49:08] 200    3.225918ms DELETE /api/events?sourceUrl=https%3A%2F%2Fdenieuweanita.nl%2F&datetime=2025-06-16+18%3A30
+[10:49:08] 200     939.539µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bourbonstreet.nl%2Fshows&datetime=2025-06-16+21%3A00
+[10:49:08] 200    4.935564ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.gretchen-club.de%2F&datetime=2025-06-17+17%3A00
+[10:49:08] 200   15.493161ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.offbeat-concert.ch%2F&datetime=2025-06-21+14%3A00
+2025/06/16 10:49:11 INFO Checking amenity type type=bar location="De Nieuwe Anita" name="De Nieuwe Anita"
+2025/06/16 10:49:19 INFO Checking amenity type type=bar location="Bourbon Street" name="Bourbon Street Music Club"
+2025/06/16 10:49:24 INFO Checking amenity type type=nightclub location=Gretchen name=Gretchen
+2025/06/16 10:49:28 INFO Checking amenity type type=theatre location="STADTCASINO BASEL" name="Stadtcasino Basel"
+2025/06/16 10:49:29 INFO Checking amenity type type=restaurant location="GARTEN RESTAURANT KUNSTHALLE" name=Kunsthalle
+2025/06/16 10:49:31 INFO Checking amenity type type=events_venue location="THE BIRD" name="the bird's eye jazz club"
+2025/06/16 10:49:34 INFO Checking amenity type type=events_venue location="SUDHAUS BASEL" name=Sudhaus
+2025/06/16 10:49:35 INFO Checking amenity type type=bar location="ATLANTIS BASEL" name=Atlantis
+2025/06/16 10:49:36 INFO Checking amenity type type=bar location="VOLKSHAUS BASEL" name="Volkshaus Basel"
+2025/06/16 10:49:37 INFO Checking amenity type type=place_of_worship location="MARTINSKIRCHE BASEL" name=Martinskirche
+[10:49:08] 201 41.709839053s POST /api/events
+[10:49:50] 200    1.079597ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.mahogany.ch%2Fkonzerte&datetime=2025-09-01+18%3A00
+[10:49:50] 200     799.918µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.dachstock.ch%2Fevents&datetime=2025-06-17+17%3A30
+[10:49:50] 200     791.201µs DELETE /api/events?sourceUrl=http%3A%2F%2Fwww.jazz-cafe-alto.nl%2F&datetime=2025-06-16+19%3A00
+[10:49:50] 200     646.009µs DELETE /api/events?sourceUrl=https%3A%2F%2Fisc-club.ch%2F&datetime=2025-06-20+21%3A00
+[10:49:50] 200     714.882µs DELETE /api/events?sourceUrl=https%3A%2F%2Fhuxleysneuewelt.com%2Fshows&datetime=2025-06-16+18%3A00
+[10:49:50] 200     777.883µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.lido-berlin.de%2F&datetime=2025-06-21+18%3A00
+[10:49:50] 200     790.821µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.onobern.ch%2Fhomepage%2F&datetime=2025-06-16+17%3A30
+[10:49:50] 200     842.898µs DELETE /api/events?sourceUrl=https%3A%2F%2Fbirdseye.ch%2Findex.php%3Fp%3Devents&datetime=2025-06-17+18%3A30
+[10:49:50] 200     893.437µs DELETE /api/events?sourceUrl=https%3A%2F%2Fmetropol-berlin.de%2Fevents&datetime=2025-06-18+18%3A00
+[10:49:50] 200    1.086691ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.humbug.club%2Fprogramm&datetime=2025-06-19+18%3A00
+[10:49:50] 200     838.392µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bimhuis.nl%2F%3Fagenda%3Dtrue&datetime=2025-06-17+19%3A30
+[10:49:50] 200     674.277µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bitterzoet.com%2Fagenda%2F&datetime=2025-06-19+17%3A30
+[10:49:50] 200     929.044µs DELETE /api/events?sourceUrl=https%3A%2F%2Fkaserne-basel.ch%2Fen&datetime=2025-06-16+20%3A00
+[10:49:50] 200    1.182464ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.parterre.net%2Fde%2Fmusik-kultur%2Fone-music%2Fprogramm%3Fcategory%3D1&datetime=2025-06-27+21%3A00
+[10:49:50] 200    1.307073ms DELETE /api/events?sourceUrl=https%3A%2F%2Fgaskessel.ch%2Fprogramm%2F&datetime=2025-06-19+17%3A00
+[10:49:50] 200    1.022464ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.variety-playhouse.com%2F&datetime=2025-06-20+23%3A00
+[10:49:50] 200       901.1µs DELETE /api/events?sourceUrl=https%3A%2F%2Fterminalwestatl.com%2F&datetime=2025-06-18+00%3A00
+[10:49:50] 200     872.822µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.centerstage-atlanta.com%2F&datetime=2025-06-17+23%3A00
+2025/06/16 10:49:52 INFO Checking amenity type type=music_venue location="Mahogany Hall" name="Mahogany Hall"
+2025/06/16 10:49:53 INFO Checking amenity type type=nightclub location=Dachstock name=Dachstock
+2025/06/16 10:49:54 INFO Checking amenity type type=pub location="Jazz Café Alto" name="Jazz Cafe Alto"
+2025/06/16 10:49:55 INFO Checking amenity type type=nightclub location="ISC Club" name="ISC Club"
+2025/06/16 10:49:56 INFO Checking amenity type type=mobility_hub location="Huxleys Neue Welt" name="Huxleys Neue Welt"
+2025/06/16 10:49:57 INFO Checking amenity type type=nightclub location=Lido name=Lido
+2025/06/16 10:49:58 INFO Checking amenity type type=theatre location="ONO Das Kulturlokal" name=Ono
+2025/06/16 10:49:59 INFO Checking amenity type type=events_venue location="the Bird's Eye jazz club" name="the bird's eye jazz club"
+2025/06/16 10:50:00 INFO Checking amenity type type=nightclub location=Metropol name=Metropol
+2025/06/16 10:50:01 INFO Checking amenity type type=nightclub location=Humbug name=Humbug
+2025/06/16 10:50:02 INFO Checking amenity type type=theatre location=BIMHUIS name=Bimhuis
+2025/06/16 10:50:03 INFO Checking amenity type type=nightclub location=Bitterzoet name=Bitterzoet
+2025/06/16 10:50:04 INFO Checking amenity type type=theatre location="Kaserne Basel" name="Kaserne Basel"
+2025/06/16 10:50:05 INFO Checking amenity type type=restaurant location="Parterre One" name="Parterre One"
+2025/06/16 10:50:06 INFO Checking amenity type type=nightclub location=Gaskessel name=Gaskessel
+2025/06/16 10:50:08 INFO Checking amenity type type=theatre location="Variety Playhouse" name="Variety Playhouse"
+2025/06/16 10:50:10 INFO Checking amenity type type=music_venue location="Terminal West" name="Terminal West"
+2025/06/16 10:50:11 INFO Checking amenity type type=events_venue location="Center Stage" name="Center Stage Theater"
+2025/06/16 10:50:32 INFO Checking amenity type type=theatre location="Atlanta Symphony Hall" name="Atlanta Symphony Hall"
+[10:49:50] 201 48.799066388s POST /api/events
+[10:50:39] 201 30.217089155s POST /api/events
+[10:51:09] 200    2.173091ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.locomotivclub.it%2Feventtype%2Fcalendario%2F&datetime=2025-06-20+19%3A30
+2025/06/16 10:51:15 INFO Checking amenity type type=nightclub location="Locomotiv Club" name="Locomotiv Club"
+[10:51:09] 201 31.647123095s POST /api/events
+[10:51:41] 200     990.942µs DELETE /api/events?sourceUrl=http%3A%2F%2Fwww.majestic.sk%2Fprogram&datetime=2025-06-25+16%3A00
+[10:51:41] 200     716.361µs DELETE /api/events?sourceUrl=https%3A%2F%2Fbotanique.be%2Fen%2Fconcerts&datetime=2025-06-16+17%3A30
+[10:51:41] 200     906.599µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.a38.hu%2Fen%2Fprograms&datetime=2025-06-17+15%3A00
+[10:51:41] 200     801.332µs DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.paradiso.nl%2Fnl%2F&datetime=2025-06-16+18%3A30
+2025/06/16 10:51:46 INFO Checking amenity type type=nightclub location=Majestic name=MMC
+2025/06/16 10:51:50 INFO Checking amenity type type=nightclub location=A38 name=A38
+2025/06/16 10:51:51 INFO Checking amenity type type=concert_hall location=Paradiso name=Paradiso
+[10:51:41] 201 23.120891361s POST /api/events
+[10:52:04] 200    1.059582ms DELETE /api/events?sourceUrl=https%3A%2F%2Febull.ch%2Ffr&datetime=2025-06-21+20%3A00
+2025/06/16 10:52:12 INFO Checking amenity type type=arts_centre location=Ebullition name="Centre Culturel Ebullition"
+[10:52:04] 201 26.674812406s POST /api/events
+[10:52:30] 200    1.603638ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.emptybottle.com&datetime=2025-06-17+02%3A00
+[10:52:30] 200    1.316076ms DELETE /api/events?sourceUrl=https%3A%2F%2Fhideoutchicago.com%2Fevents%2F&datetime=2025-06-17+00%3A30
+2025/06/16 10:52:37 INFO Checking amenity type type=bar location="The Empty Bottle" name="The Empty Bottle"
+2025/06/16 10:52:38 INFO Checking amenity type type=bar location="The Hideout" name="The Hideout"
+[10:52:30] 201 32.329994669s POST /api/events
+[10:53:03] 200    1.357853ms DELETE /api/events?sourceUrl=https%3A%2F%2Flh-st.com%2F&datetime=2025-06-17+01%3A00
+[10:53:03] 200    1.657098ms DELETE /api/events?sourceUrl=https%3A%2F%2Fmetrochicago.com%2Fevents%2F&datetime=2025-06-21+00%3A30
+2025/06/16 10:53:07 INFO Checking amenity type type=bar location="Lincoln Hall" name="Lincoln Hall"
+2025/06/16 10:53:12 INFO Checking amenity type type=bar location=Schubas name="Schubas Tavern"
+[10:53:03] 201 25.337906327s POST /api/events
+[10:53:28] 201 30.177499983s POST /api/events
+[10:53:59] 200    1.974714ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.thaliahallchicago.com%2Fshows&datetime=2025-06-16+23%3A30
+2025/06/16 10:54:05 INFO Checking amenity type type=theatre location="Thalia Hall" name="Thalia Hall"
+[10:53:59] 201 36.939025918s POST /api/events
+[10:54:35] 201 31.413692454s POST /api/events
+[10:55:07] 200    3.068104ms DELETE /api/events?sourceUrl=https%3A%2F%2Fclub.badbonn.ch%2Fprogram&datetime=2025-06-18+19%3A00
+[10:55:07] 200    2.900637ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.luxor-koeln.de%2Fprogramm%2F&datetime=2025-06-20+16%3A00
+[10:55:07] 200     4.68411ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.slowclub-freiburg.de%2Fveranstaltungen&datetime=2025-06-20+19%3A00
+[10:55:07] 200     2.84651ms DELETE /api/events?sourceUrl=https%3A%2F%2Ffri-son.ch%2Ffr%2Fprogramme&datetime=2025-08-12+18%3A00
+[10:55:07] 200    2.676452ms DELETE /api/events?sourceUrl=https%3A%2F%2Fkantine.com%2Feventliste%2F&datetime=2025-06-17+18%3A00
+2025/06/16 10:55:14 INFO Checking amenity type type=pub location=Luxor name=Luxor
+2025/06/16 10:55:18 INFO Checking amenity type type=nightclub location=Fri-Son name=Fri-Son
+[10:55:07] 201 34.523777732s POST /api/events
+[10:55:41] 200    3.504793ms DELETE /api/events?sourceUrl=https%3A%2F%2Ffabrik.de%2Fprogramm&datetime=2025-06-16+18%3A00
+[10:55:41] 200    3.259924ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.knusthamburg.de%2Fprogramm%2F&datetime=2025-06-17+16%3A00
+[10:55:41] 200    3.427808ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.nouveaumonde.ch%2Fagenda%2F&datetime=2025-06-18+20%3A00
+[10:55:41] 200    3.114545ms DELETE /api/events?sourceUrl=https%3A%2F%2Flaspirale.ch%2Fprogramme%2F&datetime=2025-09-26+18%3A30
+[10:55:41] 200    4.225228ms DELETE /api/events?sourceUrl=https%3A%2F%2Ftrafalgartickets.com%2Fnew-theatre-cardiff&datetime=2025-06-21+18%3A30
+2025/06/16 10:55:46 INFO Checking amenity type type=events_venue location=Fabrik name=Fabrik
+2025/06/16 10:55:48 INFO Checking amenity type type=theatre location="Nouveau Monde" name="Nouveau Monde"
+2025/06/16 10:55:49 INFO Checking amenity type type=music_venue location="La Spirale" name="La Spirale"
+[10:55:41] 201 29.503579428s POST /api/events
+[10:56:11] 200    1.352345ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.hafenklang.com%2Fprogramm%2Fkonzerte%2F&datetime=2025-06-16+18%3A00
+[10:56:11] 201  34.39556228s POST /api/events
+[10:56:45] 200    1.815343ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.uebelundgefaehrlich.com%2F&datetime=2025-06-28+18%3A00
+[10:56:45] 200    1.604803ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bluenotejazz.com%2Fhawaii%2Fshows%2F%3Flist_view&datetime=2025-06-15+23%3A00
+[10:56:45] 200    1.860522ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.elbphilharmonie.de%2Fde%2Fprogramm%2FTICKETS%2F&datetime=2025-06-16+17%3A00
+2025/06/16 10:56:49 INFO Checking amenity type type=nightclub location="Uebel & Gefährlich" name="Uebel und Gefährlich"
+2025/06/16 10:56:51 INFO Checking amenity type type=nightclub location="Blue Note Hawaii" name="Blue Note Hawaii"
+2025/06/16 10:56:52 INFO Checking amenity type type=theatre location=Elbphilharmonie name="Elbe Philharmonic Hall"
+[10:56:45] 201  24.59379389s POST /api/events
+[10:57:10] 201 26.860660982s POST /api/events
+[10:57:37] 200    1.968617ms DELETE /api/events?sourceUrl=https%3A%2F%2Fbleu-lezard.ch%2Fprogrammation%2F&datetime=2025-06-17+18%3A30
+[10:57:37] 200    1.607288ms DELETE /api/events?sourceUrl=https%3A%2F%2Fbeaulieu-lausanne.com%2Fagenda%2F&datetime=2025-06-19+00%3A00
+2025/06/16 10:57:42 INFO Checking amenity type type=restaurant location="Bleu Lézard" name="Bleu Lezard"
+2025/06/16 10:57:43 INFO Checking amenity type type=theatre location="Théatre de Beaulieu" name="Théâtre de Beaulieu"
+[10:57:37] 201 30.556242379s POST /api/events
+[10:58:07] 200    1.903144ms DELETE /api/events?sourceUrl=https%3A%2F%2Fchorus.ch%2Fprogramme%2F&datetime=2025-03-06+13%3A43
+[10:58:07] 200    1.659354ms DELETE /api/events?sourceUrl=https%3A%2F%2Fdclub.ch%2Fagenda%2F&datetime=2025-06-19+21%3A00
+2025/06/16 10:58:11 INFO Checking amenity type type=nightclub location=Chorus name=Chorus
+2025/06/16 10:58:12 INFO Checking amenity type type=nightclub location="D! Club" name="D! Club"
+[10:58:07] 201 37.860581902s POST /api/events
+[10:58:45] 200    1.910132ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.leromandie.ch%2Fprogrammation&datetime=2025-06-21+19%3A30
+[10:58:45] 200    1.644409ms DELETE /api/events?sourceUrl=https%3A%2F%2Ffetemusiquelausanne.ch%2Fprogramme%2F&datetime=2025-06-21+17%3A53
+[10:58:45] 200    1.891539ms DELETE /api/events?sourceUrl=https%3A%2F%2Fpolesud.ch%2Fevenements-a-venir%2F&datetime=2025-06-21+15%3A00
+[10:58:45] 200    2.044872ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.docks.ch%2Fprogramme%2F&datetime=2025-06-17+18%3A30
+[10:58:45] 200    1.959041ms DELETE /api/events?sourceUrl=https%3A%2F%2Ftrafalgartickets.com%2Fpavilion-theatre-glasgow&datetime=2025-06-18+18%3A30
+2025/06/16 10:58:49 INFO Checking amenity type type=nightclub location="Le Romandie Club" name="Le Romandie"
+2025/06/16 10:58:52 INFO Checking amenity type type=social_centre location="Pôle Sud" name="Pôle Sud"
+2025/06/16 10:58:53 INFO Checking amenity type type=nightclub location=Docks name="Les Docks"
+[10:58:45] 201 29.395615471s POST /api/events
+[10:59:14] 200    1.610686ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.jumeaux.club%2Fprogrammation-complete&datetime=2025-06-16+16%3A00
+[10:59:14] 200    1.647696ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.taeubchenthal.com%2Fprogramm&datetime=2025-06-17+18%3A00
+[10:59:14] 200    1.544771ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.30cc.be%2Fnl%2Fprogramma%3Fdiscipline%3D3&datetime=2025-06-20+10%3A30
+2025/06/16 10:59:20 INFO Checking amenity type type=nightclub location="Jumeaux Jazz Club" name="Les Jumeaux Jazz Club"
+2025/06/16 10:59:22 INFO Checking amenity type type=nightclub location=Täubchenthal name=Täubchenthal
+2025/06/16 10:59:26 INFO Checking amenity type type=theatre location="Park West" name="Park West"
+2025/06/16 10:59:27 INFO Checking amenity type type=events_venue location="CHUV – Hall central" name="CHUV – Hall central"
+[10:59:14] 201 34.472428714s POST /api/events
+2025/06/16 10:59:50 INFO Checking amenity type type=place_of_worship location="Église Saint-Laurent" name="Église Saint-Laurent"
+2025/06/16 10:59:57 INFO Checking amenity type type=theatre location="BCV Concert Hall" name="BCV Concert Hall"
+2025/06/16 11:00:01 INFO Checking amenity type type=place_of_worship location="Église Saint-Jacques" name="Église Saint-Jacques"
+2025/06/16 11:00:12 INFO Checking amenity type type=theatre location="Casino de Montbenon – Salle Paderewski" name="Salle Paderewski"
+2025/06/16 11:00:17 INFO Checking amenity type type=theatre location="Casino de Montbenon – Théâtre de verdure" name=Amphithéâtre
+2025/06/16 11:00:18 INFO Checking amenity type type=place_of_worship location="Chapelle du Valentin" name="Église évangélique méthodiste"
+[10:59:49] 201 32.716047836s POST /api/events
+[11:00:22] 200     1.85033ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.luca-arts.be%2Fnl%2Fconcerten-evenementen&datetime=2025-06-09+22%3A00
+[11:00:22] 200    1.646768ms DELETE /api/events?sourceUrl=https%3A%2F%2Fbugbearbookings.com%2Fdublin-castle%2F&datetime=2025-06-18+20%3A00
+[11:00:22] 200    1.696937ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.cafeoto.co.uk%2F&datetime=2025-06-16+18%3A30
+2025/06/16 11:00:29 INFO Checking amenity type type=pub location="Dublin Castle" name="The Dublin Castle"
+2025/06/16 11:00:30 INFO Checking amenity type type=cafe location="Cafe Oto" name="Cafe Oto"
+2025/06/16 11:00:34 INFO Checking amenity type type=nightclub location="Cave du Bleu Lézard" name="La Cave du Bleu Lézard"
+[11:00:22] 201 37.037949756s POST /api/events
+2025/06/16 11:01:14 INFO Checking amenity type type=community_centre location="Maison de Quartier du Désert" name="Maison de Quartier du Désert"
+[11:00:59] 201 31.233135674s POST /api/events
+[11:01:30] 200    2.426449ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.oslohackney.com%2Fevents%2F&datetime=2025-06-16+18%3A00
+2025/06/16 11:01:33 INFO Checking amenity type type=restaurant location="Le Barbare" name="Le Barbare"
+2025/06/16 11:01:49 INFO Checking amenity type type=place_of_worship location="Cathédrale de Lausanne" name="Cathédrale Notre-Dame de Lausanne"
+[11:01:30] 201 37.755856739s POST /api/events
+[11:02:08] 201 28.869431303s POST /api/events
+[11:02:37] 200    5.174001ms DELETE /api/events?sourceUrl=https%3A%2F%2Fthejazzcafelondon.com%2Fwhats-on%2F&datetime=2025-06-16+19%3A00
+[11:02:37] 200    11.58914ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.roundhouse.org.uk%2Fwhats-on%2F&datetime=2025-06-16+20%3A00
+[11:02:37] 200    4.444226ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.schuur.ch%2Fprogramm%2F&datetime=2025-06-17+17%3A00
+[11:02:37] 200    4.514016ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.koko.co.uk%2Fwhats-on&datetime=2025-06-19+18%3A00
+[11:02:37] 200    4.683761ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bar59.ch%2F&datetime=2025-06-18+20%3A00
+2025/06/16 11:02:41 INFO Checking amenity type type=nightclub location="Jazz Cafe" name="The Jazz Cafe"
+2025/06/16 11:02:42 INFO Checking amenity type type=theatre location=Roundhouse name=Roundhouse
+2025/06/16 11:02:44 INFO Checking amenity type type=nightclub location="Konzerthaus Schüür" name="Konzerthaus Schüür"
+2025/06/16 11:02:45 INFO Checking amenity type type=nightclub location=Koko name=KOKO
+2025/06/16 11:02:46 INFO Checking amenity type type=bar location="Bar 59" name="Bar 59"
+2025/06/16 11:02:48 INFO Checking amenity type type=parking location="Place du Château" name="Place du Château"
+2025/06/16 11:02:54 INFO Checking amenity type type=theatre location="Opéra de Lausanne" name="Opéra de Lausanne"
+2025/06/16 11:02:58 INFO Checking amenity type type=arts_centre location=Continuum name=Continuum
+[11:02:37] 201 32.017251829s POST /api/events
+[11:03:09] 200    2.105274ms DELETE /api/events?sourceUrl=https%3A%2F%2Fneubad.org%2Fveranstaltungen%3Ff%255B0%255D%3Dkategorie_der_veranstaltung_%253AKonzert&datetime=2025-06-27+16%3A30
+[11:03:09] 200    1.971086ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.victoria.se%2Fen%2Fprogram&datetime=2025-09-04+19%3A30
+2025/06/16 11:03:14 INFO Checking amenity type type=community_centre location=Neubad name=Neubad
+[11:03:09] 201 36.774167511s POST /api/events
+[11:03:45] 200    3.730687ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.sunsetbar.info%2Flieu%2Fsunset-bar%2F&datetime=2025-06-16+18%3A00
+[11:03:45] 200    3.026958ms DELETE /api/events?sourceUrl=https%3A%2F%2Fcavesdumanoir.ch%2F&datetime=2025-07-06+14%3A30
+2025/06/16 11:03:51 INFO Checking amenity type type=theatre location="Théâtre du Vide-Poche" name="Théâtre du Vide-Poche"
+2025/06/16 11:03:53 INFO Checking amenity type type=bar location="Sunset Bar" name="Sunset Bar"
+2025/06/16 11:03:54 INFO Checking amenity type type=events_venue location="Les Caves du Manoir" name="Les Caves du Manoir"
+2025/06/16 11:04:07 INFO Checking amenity type type=restaurant location=Leonardo name="Le Leonardo"
+2025/06/16 11:04:15 INFO Checking amenity type type=cafe location=Downtown name="Downtown Lausanne"
+[11:03:45] 201 38.669214066s POST /api/events
+[11:04:24] 200    3.390017ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.senzaspine.org%2Fcentro-culturale%23anchor-eventi-mercato&datetime=2025-06-21+14%3A30
+[11:04:24] 200    3.163569ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.montreuxjazzfestival.com%2Fen%2Fprogramme%2F&datetime=2025-07-04+18%3A00
+2025/06/16 11:05:12 INFO Checking amenity type type=theatre location="EJMA – Atrium" name="Atrium de l'EJMA"
+[11:04:24] 201 48.957681462s POST /api/events
+[11:05:13] 200    3.354514ms DELETE /api/events?sourceUrl=https%3A%2F%2Fmilla-club.de%2F&datetime=2025-06-17+17%3A00
+[11:05:13] 200    2.423666ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.unterfahrt.de%2Fprogramm.php&datetime=2025-06-16+18%3A30
+[11:05:13] 200    3.034353ms DELETE /api/events?sourceUrl=https%3A%2F%2Fimport-export.cc%2F&datetime=2025-06-17+18%3A00
+[11:05:13] 200    3.400494ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.hotjazzclub.de%2Fevents%2F&datetime=2025-06-16+18%3A00
+2025/06/16 11:05:17 INFO Checking amenity type type=theatre location="EJMA – Auditorium" name="Auditorium de l'EJMA"
+2025/06/16 11:05:19 INFO Checking amenity type type=nightclub location=Milla name="Milla Club"
+2025/06/16 11:05:20 INFO Checking amenity type type=restaurant location=Unterfahrt name="Jazzclub Unterfahrt"
+2025/06/16 11:05:24 INFO Checking amenity type type=bar location="Hot Jazz Club" name="Hot Jazz Club"
+[11:05:13] 201 31.151810957s POST /api/events
+[11:05:44] 200    2.941066ms DELETE /api/events?sourceUrl=https%3A%2F%2Fmuenchen.motorworld.de%2F&datetime=2025-06-19+18%3A00
+[11:05:44] 200    3.693901ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.muffatwerk.de%2Fde%2Fevents%2Fconcert&datetime=2025-06-17+18%3A00
+[11:05:44] 200    3.043383ms DELETE /api/events?sourceUrl=https%3A%2F%2Fstrom-muc.de%2F&datetime=2025-06-16+18%3A30
+2025/06/16 11:05:46 INFO Checking amenity type type=bar location="Le Barberousse" name=Barberousse
+2025/06/16 11:05:51 INFO Checking amenity type type=arts_centre location=Zenith name="Zenith Kulturhalle"
+2025/06/16 11:05:52 INFO Checking amenity type type=community_centre location=Ampere name=Ampere
+2025/06/16 11:05:53 INFO Checking amenity type type=nightclub location=Strom name=STROM
+[11:05:44] 201 27.046174028s POST /api/events
+2025/06/16 11:06:25 INFO Checking amenity type type=events_venue location=Muffathalle name=Muffathalle
+2025/06/16 11:06:26 INFO Checking amenity type type=theatre location="Circus Krone" name="Circus Krone"
+2025/06/16 11:06:41 INFO Checking amenity type type=bar location="La Terrasse des Grandes Roches" name="Les Grandes Roches"
+[11:06:12] 201 32.202165729s POST /api/events
+[11:06:44] 200     4.19778ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.glockenbachwerkstatt.de%2Fveranstaltungen%2F%3Fdate%26category%3Dkonzert&datetime=2025-06-16+18%3A30
+[11:06:44] 200    4.046779ms DELETE /api/events?sourceUrl=https%3A%2F%2Fbackstage.eu%2Fveranstaltungen%2Flive.html&datetime=2025-07-26+16%3A00
+2025/06/16 11:06:49 INFO Checking amenity type type=community_centre location=Glockenbachwerkstatt name=Glockenbachwerkstatt
+2025/06/16 11:06:50 INFO Checking amenity type type=nightclub location=Backstage name=Backstage
+2025/06/16 11:06:54 INFO Checking amenity type type=cafe location="La Couronne d’Or" name="La Couronne d'Or"
+2025/06/16 11:06:58 INFO Checking amenity type type=community_centre location=Muffatwerk name=Ampere
+[11:06:44] 201 31.080589389s POST /api/events
+[11:07:15] 200    4.378526ms DELETE /api/events?sourceUrl=https%3A%2F%2Fheppel-ettlich.de%2F&datetime=2025-06-18+18%3A00
+[11:07:15] 200     6.02284ms DELETE /api/events?sourceUrl=https%3A%2F%2Fim-schlachthof.de%2Fprogramm%2F&datetime=2025-06-19+18%3A00
+[11:07:15] 200    6.715634ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.feierwerk.de%2Fkonzert-kulturprogramm%2Fkkp%2F&datetime=2025-06-18+18%3A00
+2025/06/16 11:07:22 INFO Checking amenity type type=nightclub location="Sunny Red" name="Sunny Red"
+2025/06/16 11:07:26 INFO Checking amenity type type=social_centre location="Pôle Sud – USV – FASL" name="Pôle Sud"
+[11:07:15] 201  33.64717603s POST /api/events
+[11:07:48] 200    2.414071ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.clubzwei.de%2F&datetime=2025-06-20+17%3A00
+2025/06/16 11:07:59 INFO Checking amenity type type=arts_centre location=Technikum name=Technikum
+2025/06/16 11:08:00 INFO Checking amenity type type=nightclub location="Rote Sonne" name="Rote Sonne"
+[11:07:48] 201  32.47004519s POST /api/events
+[11:08:21] 200    3.136367ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bahnwaerterthiel.de%2F&datetime=2025-06-19+12%3A00
+2025/06/16 11:08:27 INFO Checking amenity type type=theatre location="Münchner Kammerspiele" name="Münchner Kammerspiele"
+2025/06/16 11:08:28 INFO Checking amenity type type=arts_centre location="Bahnwärter Thiel" name="Bahnwärter Thiel"
+2025/06/16 11:08:30 INFO Checking amenity type type=nightclub location=Orangehouse name=Orangehouse
+2025/06/16 11:08:36 INFO Checking amenity type type=events_venue location=Kesselhaus name=Kesselhaus
+[11:08:21] 201 35.834380769s POST /api/events
+[11:08:57] 200    3.437059ms DELETE /api/events?sourceUrl=https%3A%2F%2Fcase-a-chocs.ch%2F&datetime=2025-06-27+18%3A00
+2025/06/16 11:08:59 INFO Checking amenity type type=theatre location="Münchner Volkstheater" name="Münchner Volkstheater"
+2025/06/16 11:09:04 INFO Checking amenity type type=nightclub location="Case à Chocs" name=Case-à-chocs
+2025/06/16 11:09:11 INFO Checking amenity type type=university location=München name="Akademie der Bildenden Künste München"
+[11:08:57] 201 30.441582618s POST /api/events
+[11:09:27] 200    4.656085ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.club-stereo.net%2Fcategory%2Fkonzert%2F&datetime=2025-06-21+18%3A00
+[11:09:27] 200    5.759685ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.loewensaal.com%2Fprogramm.html&datetime=2025-09-19+18%3A00
+2025/06/16 11:09:35 INFO Checking amenity type type=theatre location=Löwensaal name=Löwensaal
+[11:09:27] 201   32.2754703s POST /api/events
+[11:09:59] 200    3.026926ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.jazzstudio.de%2Fveranstaltungen%2F&datetime=2025-06-23+18%3A00
+[11:09:59] 200    2.799243ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.der-hirsch.com%2Fprogramm.html&datetime=2025-06-20+17%3A30
+2025/06/16 11:10:06 INFO Checking amenity type type=nightclub location=Hirsch name=Hirsch
+2025/06/16 11:10:11 INFO Checking amenity type type=nightclub location="Club Stereo" name="Club Stereo"
+[11:09:59] 201 32.398552643s POST /api/events
+[11:10:32] 200    9.977859ms DELETE /api/events?sourceUrl=http%3A%2F%2Fwww.bar-laparenthese.ch%2F&datetime=2025-09-18+22%3A00
+[11:10:32] 200   13.094549ms DELETE /api/events?sourceUrl=https%3A%2F%2Flacigale.fr%2Fen%2Flineup%2F&datetime=2025-01-20+19%3A00
+2025/06/16 11:10:38 INFO Checking amenity type type=bar location="La Parenthèse" name="La Parenthèse"
+2025/06/16 11:10:40 INFO Checking amenity type type=theatre location="La Cigale" name="La Cigale"
+2025/06/16 11:10:43 INFO Checking amenity type type=place_of_worship location="Église du Sacré Cœur" name="Église du Sacré-Coeur"
+[11:10:32] 201 38.174990911s POST /api/events
+[11:11:10] 200    4.150377ms DELETE /api/events?sourceUrl=https%3A%2F%2Fle-zenith.com%2Fprogram&datetime=2025-06-22+16%3A00
+[11:11:10] 200     4.41047ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.doornroosje.nl%2F&datetime=2025-06-16+18%3A30
+[11:11:10] 200    5.252361ms DELETE /api/events?sourceUrl=https%3A%2F%2Fcafevlese.cz%2Fkompletni-program%2F%23&datetime=2025-06-17+17%3A30
+2025/06/16 11:11:13 INFO Checking amenity type type=theatre location="Le Zenith" name="Le Zénith Paris - La Villette"
+2025/06/16 11:11:15 INFO Checking amenity type type=nightclub location=Doornroosje name=Doornroosje
+2025/06/16 11:11:18 INFO Checking amenity type type=bar location="Café V Lese" name="Café v lese"
+2025/06/16 11:11:32 INFO Checking amenity type type=bar location="La Datcha" name="La Datcha"
+2025/06/16 11:11:33 INFO Checking amenity type type=pub location="Bruxelles Café" name="Bruxelles Café"
+2025/06/16 11:11:34 INFO Checking amenity type type=bar location="Le Rockies" name="The Rockies"
+2025/06/16 11:11:35 INFO Checking amenity type type=nightclub location="Le Romandie" name="Le Romandie"
+[11:11:10] 201 25.529272236s POST /api/events
+[11:11:35] 200    5.560605ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.newmorning.com%2Fprogrammation&datetime=2025-06-16+18%3A30
+[11:11:35] 200    7.560406ms DELETE /api/events?sourceUrl=http%3A%2F%2Fwww.meetfactory.cz%2Fen%2Fprogram%2Fhudba&datetime=2025-06-17+18%3A00
+2025/06/16 11:11:41 INFO Checking amenity type type=nightclub location="New Morning" name="New Morning"
+2025/06/16 11:11:41 INFO Checking amenity type type=arts_centre location=MeetFactory name=MeetFactory
+[11:11:35] 201 35.144676402s POST /api/events
+[11:12:10] 200    5.178713ms DELETE /api/events?sourceUrl=http%3A%2F%2Fwww.redutajazzclub.cz%2Fprogram-en&datetime=2025-06-01+18%3A00
+[11:12:10] 200   13.205268ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.roxy.cz%2Fen%2F%23program&datetime=2025-06-20+21%3A00
+2025/06/16 11:12:14 INFO Checking amenity type type=bar location="Reduta Jazz Club" name="Reduta Jazz Club"
+2025/06/16 11:12:15 INFO Checking amenity type type=nightclub location=Roxy name="Club Roxy Prague"
+2025/06/16 11:12:18 INFO Checking amenity type type=events_centre location=Olympiahalle name="Olympic Hall"
+[11:12:10] 201 24.080160628s POST /api/events
+[11:12:35] 200    3.911731ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.agharta.cz%2F&datetime=2025-06-16+18%3A00
+2025/06/16 11:12:40 INFO Checking amenity type type=nightclub location=Agharta name="AghaRTA Jazz Centrum"
+[11:12:35] 201 26.775954184s POST /api/events
+[11:13:02] 200    3.296887ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.rce-event.de%2Foutput.php%3Fid%3D1171%26mode%3DL&datetime=2025-06-26+18%3A00
+2025/06/16 11:13:02 INFO Checking amenity type type=theatre location=Isarphilharmonie name=Isarphilharmonie
+2025/06/16 11:13:08 INFO Checking amenity type type=community_centre location=PUC name="Puchheimer Kulturzentrum PUC"
+2025/06/16 11:13:22 INFO Checking amenity type type=nightclub location=Hansa39 name=Hansa39
+[11:13:02] 201 25.184849394s POST /api/events
+[11:13:27] 200    5.621092ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.forumkarlin.cz%2Fen%2Fevents%2F&datetime=2025-07-19+18%3A00
+[11:13:27] 200    8.688067ms DELETE /api/events?sourceUrl=https%3A%2F%2Ftheatre-octogone.ch%2Fcategorie%2Fmusique%2F&datetime=2025-10-10+18%3A30
+2025/06/16 11:13:32 INFO Checking amenity type type=arts_centre location="Forum Karlin" name="Forum Karlín"
+2025/06/16 11:13:34 INFO Checking amenity type type=theatre location="L’Octogone Théâtre de Pully" name="L'Octogone Théâtre de Pully"
+[11:13:27] 201 28.953426718s POST /api/events
+[11:13:56] 200    5.037354ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.artefact.org%2Fla-laiterie%2Fprogrammation&datetime=2025-06-16+17%3A30
+[11:13:56] 200    7.329843ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.fasching.se%2F%3Fdate%3D0%26artist%3Dall%26view%3Ddefault%26c%3D9&datetime=2025-08-12+18%3A00
+[11:13:56] 200    8.664427ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.gaswerk-eventbar.ch%2Fevents%2F&datetime=2025-06-18+18%3A30
+[11:13:56] 200    4.169765ms DELETE /api/events?sourceUrl=https%3A%2F%2Fkammgarn.ch%2F&datetime=2025-06-24+18%3A00
+2025/06/16 11:14:03 INFO Checking amenity type type=nightclub location=Fasching name=Fasching
+2025/06/16 11:14:05 INFO Checking amenity type type=events_venue location=Gaswerk name="Gaswerk Eventbar"
+2025/06/16 11:14:07 INFO Checking amenity type type=parking location=Kammgarn name=Kammgarn
+2025/06/16 11:14:13 INFO Checking amenity type type=place_of_worship location="Eglise protestante Saint" name="Église protestante Saint-Thomas"
+2025/06/16 11:14:17 INFO Checking amenity type type=arts_centre location="Le Point d'Eau" name="Le Point d'Eau"
+[11:13:56] 201 25.558312027s POST /api/events
+[11:14:21] 200   25.094198ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.kiste-stuttgart.de%2Fprogramm&datetime=2025-06-18+18%3A30
+[11:14:21] 200   39.442881ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.roxy.ulm.de%2Fprogramm%2Fprogramm.php&datetime=2025-06-22+12%3A00
+[11:14:21] 200   14.851239ms DELETE /api/events?sourceUrl=https%3A%2F%2Ftrafalgartickets.com%2Fcliffs-pavilion-southend&datetime=2025-06-17+12%3A30
+[11:14:21] 200   34.168111ms DELETE /api/events?sourceUrl=https%3A%2F%2Fcatalystclub.com%2Fevents%2F&datetime=2025-06-21+04%3A00
+2025/06/16 11:14:26 INFO Checking amenity type type=pub location="Jazzclub Kiste" name="Kiste - LiveMusik, JazzClub & Bar"
+2025/06/16 11:14:28 INFO Checking amenity type type=arts_centre location=Roxy name=Roxy
+2025/06/16 11:14:30 INFO Checking amenity type type=theatre location="Cliffs Pavilion" name="Cliffs Pavilion"
+2025/06/16 11:14:32 INFO Checking amenity type type=nightclub location="The Catalyst" name="The Catalyst"
+[11:14:21] 201 29.791700047s POST /api/events
+[11:14:51] 200    3.163227ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.leboutdumonde.ch&datetime=2025-06-20+19%3A30
+[11:14:51] 200    4.541841ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.rocking-chair.ch%2F&datetime=2025-09-26+18%3A00
+[11:14:51] 200    4.484224ms DELETE /api/events?sourceUrl=https%3A%2F%2Ftrafalgartickets.com%2Fwyvern-theatre-swindon&datetime=2025-06-19+18%3A30
+[11:14:51] 200     4.60715ms DELETE /api/events?sourceUrl=https%3A%2F%2Fthevicswindon.com&datetime=2025-06-18+20%3A30
+2025/06/16 11:14:57 INFO Checking amenity type type=pub location="Le Bout Du Monde" name="Le Bout du Monde"
+2025/06/16 11:14:58 INFO Checking amenity type type=nightclub location="The Rocking Chair" name="The Rocking Chair"
+2025/06/16 11:15:00 INFO Checking amenity type type=theatre location="The Wyvern Theatre" name="Wyvern Theatre"
+2025/06/16 11:15:03 INFO Checking amenity type type=music_venue location=Tonhalle name=TonHalle
+[11:14:51] 201 24.407652939s POST /api/events
+[11:15:16] 200    3.109894ms DELETE /api/events?sourceUrl=https%3A%2F%2Frhiz.wien%2Fprogramm%2F&datetime=2025-06-18+18%3A00
+2025/06/16 11:15:22 INFO Checking amenity type type=bar location=Rhiz name=rhiz
+2025/06/16 11:15:28 INFO Checking amenity type type=dojo location="The Arts Centre" name="Leadership Martial Arts"
+2025/06/16 11:15:47 INFO Checking amenity type type=theatre location=L'illiade name=L'Illiade
+[11:15:16] 201 33.722710508s POST /api/events
+[11:15:49] 200    5.373394ms DELETE /api/events?sourceUrl=https%3A%2F%2Fkonzerthaus.at%2Fkalender&datetime=2025-06-16+09%3A00
+[11:15:49] 200     5.80901ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.porgy.at%2Fevents%2Fupcoming&datetime=2025-06-16+17%3A00
+[11:15:49] 200    5.082689ms DELETE /api/events?sourceUrl=https%3A%2F%2Fflex.at%2F&datetime=2025-06-20+17%3A00
+[11:15:49] 200    4.481214ms DELETE /api/events?sourceUrl=https%3A%2F%2Farena.wien%2FHome%2FProgramm%23data_abonnement%3D-1%26data_month%3D-1%26data_year%3D-1%26data_event_category%3D-1%26searchTerm%3D%26data_mode%3DDATE%26data_pagenumber%3D0%26page_header%3Dalle%2BMonate&datetime=2025-06-17+17%3A00
+2025/06/16 11:15:52 INFO Checking amenity type type=theatre location=Konzerthaus name="Wiener Konzerthaus"
+2025/06/16 11:15:53 INFO Checking amenity type type=theatre location="Porgy & Bess" name="Porgy & Bess"
+2025/06/16 11:15:54 INFO Checking amenity type type=nightclub location=Flex name=Flex
+2025/06/16 11:16:04 INFO Checking amenity type type=arts_centre location="Palais des Congrès" name="Palais de la Musique et des Congrès"
+2025/06/16 11:16:08 INFO Checking amenity type type=community_centre location="La Briqueterie" name="La Briqueterie"
+[11:15:49] 201 22.035846691s POST /api/events
+[11:16:11] 200    3.962459ms DELETE /api/events?sourceUrl=https%3A%2F%2Fmusikfestwochen.ch%2Fprogramm%2Fprogramm-nach-datum%2F&datetime=2025-08-06+16%3A45
+[11:16:11] 200    3.495538ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.salzhaus.ch%2Fde%2Fprogramm.html&datetime=2025-06-12+15%3A00
+[11:16:11] 200    4.418748ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.amalgameclub.ch%2Fprogramme%2F&datetime=2025-09-26+18%3A30
+2025/06/16 11:16:18 INFO Checking amenity type type=nightclub location=L’Amalgame name=L'Amalgame
+[11:16:11] 400 25.520935346s POST /api/events
+[11:16:37] 200    3.128895ms DELETE /api/events?sourceUrl=https%3A%2F%2Feventfrog.ch%2Fde%2Fevents.html%3FsearchTerm%3Dhiden%2Bharlekin%2Bzug&datetime=2025-06-19+17%3A00
+[11:16:37] 200    3.527839ms DELETE /api/events?sourceUrl=https%3A%2F%2Fgalvanik-zug.ch%2Fprogramm%2F&datetime=2025-06-21+18%3A00
+2025/06/16 11:16:42 INFO Checking amenity type type=nightclub location="Hidén Harlekin" name="Hidén Harlekin"
+2025/06/16 11:16:43 INFO Checking amenity type type=nightclub location=Galvanik name=Galvanik
+[11:16:37] 400 28.999224614s POST /api/events
+[11:17:06] 200    4.017136ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.helsinkiklub.ch&datetime=2025-06-21+18%3A00
+[11:17:06] 200    4.032246ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.mehrspur.ch%2Fveranstaltungen&datetime=2025-06-17+18%3A00
+[11:17:06] 200    4.992319ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.gewuerzmuehle.ch%2Fprogramm&datetime=2025-06-20+15%3A30
+2025/06/16 11:17:11 INFO Checking amenity type type=nightclub location=Helsinki name=Helsinki
+2025/06/16 11:17:12 INFO Checking amenity type type=events_venue location=Mehrspur name="Musikklub Mehrspur"
+2025/06/16 11:17:13 INFO Checking amenity type type=theatre location=Gewürzmühle name=Gewürzmühle
+[11:17:06] 400 26.582014624s POST /api/events
+[11:17:32] 200    5.057553ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.umbo.wtf&datetime=2025-06-25+18%3A00
+[11:17:32] 200    4.098021ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.moods.ch%2Fen&datetime=2025-06-27+17%3A30
+[11:17:32] 200    6.668978ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.smallslive.com%2Fevents%2Fcalendar%2F&datetime=2025-06-16+22%3A00
+2025/06/16 11:17:36 INFO Checking amenity type type=nightclub location=Umbo name=UMBO
+2025/06/16 11:17:37 INFO Checking amenity type type=events_venue location=Moods name="Moods (im Schiffbau)"
+2025/06/16 11:17:39 INFO Checking amenity type type=nightclub location=Smalls name="Smalls Jazz Club"
+2025/06/16 11:17:43 INFO Checking amenity type type=nightclub location=Mezzrow name=Mezzrow
+[11:17:32] 400 22.834446086s POST /api/events
+[11:17:55] 200    7.110168ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.heldenbar.ch%2Fprogramm%2F&datetime=2025-06-18+18%3A00
+[11:17:55] 200    8.067238ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.tonhalle-orchester.ch%2Fen%2Fhome-tz%2Fkonzerte%2Fkalender%2F&datetime=2025-06-16+17%3A30
+[11:17:55] 200    7.166751ms DELETE /api/events?sourceUrl=https%3A%2F%2Fexil.club&datetime=2025-06-16+19%3A00
+2025/06/16 11:17:58 INFO Checking amenity type type=nightclub location=Heldenbar name=Heldenbar
+2025/06/16 11:17:59 INFO Checking amenity type type=theatre location=Tonhalle name=Tonhalle
+2025/06/16 11:18:00 INFO Checking amenity type type=nightclub location=Exil name=Exil
+[11:17:55] 400 30.546592881s POST /api/events
+[11:18:26] 200   11.021496ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.papiersaal.ch%2F&datetime=2025-06-21+18%3A00
+2025/06/16 11:18:30 INFO Checking amenity type type=theatre location=Papiersaal name=Papiersaal
+[11:18:26] 400  22.33755507s POST /api/events
+[11:18:49] 200   14.398214ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwalcheturm.ch%2Fagenda%2F&datetime=2025-11-01+19%3A00
+[11:18:49] 200   14.259037ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.volkshaus.ch%2Faktuell&datetime=2025-06-17+19%3A00
+[11:18:49] 400 25.263499231s POST /api/events
+[11:19:14] 200   17.262868ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.bogenf.ch%2Fkonzerte&datetime=2025-07-02+18%3A00
+2025/06/16 11:19:19 INFO Checking amenity type type=events_venue location="Bogen F" name="Bogen F"
+[11:19:14] 400  18.96250117s POST /api/events
+[11:19:33] 200   18.295871ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.photobastei.ch%2Fsite%2Fprogram%3Fprev%3D3%26next%3D21&datetime=2025-06-21+18%3A00
+[11:19:33] 200   11.963717ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.plaza-zurich.ch%2Fnu%2Fevents%2Fevent_list_type%2F2&datetime=2025-06-20+17%3A00
+[11:19:33] 200   13.759233ms DELETE /api/events?sourceUrl=https%3A%2F%2Fkomplex-457.ch%2Fevent%2F&datetime=2025-06-17+17%3A45
+2025/06/16 11:19:36 INFO Checking amenity type type=nightclub location="Plaza Klub" name="Plaza Klub"
+2025/06/16 11:19:37 INFO Checking amenity type type=nightclub location="Komplex 457" name="Komplex 457"
+[11:19:33] 400 23.781777786s POST /api/events
+[11:19:57] 200   18.303957ms DELETE /api/events?sourceUrl=https%3A%2F%2Fjazzimseefeld.ch%2Fprogramm%2F&datetime=2025-06-25+17%3A30
+[11:19:57] 200   32.986969ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.maag-moments.ch%2Fmaag%2Fde%2Fevents.html%3Fevent_category%3Dkonzerte&datetime=2025-06-17+18%3A00
+[11:19:57] 200   34.978429ms DELETE /api/events?sourceUrl=https%3A%2F%2Fbaramegge.ch%2Fprogramm%2Fkonzerte%2F&datetime=2025-06-30+18%3A00
+[11:19:57] 200   18.043115ms DELETE /api/events?sourceUrl=https%3A%2F%2Frotefabrik.ch%2Fde%2Fprogramm.html%23%2Fcalendar%2Fkonzert%2F&datetime=2025-06-23+18%3A00
+2025/06/16 11:20:00 INFO Checking amenity type type=events_venue location="Halle 622" name="Halle 622"
+2025/06/16 11:20:01 INFO Checking amenity type type=pub location="Bar Am Egge" name="Bar am Egge"
+2025/06/16 11:20:02 INFO Checking amenity type type=arts_centre location="Rote Fabrik" name="Rote Fabrik"
+[11:19:57] 400 23.846939658s POST /api/events
+[11:20:20] 200     6.29572ms DELETE /api/events?sourceUrl=https%3A%2F%2Famrank.ch%2Fbuehne%2F%3Ffakeparam%3D1&datetime=2025-06-17+16%3A00
+[11:20:20] 200    7.999653ms DELETE /api/events?sourceUrl=https%3A%2F%2Famrank.ch%2Fbuehne%2F%3Ffakeparam%3D2&datetime=2025-06-18+16%3A00
+[11:20:20] 200   13.903561ms DELETE /api/events?sourceUrl=https%3A%2F%2Famrank.ch%2Fbuehne%2F%3Ffakeparam%3D3&datetime=2025-06-19+16%3A00
+[11:20:20] 200   14.922881ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.marsbar.ch%2Fkonzerte_und_veranstaltungen%2F&datetime=2025-06-12+18%3A30
+[11:20:20] 200   10.239608ms DELETE /api/events?sourceUrl=https%3A%2F%2Fgz-zh.ch%2F%3Fzielgruppen%3Derwachsene%26sparte%3Devents%2Cmusik&datetime=2025-06-17+17%3A15
+[11:20:21] 200     9.60175ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.dynamo.ch%2Fevents-kurse%3Ftype%3Devent&datetime=2025-06-17+17%3A00
+2025/06/16 11:20:23 INFO Checking amenity type type=restaurant location="Kultur Lokal Rank" name=Rank
+2025/06/16 11:20:24 INFO Checking amenity type type=pub location="Mars Bar" name="Mars Bar"
+2025/06/16 11:20:25 INFO Checking amenity type type=community_centre location="GZ Oerlikon" name="Gemeinschaftszentrum Oerlikon"
+2025/06/16 11:20:26 INFO Checking amenity type type=arts_centre location=Dynamo name=Dynamo
+2025/06/16 11:20:46 INFO Checking amenity type type=community_centre location="GZ Heuried" name="Gemeinschaftszentrum Heuried"
+[11:20:21] 400 26.869568073s POST /api/events
+[11:20:47] 200     9.84401ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.galotti.ch%2Fevents%2F&datetime=2025-06-17+17%3A15
+[11:20:47] 200   16.670516ms DELETE /api/events?sourceUrl=https%3A%2F%2Fkaufleuten.ch%2Fevents%2Fkultur%2Fkonzerte%2F&datetime=2025-07-01+18%3A00
+2025/06/16 11:20:51 INFO Checking amenity type type=music_school location=Galotti name="Galotti Musikwerkstatt"
+[11:20:47] 400 28.672990317s POST /api/events
+[11:21:16] 400   28.5189652s POST /api/events
+[11:21:44] 400 16.705436963s POST /api/events
+[11:22:01] 400 31.006860467s POST /api/events
+[11:22:32] 400 18.986399299s POST /api/events
+[11:22:51] 201 20.746294048s POST /api/events
+[11:23:33] 200    5.483182ms DELETE /api/events?sourceUrl=https%3A%2F%2Fwww.x-tra.ch%2Fen%2Fprogram%2Fconcerts%2F&datetime=2025-06-17+18%3A00
+2025/06/16 11:24:03 INFO Checking amenity type type=nightclub location=X-TRA name=X-TRA
+[11:23:33] 201 31.686657061s POST /api/events
+[11:24:05] 201  4.102994743s POST /api/events
