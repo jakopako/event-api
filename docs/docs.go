@@ -507,6 +507,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "models.Address": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "type": "string"
+                },
+                "geolocation": {
+                    "$ref": "#/definitions/models.MongoGeolocation"
+                },
+                "houseNumber": {
+                    "type": "string"
+                },
+                "locality": {
+                    "type": "string"
+                },
+                "postCode": {
+                    "type": "string"
+                },
+                "state": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Event": {
             "type": "object",
             "required": [
@@ -519,6 +545,9 @@ var doc = `{
                 "url"
             ],
             "properties": {
+                "address": {
+                    "$ref": "#/definitions/models.Address"
+                },
                 "city": {
                     "type": "string",
                     "example": "SuperCity"
@@ -548,16 +577,6 @@ var doc = `{
                     "type": "string",
                     "example": "begleitet von diversen Berner Hip-Hop Acts. Von Trap und Phonk bis zu Afrobeats - Free Quenzy's Produktionen bieten eine breite Palette an Sounds."
                 },
-                "geolocation": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    },
-                    "example": [
-                        7.4514512,
-                        46.9482713
-                    ]
-                },
                 "imageUrl": {
                     "type": "string",
                     "example": "http://link.to/concert/image.jpg"
@@ -584,6 +603,20 @@ var doc = `{
                 "url": {
                     "type": "string",
                     "example": "http://link.to/concert/page"
+                }
+            }
+        },
+        "models.MongoGeolocation": {
+            "type": "object",
+            "properties": {
+                "coordinates": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }
