@@ -24,6 +24,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	nominatimSearchURL = "https://nominatim.openstreetmap.org/search?"
+)
+
 type GeolocCache struct {
 	// for cityMemCache it's ok to use a map since we only
 	// add existing locations to it and there are only so many locations
@@ -87,7 +91,7 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 				return nil, nominatimErr.(error)
 			}
 
-			geoLoc, err := queryNominatimForCityGeoloc(searchKey)
+			geoLoc, err := queryNominatimForCityGeoloc(city, country)
 			if err != nil {
 				// write error to negative cache
 				// we don't want to flood the external service
@@ -140,13 +144,16 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	return geolocs, nil
 }
 
-func queryNominatimForCityGeoloc(query string) (*models.MongoGeolocation, error) {
+func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation, error) {
 	client := &http.Client{}
-	// TODO: use same query structure as in LookupVenueLocation
-	// hopefully this will solve the winterthur issue
-	// https://nominatim.openstreetmap.org/search.php?q=winterthur+switzerland&format=jsonv2
-	// doesn't return the proper results
-	requestUrl := fmt.Sprintf("https://nominatim.openstreetmap.org/search.php?q=%s&format=jsonv2", url.QueryEscape(query))
+	params := url.Values{}
+	params.Set("city", city)
+	if country != "" {
+		params.Set("country", country)
+	}
+	params.Set("format", "jsonv2")
+
+	requestUrl := nominatimSearchURL + params.Encode()
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
 	resp, err := client.Do(req)
@@ -154,6 +161,7 @@ func queryNominatimForCityGeoloc(query string) (*models.MongoGeolocation, error)
 		return nil, err
 	}
 	defer resp.Body.Close()
+
 	var places []models.NominatimPlace
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -168,7 +176,7 @@ func queryNominatimForCityGeoloc(query string) (*models.MongoGeolocation, error)
 	countries := map[string]bool{}
 	for i := range max {
 		// extract country from display name and filter out irrelevant results
-		if isValidAddressType(places[i].AddressType) {
+		if isValidLocalityAddressType(places[i].AddressType) {
 			if places[i].Importance > 0.4 || max == 1 {
 				places[j] = places[i]
 				j++
@@ -193,13 +201,13 @@ func queryNominatimForCityGeoloc(query string) (*models.MongoGeolocation, error)
 				Coordinates: []float64{lonFloat, latFloat},
 			}, nil
 		} else {
-			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", query, countries)
+			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", city, countries)
 		}
 	}
-	return nil, fmt.Errorf("no relevant coordinates found for %s", query)
+	return nil, fmt.Errorf("no relevant coordinates found for %s, %s", city, country)
 }
 
-func isValidAddressType(addressType string) bool {
+func isValidLocalityAddressType(addressType string) bool {
 	// we only want to accept cities, towns and villages
 	validTypes := []string{"city", "town", "village"}
 	return slices.Contains(validTypes, addressType)
@@ -280,7 +288,7 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 	if country != "" {
 		params.Set("country", country)
 	}
-	requestUrl := "https://nominatim.openstreetmap.org/search?" + params.Encode()
+	requestUrl := nominatimSearchURL + params.Encode()
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
 	resp, err := client.Do(req)
