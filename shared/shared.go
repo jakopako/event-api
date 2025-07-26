@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -17,9 +18,21 @@ import (
 
 func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 	eventCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	var events []models.Event
+
+	if q.Page < 1 {
+		return events, 0, 0, errors.New("page parameter must be greater than 0")
+	}
+	if q.Limit < 1 {
+		return events, 0, 0, errors.New("limit parameter must be greater than 0")
+	}
+	if q.Radius < 0 {
+		return events, 0, 0, errors.New("radius parameter must be greater or equal 0")
+	}
+
 	var filter primitive.M
 	if q.StartDate != nil {
 		if q.EndDate == nil {
