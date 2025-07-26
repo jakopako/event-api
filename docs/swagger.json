@@ -485,6 +485,64 @@
                     }
                 }
             }
+        },
+        "/api/status": {
+            "get": {
+                "description": "This endpoint returns all scraper statuses matching the search terms.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scraper status"
+                ],
+                "summary": "Get scraper status.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "scraper name search string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ScraperStatus"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No scraper status found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -597,6 +655,36 @@
                     }
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ScraperStatus": {
+            "type": "object",
+            "required": [
+                "lastScrapeEnd",
+                "lastScrapeStart",
+                "nrErrors",
+                "nrItems",
+                "scraperName"
+            ],
+            "properties": {
+                "lastScrapeEnd": {
+                    "type": "string"
+                },
+                "lastScrapeStart": {
+                    "type": "string"
+                },
+                "nrErrors": {
+                    "type": "string"
+                },
+                "nrItems": {
+                    "type": "string"
+                },
+                "scraperLogs": {
+                    "type": "string"
+                },
+                "scraperName": {
                     "type": "string"
                 }
             }

@@ -81,6 +81,27 @@ definitions:
       type:
         type: string
     type: object
+  models.ScraperStatus:
+    properties:
+      lastScrapeEnd:
+        type: string
+      lastScrapeStart:
+        type: string
+      nrErrors:
+        type: string
+      nrItems:
+        type: string
+      scraperLogs:
+        type: string
+      scraperName:
+        type: string
+    required:
+    - lastScrapeEnd
+    - lastScrapeStart
+    - nrErrors
+    - nrItems
+    - scraperName
+    type: object
 info:
   contact: {}
 paths:
@@ -402,4 +423,43 @@ paths:
       summary: Send notifications.
       tags:
       - notifications
+  /api/status:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint returns all scraper statuses matching the search
+        terms.
+      parameters:
+      - description: scraper name search string
+        in: query
+        name: name
+        type: string
+      - description: page number
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ScraperStatus'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: No scraper status found
+          schema:
+            type: string
+      summary: Get scraper status.
+      tags:
+      - scraper status
 swagger: "2.0"
