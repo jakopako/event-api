@@ -36,7 +36,7 @@ func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 		return events, 0, 0, errors.New("limit parameter must be greater than 0")
 	}
 	if q.Radius < 0 {
-		return events, 0, 0, errors.New("radius parameter must be greater or equal 0")
+		return events, 0, 0, errors.New("radius parameter must be greater than or equal to 0")
 	}
 
 	var filter primitive.M

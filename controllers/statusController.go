@@ -63,7 +63,7 @@ func GetScraperStatus(c *fiber.Ctx) error {
 	}
 
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{Key: "name", Value: 1}})
+	findOptions.SetSort(bson.D{{Key: "scraperName", Value: 1}})
 	findOptions.SetSkip((int64(page) - 1) * limit)
 	findOptions.SetLimit(limit)
 
