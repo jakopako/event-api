@@ -16,8 +16,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	EventCollectionName         = "events"
+	NotificationCollectionName  = "notifications"
+	ScraperStatusCollectionName = "status"
+)
+
 func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
-	eventCollection := config.MI.DB.Collection("events")
+	eventCollection := config.MI.DB.Collection(EventCollectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
