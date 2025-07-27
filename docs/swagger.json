@@ -485,6 +485,165 @@
                     }
                 }
             }
+        },
+        "/api/status": {
+            "get": {
+                "description": "This endpoint returns all scraper statuses matching the search terms.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scraper status"
+                ],
+                "summary": "Get scraper status.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "scraper name search string",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page size",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ScraperStatus"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No scraper status found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint inserts or updates the status of a scraper, based on the given name. For now, per scraper only one status is allowed.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scraper status"
+                ],
+                "summary": "Update or insert scraper status.",
+                "parameters": [
+                    {
+                        "description": "Scraper status object",
+                        "name": "status",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ScraperStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ScraperStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/status/{name}": {
+            "delete": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "This endpoint deletes the status of a scraper by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "scraper status"
+                ],
+                "summary": "Delete scraper status.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Scraper name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Status not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -598,6 +757,41 @@
                 },
                 "type": {
                     "type": "string"
+                }
+            }
+        },
+        "models.ScraperStatus": {
+            "type": "object",
+            "required": [
+                "lastScrapeEnd",
+                "lastScrapeStart",
+                "nrErrors",
+                "nrItems",
+                "scraperName"
+            ],
+            "properties": {
+                "lastScrapeEnd": {
+                    "type": "string",
+                    "example": "2021-10-31T19:05:00.000Z"
+                },
+                "lastScrapeStart": {
+                    "type": "string",
+                    "example": "2021-10-31T19:00:00.000Z"
+                },
+                "nrErrors": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "nrItems": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "scraperLogs": {
+                    "type": "string"
+                },
+                "scraperName": {
+                    "type": "string",
+                    "example": "Helsinki"
                 }
             }
         }

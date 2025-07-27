@@ -81,6 +81,32 @@ definitions:
       type:
         type: string
     type: object
+  models.ScraperStatus:
+    properties:
+      lastScrapeEnd:
+        example: "2021-10-31T19:05:00.000Z"
+        type: string
+      lastScrapeStart:
+        example: "2021-10-31T19:00:00.000Z"
+        type: string
+      nrErrors:
+        example: 0
+        type: integer
+      nrItems:
+        example: 100
+        type: integer
+      scraperLogs:
+        type: string
+      scraperName:
+        example: Helsinki
+        type: string
+    required:
+    - lastScrapeEnd
+    - lastScrapeStart
+    - nrErrors
+    - nrItems
+    - scraperName
+    type: object
 info:
   contact: {}
 paths:
@@ -402,4 +428,108 @@ paths:
       summary: Send notifications.
       tags:
       - notifications
+  /api/status:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint returns all scraper statuses matching the search
+        terms.
+      parameters:
+      - description: scraper name search string
+        in: query
+        name: name
+        type: string
+      - description: page number
+        in: query
+        name: page
+        type: integer
+      - description: page size
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ScraperStatus'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: No scraper status found
+          schema:
+            type: string
+      summary: Get scraper status.
+      tags:
+      - scraper status
+    post:
+      consumes:
+      - application/json
+      description: This endpoint inserts or updates the status of a scraper, based
+        on the given name. For now, per scraper only one status is allowed.
+      parameters:
+      - description: Scraper status object
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/models.ScraperStatus'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ScraperStatus'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Update or insert scraper status.
+      tags:
+      - scraper status
+  /api/status/{name}:
+    delete:
+      description: This endpoint deletes the status of a scraper by name.
+      parameters:
+      - description: Scraper name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: Status not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BasicAuth: []
+      summary: Delete scraper status.
+      tags:
+      - scraper status
 swagger: "2.0"

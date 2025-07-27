@@ -97,3 +97,12 @@ type Query struct {
 type SlackRequest struct {
 	Text string `json:"text" form:"text"`
 }
+
+type ScraperStatus struct {
+	ScraperName     string    `bson:"scraperName" json:"scraperName" validate:"required" example:"Helsinki"`
+	NrItems         *int      `bson:"nrItems" json:"nrItems" validate:"required,gte=0" example:"100"`
+	NrErrors        *int      `bson:"nrErrors" json:"nrErrors" validate:"required,gte=0" example:"0"`
+	LastScrapeStart time.Time `bson:"lastScrapeStart" json:"lastScrapeStart" validate:"required" example:"2021-10-31T19:00:00.000Z"`
+	LastScrapeEnd   time.Time `bson:"lastScrapeEnd" json:"lastScrapeEnd" validate:"required" example:"2021-10-31T19:05:00.000Z"`
+	ScraperLogs     string    `bson:"scraperLogs" json:"scraperLogs"`
+}

@@ -2,6 +2,7 @@ package shared
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -15,11 +16,29 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	EventCollectionName         = "events"
+	NotificationCollectionName  = "notifications"
+	ScraperStatusCollectionName = "status"
+)
+
 func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
-	eventCollection := config.MI.DB.Collection("events")
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	eventCollection := config.MI.DB.Collection(EventCollectionName)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	var events []models.Event
+
+	if q.Page < 1 {
+		return events, 0, 0, errors.New("page parameter must be greater than 0")
+	}
+	if q.Limit < 1 {
+		return events, 0, 0, errors.New("limit parameter must be greater than 0")
+	}
+	if q.Radius < 0 {
+		return events, 0, 0, errors.New("radius parameter must be greater than or equal to 0")
+	}
+
 	var filter primitive.M
 	if q.StartDate != nil {
 		if q.EndDate == nil {
@@ -55,7 +74,7 @@ func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 	}
 
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"date", 1}})
+	findOptions.SetSort(bson.D{{Key: "date", Value: 1}})
 
 	for searchKey, searchValue := range map[string]string{"title": q.Title, "location": q.Location, "country": q.Country, "type": q.Type} {
 		if searchValue != "" {

@@ -44,7 +44,7 @@ func AddNotification(c *fiber.Ctx) error {
 			"error":   "ACTIVATION_URL has to be provided as environment variable",
 		})
 	}
-	notificationCollection := config.MI.DB.Collection("notifications")
+	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
 
 	// verify email
 	email := c.Query("email")
@@ -84,7 +84,7 @@ func AddNotification(c *fiber.Ctx) error {
 		"$setOnInsert": n,
 	}
 
-	filter := bson.D{{"email", n.Email}, {"query", n.Query}}
+	filter := bson.D{{Key: "email", Value: n.Email}, {Key: "query", Value: n.Query}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	opts := options.Update().SetUpsert(true)
 	result, err := notificationCollection.UpdateOne(ctx, filter, update, opts)
@@ -144,14 +144,14 @@ Your ConcertCloud team
 // @Failure 500 {object} string "failed to activate notification"
 // @Router /api/notifications/activate [get]
 func ActivateNotification(c *fiber.Ctx) error {
-	notificationCollection := config.MI.DB.Collection("notifications")
+	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
 	email := c.Query("email")
 	token := c.Query("token")
 
 	// check notifications
 	now := time.Now().UTC()
 	then := now.AddDate(0, 0, -1)
-	filter := bson.D{{"email", email}, {"token", token}, {"setupDate", bson.M{"$gt": then}}}
+	filter := bson.D{{Key: "email", Value: email}, {Key: "token", Value: token}, {Key: "setupDate", Value: bson.M{"$gt": then}}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	var not models.Notification
 	err := notificationCollection.FindOne(ctx, filter).Decode(&not)
@@ -169,7 +169,7 @@ func ActivateNotification(c *fiber.Ctx) error {
 		})
 	}
 
-	update := bson.D{{"$set", bson.D{{"active", true}}}}
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "active", Value: true}}}}
 	_, err = notificationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
@@ -196,11 +196,11 @@ func ActivateNotification(c *fiber.Ctx) error {
 // @Failure 500 {object} string "Failed to delete notification"
 // @Router /api/notifications/delete [get]
 func DeleteNotification(c *fiber.Ctx) error {
-	notificationCollection := config.MI.DB.Collection("notifications")
+	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
 	email := c.Query("email")
 	token := c.Query("token")
 
-	filter := bson.D{{"email", email}, {"token", token}}
+	filter := bson.D{{Key: "email", Value: email}, {Key: "token", Value: token}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	_, err := notificationCollection.DeleteOne(ctx, filter)
 	if err != nil {
@@ -223,11 +223,11 @@ func DeleteNotification(c *fiber.Ctx) error {
 // @Failure 500 {object} string "Failed to delete notifications"
 // @Router /api/notifications/deleteInactive [delete]
 func DeleteInactiveNotifictions(c *fiber.Ctx) error {
-	notificationCollection := config.MI.DB.Collection("notifications")
+	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
 
 	now := time.Now().UTC()
 	then := now.AddDate(0, 0, -1)
-	filter := bson.D{{"active", false}, {"setupDate", bson.M{"$lt": then}}}
+	filter := bson.D{{Key: "active", Value: false}, {Key: "setupDate", Value: bson.M{"$lt": then}}}
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	_, err := notificationCollection.DeleteMany(ctx, filter)
 	if err != nil {
@@ -250,8 +250,8 @@ func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 // @Router /api/notifications/send [get]
 func SendNotifications(c *fiber.Ctx) error {
 	// fetch active notifications
-	notificationCollection := config.MI.DB.Collection("notifications")
-	filter := bson.D{{"active", true}}
+	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
+	filter := bson.D{{Key: "active", Value: true}}
 
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	cursor, err := notificationCollection.Find(ctx, filter)
