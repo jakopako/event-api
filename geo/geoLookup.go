@@ -209,7 +209,9 @@ func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation
 
 func isValidLocalityAddressType(addressType string) bool {
 	// we only want to accept cities, towns and villages
-	validTypes := []string{"city", "town", "village"}
+	// UPDATE: I've added 'county' since Oslo, Norway has
+	// addresstype 'county' in Nominatim
+	validTypes := []string{"city", "town", "village", "county"}
 	return slices.Contains(validTypes, addressType)
 }
 
