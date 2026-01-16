@@ -72,6 +72,39 @@ definitions:
     - type
     - url
     type: object
+  models.GenericResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  models.GetDistinctFieldResponse:
+    properties:
+      data:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+  models.GetEventsResponseSuccess:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Event'
+        type: array
+      lastPage:
+        type: integer
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
   models.MongoGeolocation:
     properties:
       coordinates:
@@ -107,6 +140,30 @@ definitions:
     - nrItems
     - scraperName
     type: object
+  models.ValidateAndAddEventsResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+      validatedEvents:
+        items:
+          $ref: '#/definitions/models.Event'
+        type: array
+      validationErrors:
+        items:
+          $ref: '#/definitions/models.ValidateEventError'
+        type: array
+    type: object
+  models.ValidateEventError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -120,7 +177,7 @@ paths:
         in: query
         name: sourceUrl
         type: string
-      - description: datetime string
+      - description: datetime string, format YYYY-MM-DD HH:MM
         in: query
         name: datetime
         type: string
@@ -128,13 +185,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: A success message
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: failed to delete events
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       security:
       - BasicAuth: []
       summary: Delete events.
@@ -189,13 +250,11 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Event'
-            type: array
-        "404":
-          description: No events found
+            $ref: '#/definitions/models.GetEventsResponseSuccess'
+        "400":
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Get all events.
       tags:
       - events
@@ -204,7 +263,7 @@ paths:
       - application/json
       description: Add new events to the database.
       parameters:
-      - description: Event Info
+      - description: event list
         in: body
         name: message
         required: true
@@ -216,17 +275,17 @@ paths:
       - application/json
       responses:
         "201":
-          description: A json with the results
+          description: Created
           schema:
-            type: string
+            $ref: '#/definitions/models.ValidateAndAddEventsResponse'
         "400":
-          description: failed to parse body
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.ValidateAndAddEventsResponse'
         "500":
-          description: failed to insert events
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.ValidateAndAddEventsResponse'
       security:
       - BasicAuth: []
       summary: Add new events.
@@ -245,14 +304,18 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetDistinctFieldResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: failed to retrieve values
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Get distinct field values.
       tags:
       - events
@@ -282,7 +345,7 @@ paths:
       - application/json
       description: This endpoint validates events.
       parameters:
-      - description: Event Info
+      - description: event list
         in: body
         name: message
         required: true
@@ -294,13 +357,13 @@ paths:
       - application/json
       responses:
         "200":
-          description: A json with the results
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.ValidateAndAddEventsResponse'
         "400":
-          description: failed to validate events
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.ValidateAndAddEventsResponse'
       summary: Validate events.
       tags:
       - events

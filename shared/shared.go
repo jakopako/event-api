@@ -22,7 +22,7 @@ const (
 	ScraperStatusCollectionName = "status"
 )
 
-func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
+func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 	eventCollection := config.MI.DB.Collection(EventCollectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -136,7 +136,7 @@ func FetchEvents(q models.Query) ([]models.Event, int64, float64, error) {
 		events = append(events, event)
 	}
 
-	last := math.Ceil(float64(total) / float64(q.Limit))
+	last := int64(math.Ceil(float64(total) / float64(q.Limit)))
 	if last < 1 && total > 0 {
 		last = 1
 	}

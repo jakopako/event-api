@@ -35,8 +35,8 @@ import (
 // @Param date query string false "date search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
-// @Success 200 {array} models.Event
-// @Failure 404 {object} string "No events found"
+// @Success 200 {object} models.GetEventsResponseSuccess
+// @Failure 400 {object} models.GenericResponse
 // @Router /api/events [get]
 func GetAllEvents(c *fiber.Ctx) error {
 	radius, _ := strconv.Atoi(c.Query("radius", "0"))
@@ -53,10 +53,10 @@ func GetAllEvents(c *fiber.Ctx) error {
 	} else {
 		d, err := time.Parse(time.RFC3339, queryDate)
 		if err != nil {
-			return c.Status(400).JSON(fiber.Map{
-				"success": false,
-				"message": "failed fetch events",
-				"error":   fmt.Sprintf("couldn't parse date: %v", err),
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "failed fetch events",
+				Error:   fmt.Sprintf("couldn't parse date: %v", err),
 			})
 		}
 		startDate = &d
@@ -77,19 +77,19 @@ func GetAllEvents(c *fiber.Ctx) error {
 	}
 	events, total, last, err := shared.FetchEvents(query)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": "failed fetch events",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed fetch events",
+			Error:   err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":      events,
-		"total":     total,
-		"page":      page,
-		"last_page": last,
-		"limit":     limit,
+	return c.Status(fiber.StatusOK).JSON(models.GetEventsResponseSuccess{
+		Data:     events,
+		Total:    total,
+		Page:     page,
+		LastPage: last,
+		Limit:    limit,
 	})
 }
 
@@ -99,9 +99,9 @@ func GetAllEvents(c *fiber.Ctx) error {
 // @Tags events
 // @Accept json
 // @Produce json
-// @Param message body []models.Event true "Event Info"
-// @Success 200 {object} string "A json with the results"
-// @Failure 400 {object} string "failed to validate events"
+// @Param message body []models.Event true "event list"
+// @Success 200 {object} models.ValidateAndAddEventsResponse
+// @Failure 400 {object} models.ValidateAndAddEventsResponse
 // @Router /api/events/validate [post]
 func ValidateEvents(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
@@ -110,27 +110,27 @@ func ValidateEvents(c *fiber.Ctx) error {
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to parse body",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusBadRequest).JSON(models.ValidateAndAddEventsResponse{
+			Success: false,
+			Message: "failed to parse body",
+			Error:   err.Error(),
 		})
 	}
 
 	validatedEvents, validationErrs := validateAndSanitizeEvents(ctx, events)
 
-	if len(validationErrs) > 0 {
-		return c.Status(400).JSON(fiber.Map{
-			"succes":  false,
-			"message": "some events have not been validated successfully",
-			"errors":  validationErrs,
-			"data":    validatedEvents,
+	if len(*validationErrs) > 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(models.ValidateAndAddEventsResponse{
+			Success:          false,
+			Message:          "some events have not been validated successfully",
+			ValidationErrors: *validationErrs,
+			ValidatedEvents:  *validatedEvents,
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success":         true,
-		"message":         "events validated successfully",
-		"validatedEvents": validatedEvents,
+	return c.Status(fiber.StatusOK).JSON(models.ValidateAndAddEventsResponse{
+		Success:         true,
+		Message:         "events validated successfully",
+		ValidatedEvents: *validatedEvents,
 	})
 }
 
@@ -141,10 +141,10 @@ func ValidateEvents(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Security BasicAuth
-// @Param message body []models.Event true "Event Info"
-// @Success 201 {object} string "A json with the results"
-// @Failure 400 {object} string "failed to parse body"
-// @Failure 500 {object} string "failed to insert events"
+// @Param message body []models.Event true "event list"
+// @Success 201 {object} models.ValidateAndAddEventsResponse
+// @Failure 400 {object} models.ValidateAndAddEventsResponse
+// @Failure 500 {object} models.ValidateAndAddEventsResponse
 // @Router /api/events [post]
 func AddEvents(c *fiber.Ctx) error {
 	eventCollection := config.MI.DB.Collection("events")
@@ -154,10 +154,10 @@ func AddEvents(c *fiber.Ctx) error {
 	events := new([]models.Event)
 
 	if err := c.BodyParser(events); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to parse body",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusBadRequest).JSON(models.ValidateAndAddEventsResponse{
+			Success: false,
+			Message: "failed to parse body",
+			Error:   err.Error(),
 		})
 	}
 
@@ -182,34 +182,31 @@ func AddEvents(c *fiber.Ctx) error {
 		operations = append(operations, op)
 	}
 
-	var result *mongo.BulkWriteResult
 	if len(operations) > 0 {
 		var err error
 		bulkOption := options.BulkWriteOptions{}
 		bulkOption.SetOrdered(true)
-		result, err = eventCollection.BulkWrite(ctx, operations, &bulkOption)
+		_, err = eventCollection.BulkWrite(ctx, operations, &bulkOption)
 
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"success": false,
-				"message": "failed to insert events",
-				"error":   err.Error(),
+			return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+				Success: false,
+				Message: "failed to insert events",
+				Error:   err.Error(),
 			})
 		}
 	}
 
-	if len(validationErrs) > 0 {
-		return c.Status(400).JSON(fiber.Map{
-			"succes":  false,
-			"data":    result,
-			"message": "some events were not inserted successfully into the database",
-			"errors":  validationErrs,
+	if len(*validationErrs) > 0 {
+		return c.Status(400).JSON(models.ValidateAndAddEventsResponse{
+			Success:          false,
+			Message:          "some events were not inserted successfully into the database",
+			ValidationErrors: *validationErrs,
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"data":    result,
-		"success": true,
-		"message": "events inserted successfully",
+	return c.Status(fiber.StatusCreated).JSON(models.ValidateAndAddEventsResponse{
+		Success: true,
+		Message: "events inserted successfully",
 	})
 
 }
@@ -282,14 +279,13 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 	}
 
 	cursor, err := eventCollection.Find(ctx, filter, findOptions)
-	defer cursor.Close(ctx)
-
 	if err != nil {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"response_type": "ephemeral",
 			"text":          "Sorry, something went wrong.",
 		})
 	}
+	defer cursor.Close(ctx)
 
 	for cursor.Next(ctx) {
 		var event models.Event
@@ -304,7 +300,7 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 				"type": "section",
 				"text": fiber.Map{
 					"type": "mrkdwn",
-					"text": GetMarkdownSummary(events),
+					"text": getMarkdownSummary(events),
 				},
 			},
 		},
@@ -319,9 +315,10 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param sourceUrl query string false "sourceUrl string"
-// @Param datetime query string false "datetime string"
-// @Success 200 {object} string "A success message"
-// @Failure 500 {object} string "failed to delete events"
+// @Param datetime query string false "datetime string, format YYYY-MM-DD HH:MM"
+// @Success 200 {object} models.GenericResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/events [delete]
 func DeleteEvents(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
@@ -337,10 +334,10 @@ func DeleteEvents(c *fiber.Ctx) error {
 	} else {
 		t, err := time.Parse("2006-01-02 15:04", datetimeString)
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{
-				"success": false,
-				"message": "couldn't parse datetime",
-				"error":   err,
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "couldn't parse datetime",
+				Error:   err.Error(),
 			})
 		}
 		if src == "" {
@@ -364,15 +361,15 @@ func DeleteEvents(c *fiber.Ctx) error {
 	result, err := eventsCollection.DeleteMany(ctx, filter)
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": fmt.Sprintf("failed to delete events from source %s", src),
-			"error":   err,
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: fmt.Sprintf("failed to delete events from source %s", src),
+			Error:   err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": fmt.Sprintf("successfully deleted %d events with source %s", result.DeletedCount, src),
+	return c.Status(fiber.StatusOK).JSON(models.GenericResponse{
+		Success: true,
+		Message: fmt.Sprintf("successfully deleted %d events with source %s", result.DeletedCount, src),
 	})
 }
 
@@ -382,8 +379,9 @@ func DeleteEvents(c *fiber.Ctx) error {
 // @Tags events
 // @Produce json
 // @Param field path string true "field name, can only be location or city"
-// @Failure 500 {object} string "failed to retrieve values"
-// @Failure 400 {object} string "Bad request"
+// @Success 200 {object} models.GetDistinctFieldResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/events/{field} [get]
 func GetDistinct(c *fiber.Ctx) error {
 	eventsCollection := config.MI.DB.Collection("events")
@@ -392,10 +390,10 @@ func GetDistinct(c *fiber.Ctx) error {
 
 	field := c.Params("field")
 	if field != "location" && field != "city" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "invalid value for the field parameter",
-			"error":   "the field parameter has to be 'location' or 'city'",
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "invalid value for the field parameter",
+			Error:   "the field parameter has to be 'location' or 'city'",
 		})
 	}
 
@@ -414,39 +412,46 @@ func GetDistinct(c *fiber.Ctx) error {
 
 	result, err := eventsCollection.Distinct(ctx, field, filter)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to query database.",
-			"error":   err,
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to query database.",
+			Error:   err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":    result,
-		"success": true,
+	distinctValues := []string{}
+	for _, r := range result {
+		if str, ok := r.(string); ok {
+			distinctValues = append(distinctValues, str)
+		}
+	}
+
+	return c.Status(fiber.StatusOK).JSON(models.GetDistinctFieldResponse{
+		Success: true,
+		Data:    distinctValues,
 	})
 }
 
-func GetMarkdownSummary(events []models.Event) string {
-	result := ""
+func getMarkdownSummary(events []models.Event) string {
+	var result strings.Builder
 	for _, c := range events {
-		result += fmt.Sprintf("<%s|%s> @%s, %s\n", c.URL, c.Title, c.Location, c.Date)
+		fmt.Fprintf(&result, "<%s|%s> @%s, %s\n", c.URL, c.Title, c.Location, c.Date)
 	}
-	return result
+	return result.String()
 }
 
 // validateAndSanitizeEvents validates and sanitizes events
-func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]models.Event, []fiber.Map) {
+func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]models.Event, *[]models.ValidateEventError) {
 	validate := validator.New()
-	validationErrs := []fiber.Map{}
+	validationErrs := []models.ValidateEventError{}
 	validatedEvents := []models.Event{}
 
 	for _, event := range *events {
 		err := validate.Struct(event)
 		if err != nil {
-			validationErrs = append(validationErrs, fiber.Map{
-				"message": fmt.Sprintf("failed to validate event %+v", event),
-				"error":   err.Error(),
+			validationErrs = append(validationErrs, models.ValidateEventError{
+				Message: fmt.Sprintf("failed to validate event %+v", event),
+				Error:   err.Error(),
 			})
 			continue
 		}
@@ -458,9 +463,9 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		// We need to lookup the city coordinates in order to make sure that the radius search works correctly
 		cityGeoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
 		if err != nil {
-			validationErrs = append(validationErrs, fiber.Map{
-				"message": fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
-				"error":   err.Error(),
+			validationErrs = append(validationErrs, models.ValidateEventError{
+				Message: fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
+				Error:   err.Error(),
 			})
 			continue
 		}
@@ -478,9 +483,9 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		if len(event.Genres) == 0 && event.Type == "concert" {
 			genres, err := genre.LookupGenres(ctx, event)
 			if err != nil {
-				validationErrs = append(validationErrs, fiber.Map{
-					"message": fmt.Sprintf("failed to find genre for event %+v", event),
-					"error":   err.Error(),
+				validationErrs = append(validationErrs, models.ValidateEventError{
+					Message: fmt.Sprintf("failed to find genre for event %+v", event),
+					Error:   err.Error(),
 				})
 			}
 			event.Genres = genres
@@ -494,5 +499,5 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		validatedEvents = append(validatedEvents, event)
 	}
 
-	return &validatedEvents, validationErrs
+	return &validatedEvents, &validationErrs
 }
