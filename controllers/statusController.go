@@ -26,25 +26,25 @@ import (
 // @Param name query string false "scraper name search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
-// @Success 200 {array} models.ScraperStatus
-// @Failure 404 {object} string "No scraper status found"
-// @Failure 400 {object} string "Bad request"
+// @Success 200 {object} models.GetScraperStatusResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 404 {object} models.GenericResponse
 // @Router /api/status [get]
 func GetScraperStatus(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1")) // page is 0 when the parameter is not parsable as int
 	if page < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to fetch statuses",
-			"error":   "page parameter must be greater than 0",
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to fetch statuses",
+			Error:   "page parameter must be greater than 0",
 		})
 	}
 	limitInt, _ := strconv.Atoi(c.Query("limit", "10"))
 	if limitInt < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to fetch statuses",
-			"error":   "limit parameter must be greater than 0",
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to fetch statuses",
+			Error:   "limit parameter must be greater than 0",
 		})
 	}
 	var limit int64 = int64(limitInt)
@@ -71,10 +71,10 @@ func GetScraperStatus(c *fiber.Ctx) error {
 
 	cursor, err := statusCollection.Find(ctx, filter, findOptions)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to fetch statuses",
-			"error":   fmt.Sprintf("statuses not found: %v", err),
+		return c.Status(fiber.StatusNotFound).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to fetch statuses",
+			Error:   err.Error(),
 		})
 	}
 	defer cursor.Close(ctx)
@@ -85,17 +85,17 @@ func GetScraperStatus(c *fiber.Ctx) error {
 		statuses = append(statuses, status)
 	}
 
-	last := math.Ceil(float64(total) / float64(limit))
+	last := int64(math.Ceil(float64(total) / float64(limit)))
 	if last < 1 && total > 0 {
 		last = 1
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":      statuses,
-		"total":     total,
-		"page":      page,
-		"last_page": last,
-		"limit":     limit,
+	return c.Status(fiber.StatusOK).JSON(models.GetScraperStatusResponse{
+		Data:     statuses,
+		Total:    total,
+		Page:     page,
+		LastPage: last,
+		Limit:    limit,
 	})
 }
 
@@ -107,9 +107,9 @@ func GetScraperStatus(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param status body models.ScraperStatus true "Scraper status object"
-// @Success 200 {object} models.ScraperStatus
-// @Failure 400 {object} string "Bad request"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {object} models.UpsertScraperStatusResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/status [post]
 func UpsertScraperStatus(c *fiber.Ctx) error {
 	statusCollection := config.MI.DB.Collection(shared.ScraperStatusCollectionName)
@@ -120,27 +120,27 @@ func UpsertScraperStatus(c *fiber.Ctx) error {
 
 	var status models.ScraperStatus
 	if err := c.BodyParser(&status); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to parse status",
-			"error":   fmt.Sprintf("bad request: %v", err),
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to parse status",
+			Error:   err.Error(),
 		})
 	}
 
 	err := validate.Struct(status)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to validate status",
-			"error":   fmt.Sprintf("validation error: %v", err),
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to validate status",
+			Error:   err.Error(),
 		})
 	}
 
 	if status.LastScrapeEnd.Before(status.LastScrapeStart) {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to upsert status",
-			"error":   "lastScrapeEnd must be after lastScrapeStart",
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to upsert status",
+			Error:   "lastScrapeEnd must be after lastScrapeStart",
 		})
 	}
 
@@ -149,19 +149,19 @@ func UpsertScraperStatus(c *fiber.Ctx) error {
 	update := bson.M{
 		"$set": status,
 	}
-	result, err := statusCollection.UpdateOne(ctx, filter, update, opts)
+	_, err = statusCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to upsert status",
-			"error":   fmt.Sprintf("internal server error: %v", err),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to upsert status",
+			Error:   err.Error(),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "status upserted successfully",
-		"data":    result,
+	return c.Status(fiber.StatusOK).JSON(models.UpsertScraperStatusResponse{
+		Success: true,
+		Message: "status upserted successfully",
+		Data:    status,
 	})
 }
 
@@ -172,10 +172,10 @@ func UpsertScraperStatus(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param name path string true "Scraper name"
-// @Success 200 {object} string "Status deleted successfully"
-// @Failure 400 {object} string "Bad request"
-// @Failure 404 {object} string "Status not found"
-// @Failure 500 {object} string "Internal server error"
+// @Success 200 {object} models.GenericResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 404 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/status/{name} [delete]
 func DeleteScraperStatus(c *fiber.Ctx) error {
 	statusCollection := config.MI.DB.Collection(shared.ScraperStatusCollectionName)
@@ -184,41 +184,40 @@ func DeleteScraperStatus(c *fiber.Ctx) error {
 
 	scraperName, err := url.QueryUnescape(c.Params("name"))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to decode scraper name",
-			"error":   fmt.Sprintf("invalid scraper name: %v", err),
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to decode scraper name",
+			Error:   err.Error(),
 		})
 	}
 	if scraperName == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to delete status",
-			"error":   "scraper name is required",
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to delete status",
+			Error:   "scraper name is required",
 		})
 	}
 
 	filter := bson.M{"scraperName": scraperName}
 	result, err := statusCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to delete status",
-			"error":   fmt.Sprintf("internal server error: %v", err),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to delete status",
+			Error:   err.Error(),
 		})
 	}
 
 	if result.DeletedCount == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "status not found",
-			"error":   fmt.Sprintf("no status found for scraper: %s", scraperName),
+		return c.Status(fiber.StatusNotFound).JSON(models.GenericResponse{
+			Success: false,
+			Message: "status not found",
+			Error:   fmt.Sprintf("no status found for scraper: %s", scraperName),
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "status deleted successfully",
-		"data":    result,
+	return c.Status(fiber.StatusOK).JSON(models.GenericResponse{
+		Success: true,
+		Message: "status deleted successfully",
 	})
 }

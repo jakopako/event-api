@@ -31,17 +31,18 @@ import (
 // @Param country query string false "country search string"
 // @Param radius query int false "radius around given city in kilometers"
 // @Param email query string false "email"
-// @Failure 400 {object} string "Failed to parse body"
-// @Failure 500 {object} string "Failed to insert notification"
+// @Success 201 {object} models.GenericResponse
+// @Failure 400 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/notifications/add [get]
 func AddNotification(c *fiber.Ctx) error {
 	baseAURL := os.Getenv("ACTIVATION_URL")
 	baseUURL := os.Getenv("UNSUBSCRIBE_URL")
 	if baseAURL == "" {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to add new notification",
-			"error":   "ACTIVATION_URL has to be provided as environment variable",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to add new notification",
+			Error:   "ACTIVATION_URL has to be provided as environment variable",
 		})
 	}
 	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
@@ -49,20 +50,20 @@ func AddNotification(c *fiber.Ctx) error {
 	// verify email
 	email := c.Query("email")
 	if _, err := mail.ParseAddress(email); err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "couldn't parse email address",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "couldn't parse email address",
+			Error:   err.Error(),
 		})
 	}
 
 	// generate token
 	token, err := generateRandomString(40)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to generate random token",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to generate random token",
+			Error:   err.Error(),
 		})
 	}
 	n := models.Notification{
@@ -89,18 +90,17 @@ func AddNotification(c *fiber.Ctx) error {
 	opts := options.Update().SetUpsert(true)
 	result, err := notificationCollection.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to insert notification",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to insert notification",
+			Error:   err.Error(),
 		})
 	}
 
 	if result.MatchedCount == 1 {
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-			"data":    result,
-			"success": true,
-			"message": "notification already exists in database",
+		return c.Status(fiber.StatusCreated).JSON(models.GenericResponse{
+			Success: true,
+			Message: "notification already exists in database",
 		})
 	}
 
@@ -121,15 +121,15 @@ Your ConcertCloud team
 	message := fmt.Sprintf(mTempl, aUrl, uUrl)
 	if err := sendEmail(n.Email, "notification activation", message); err != nil {
 		// TODO: we should delete the notification in the database again
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to send activation email",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to send activation email",
+			Error:   err.Error(),
 		})
 	}
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"message": "successfully added notification to the database",
+	return c.Status(fiber.StatusCreated).JSON(models.GenericResponse{
+		Success: true,
+		Message: "successfully added notification to the database",
 	})
 }
 
@@ -140,8 +140,9 @@ Your ConcertCloud team
 // @Produce json
 // @Param email query string false "email"
 // @Param token query string false "token"
-// @Failure 400 {object} string "failed to activate notification"
-// @Failure 500 {object} string "failed to activate notification"
+// @Success 200 {object} models.ActivateNotificationResponse
+// @Failure 404 {object} models.GenericResponse
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/notifications/activate [get]
 func ActivateNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
@@ -156,33 +157,33 @@ func ActivateNotification(c *fiber.Ctx) error {
 	var not models.Notification
 	err := notificationCollection.FindOne(ctx, filter).Decode(&not)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to activate notification",
+		return c.Status(fiber.StatusNotFound).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to activate notification",
 		})
 	}
 
 	if not.Active {
-		return c.Status(200).JSON(fiber.Map{
-			"success": true,
-			"message": "notification already activated",
+		return c.Status(fiber.StatusOK).JSON(models.GenericResponse{
+			Success: true,
+			Message: "notification already activated",
 		})
 	}
 
 	update := bson.D{{Key: "$set", Value: bson.D{{Key: "active", Value: true}}}}
 	_, err = notificationCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to activate notification",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to activate notification",
+			Error:   err.Error(),
 		})
 	}
 	not.Active = true
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"data":    not,
-		"success": true,
-		"message": "successfully activated notification",
+	return c.Status(fiber.StatusOK).JSON(models.ActivateNotificationResponse{
+		Data:    not,
+		Success: true,
+		Message: "successfully activated notification",
 	})
 }
 
@@ -193,7 +194,8 @@ func ActivateNotification(c *fiber.Ctx) error {
 // @Produce json
 // @Param email query string false "email"
 // @Param token query string false "token"
-// @Failure 500 {object} string "Failed to delete notification"
+// @Success 200
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/notifications/delete [get]
 func DeleteNotification(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
@@ -204,10 +206,10 @@ func DeleteNotification(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	_, err := notificationCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to delete notification",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to delete notification",
+			Error:   err.Error(),
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
@@ -220,7 +222,8 @@ func DeleteNotification(c *fiber.Ctx) error {
 // @Tags notifications
 // @Produce json
 // @Security BasicAuth
-// @Failure 500 {object} string "Failed to delete notifications"
+// @Success 200
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/notifications/deleteInactive [delete]
 func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 	notificationCollection := config.MI.DB.Collection(shared.NotificationCollectionName)
@@ -231,10 +234,10 @@ func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	_, err := notificationCollection.DeleteMany(ctx, filter)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to delete notification",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to delete notification",
+			Error:   err.Error(),
 		})
 	}
 	return c.SendStatus(fiber.StatusOK)
@@ -246,7 +249,8 @@ func DeleteInactiveNotifictions(c *fiber.Ctx) error {
 // @Tags notifications
 // @Produce json
 // @Security BasicAuth
-// @Failure 500 {object} string "failed to send notifications"
+// @Success 200
+// @Failure 500 {object} models.GenericResponse
 // @Router /api/notifications/send [get]
 func SendNotifications(c *fiber.Ctx) error {
 	// fetch active notifications
@@ -256,29 +260,29 @@ func SendNotifications(c *fiber.Ctx) error {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	cursor, err := notificationCollection.Find(ctx, filter)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to retreive active notification from database",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to retreive active notification from database",
+			Error:   err.Error(),
 		})
 	}
 
 	var results []models.Notification
 	if err = cursor.All(ctx, &results); err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to retreive active notification from database",
-			"error":   err.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to retreive active notification from database",
+			Error:   err.Error(),
 		})
 	}
 
 	baseQURL := os.Getenv("QUERY_URL")
 	baseUURL := os.Getenv("UNSUBSCRIBE_URL")
 	if baseQURL == "" || baseUURL == "" {
-		return c.Status(500).JSON(fiber.Map{
-			"success": false,
-			"message": "failed to send emails",
-			"error":   "QUERY_URL and UNSUBSCRIBE_URL have to be provided as environment variables",
+		return c.Status(fiber.StatusInternalServerError).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to send emails",
+			Error:   "QUERY_URL and UNSUBSCRIBE_URL have to be provided as environment variables",
 		})
 	}
 

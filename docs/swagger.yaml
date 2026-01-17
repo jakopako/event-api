@@ -1,4 +1,13 @@
 definitions:
+  models.ActivateNotificationResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.Notification'
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
   models.Address:
     properties:
       country:
@@ -105,12 +114,59 @@ definitions:
       total:
         type: integer
     type: object
+  models.GetScraperStatusResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.ScraperStatus'
+        type: array
+      lastPage:
+        type: integer
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
   models.MongoGeolocation:
     properties:
       coordinates:
         items:
           type: number
         type: array
+      type:
+        type: string
+    type: object
+  models.Notification:
+    properties:
+      active:
+        type: boolean
+      email:
+        type: string
+      query:
+        $ref: '#/definitions/models.Query'
+      setupDate:
+        type: string
+      token:
+        type: string
+    type: object
+  models.Query:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      endDate:
+        type: string
+      location:
+        type: string
+      radius:
+        type: integer
+      startDate:
+        type: string
+      title:
+        type: string
       type:
         type: string
     type: object
@@ -139,6 +195,15 @@ definitions:
     - nrErrors
     - nrItems
     - scraperName
+    type: object
+  models.UpsertScraperStatusResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.ScraperStatus'
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   models.ValidateAndAddEventsResponse:
     properties:
@@ -383,14 +448,18 @@ paths:
       produces:
       - application/json
       responses:
-        "400":
-          description: failed to activate notification
+        "200":
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.ActivateNotificationResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: failed to activate notification
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Activate notification.
       tags:
       - notifications
@@ -425,14 +494,18 @@ paths:
       produces:
       - application/json
       responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.GenericResponse'
         "400":
-          description: Failed to parse body
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: Failed to insert notification
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Add new notification.
       tags:
       - notifications
@@ -452,10 +525,12 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: ""
         "500":
-          description: Failed to delete notification
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Delete notification.
       tags:
       - notifications
@@ -466,10 +541,12 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: ""
         "500":
-          description: Failed to delete notifications
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       security:
       - BasicAuth: []
       summary: Delete inactive notifications.
@@ -482,10 +559,12 @@ paths:
       produces:
       - application/json
       responses:
+        "200":
+          description: ""
         "500":
-          description: failed to send notifications
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       security:
       - BasicAuth: []
       summary: Send notifications.
@@ -516,17 +595,15 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.ScraperStatus'
-            type: array
+            $ref: '#/definitions/models.GetScraperStatusResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "404":
-          description: No scraper status found
+          description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       summary: Get scraper status.
       tags:
       - scraper status
@@ -548,15 +625,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ScraperStatus'
+            $ref: '#/definitions/models.UpsertScraperStatusResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       security:
       - BasicAuth: []
       summary: Update or insert scraper status.
@@ -575,21 +652,21 @@ paths:
       - application/json
       responses:
         "200":
-          description: Status deleted successfully
+          description: OK
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "400":
-          description: Bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "404":
-          description: Status not found
+          description: Not Found
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
         "500":
-          description: Internal server error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/models.GenericResponse'
       security:
       - BasicAuth: []
       summary: Delete scraper status.
