@@ -96,16 +96,13 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Event"
-                            }
+                            "$ref": "#/definitions/models.GetEventsResponseSuccess"
                         }
                     },
-                    "404": {
-                        "description": "No events found",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -129,7 +126,7 @@ var doc = `{
                 "summary": "Add new events.",
                 "parameters": [
                     {
-                        "description": "Event Info",
+                        "description": "event list",
                         "name": "message",
                         "in": "body",
                         "required": true,
@@ -143,21 +140,21 @@ var doc = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "A json with the results",
+                        "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ValidateAndAddEventsResponse"
                         }
                     },
                     "400": {
-                        "description": "failed to parse body",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ValidateAndAddEventsResponse"
                         }
                     },
                     "500": {
-                        "description": "failed to insert events",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ValidateAndAddEventsResponse"
                         }
                     }
                 }
@@ -188,22 +185,28 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "datetime string",
+                        "description": "datetime string, format YYYY-MM-DD HH:MM",
                         "name": "datetime",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "A success message",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "failed to delete events",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -254,7 +257,7 @@ var doc = `{
                 "summary": "Validate events.",
                 "parameters": [
                     {
-                        "description": "Event Info",
+                        "description": "event list",
                         "name": "message",
                         "in": "body",
                         "required": true,
@@ -268,15 +271,15 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "A json with the results",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ValidateAndAddEventsResponse"
                         }
                     },
                     "400": {
-                        "description": "failed to validate events",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ValidateAndAddEventsResponse"
                         }
                     }
                 }
@@ -302,16 +305,22 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "400": {
-                        "description": "Bad request",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GetDistinctFieldResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "failed to retrieve values",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -342,16 +351,22 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "400": {
-                        "description": "failed to activate notification",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.ActivateNotificationResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "failed to activate notification",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -406,16 +421,22 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "400": {
-                        "description": "Failed to parse body",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to insert notification",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -446,10 +467,13 @@ var doc = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": ""
+                    },
                     "500": {
-                        "description": "Failed to delete notification",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -471,10 +495,13 @@ var doc = `{
                 ],
                 "summary": "Delete inactive notifications.",
                 "responses": {
+                    "200": {
+                        "description": ""
+                    },
                     "500": {
-                        "description": "Failed to delete notifications",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -496,10 +523,13 @@ var doc = `{
                 ],
                 "summary": "Send notifications.",
                 "responses": {
+                    "200": {
+                        "description": ""
+                    },
                     "500": {
-                        "description": "failed to send notifications",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -542,22 +572,19 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.ScraperStatus"
-                            }
+                            "$ref": "#/definitions/models.GetScraperStatusResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "404": {
-                        "description": "No scraper status found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -594,19 +621,19 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ScraperStatus"
+                            "$ref": "#/definitions/models.UpsertScraperStatusResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -638,27 +665,27 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Status deleted successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "404": {
-                        "description": "Status not found",
+                        "description": "Not Found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.GenericResponse"
                         }
                     }
                 }
@@ -666,6 +693,20 @@ var doc = `{
         }
     },
     "definitions": {
+        "models.ActivateNotificationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.Notification"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.Address": {
             "type": "object",
             "properties": {
@@ -765,6 +806,80 @@ var doc = `{
                 }
             }
         },
+        "models.GenericResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.GetDistinctFieldResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.GetEventsResponseSuccess": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Event"
+                    }
+                },
+                "lastPage": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.GetScraperStatusResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ScraperStatus"
+                    }
+                },
+                "lastPage": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.MongoGeolocation": {
             "type": "object",
             "properties": {
@@ -773,6 +888,55 @@ var doc = `{
                     "items": {
                         "type": "number"
                     }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Notification": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "query": {
+                    "$ref": "#/definitions/models.Query"
+                },
+                "setupDate": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Query": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "radius": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 },
                 "type": {
                     "type": "string"
@@ -811,6 +975,57 @@ var doc = `{
                 "scraperName": {
                     "type": "string",
                     "example": "Helsinki"
+                }
+            }
+        },
+        "models.UpsertScraperStatusResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.ScraperStatus"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.ValidateAndAddEventsResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "validatedEvents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Event"
+                    }
+                },
+                "validationErrors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ValidateEventError"
+                    }
+                }
+            }
+        },
+        "models.ValidateEventError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         }

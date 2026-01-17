@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type Event struct {
 	Title      string    `bson:"title,omitempty" json:"title,omitempty" validate:"required" example:"ExcitingTitle"`
@@ -105,4 +107,62 @@ type ScraperStatus struct {
 	LastScrapeStart time.Time `bson:"lastScrapeStart" json:"lastScrapeStart" validate:"required" example:"2021-10-31T19:00:00.000Z"`
 	LastScrapeEnd   time.Time `bson:"lastScrapeEnd" json:"lastScrapeEnd" validate:"required" example:"2021-10-31T19:05:00.000Z"`
 	ScraperLogs     string    `bson:"scraperLogs" json:"scraperLogs"`
+}
+
+// api response models
+
+type GetEventsResponseSuccess struct {
+	Data     []Event `json:"data"`
+	Total    int64   `json:"total"`
+	Page     int     `json:"page"`
+	LastPage int64   `json:"lastPage"`
+	Limit    int64   `json:"limit"`
+}
+
+type GenericResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
+type ValidateAndAddEventsResponse struct {
+	Success          bool                 `json:"success"`
+	Message          string               `json:"message"`
+	ValidationErrors []ValidateEventError `json:"validationErrors"`
+	ValidatedEvents  []Event              `json:"validatedEvents"`
+	Error            string               `json:"error"`
+}
+
+type ValidateEventError struct {
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
+type GetDistinctFieldResponse struct {
+	Success bool     `json:"success"`
+	Data    []string `json:"data"`
+}
+
+// Notification response models
+
+type ActivateNotificationResponse struct {
+	Data    Notification `json:"data"`
+	Success bool         `json:"success"`
+	Message string       `json:"message"`
+}
+
+// Scraper status response models
+
+type GetScraperStatusResponse struct {
+	Data     []ScraperStatus `json:"data"`
+	Total    int64           `json:"total"`
+	Page     int             `json:"page"`
+	LastPage int64           `json:"lastPage"`
+	Limit    int64           `json:"limit"`
+}
+
+type UpsertScraperStatusResponse struct {
+	Success bool          `json:"success"`
+	Message string        `json:"message"`
+	Data    ScraperStatus `json:"data"`
 }

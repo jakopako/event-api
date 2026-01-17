@@ -35,7 +35,7 @@ func main() {
 
 	app.Use(cors.New())
 	app.Use(logger.New(logger.Config{
-		Format: "[${time}] ${status} ${latency} ${method} ${url}\n",
+		// Format: "[${time}] ${status} ${latency} ${method} ${url} ${ip}\n",
 	}))
 
 	app.Use(limiter.New(limiter.Config{
