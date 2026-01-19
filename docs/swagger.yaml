@@ -185,6 +185,9 @@ definitions:
         example: 100
         type: integer
       scraperLogs:
+        example: |-
+          Scraper started...
+          Scraper finished.
         type: string
       scraperName:
         example: Helsinki
@@ -589,6 +592,10 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: whether to return scraper logs or not
+        in: query
+        name: returnScraperLogs
+        type: boolean
       produces:
       - application/json
       responses:
