@@ -106,7 +106,7 @@ type ScraperStatus struct {
 	NrErrors        *int      `bson:"nrErrors" json:"nrErrors" validate:"required,gte=0" example:"0"`
 	LastScrapeStart time.Time `bson:"lastScrapeStart" json:"lastScrapeStart" validate:"required" example:"2021-10-31T19:00:00.000Z"`
 	LastScrapeEnd   time.Time `bson:"lastScrapeEnd" json:"lastScrapeEnd" validate:"required" example:"2021-10-31T19:05:00.000Z"`
-	ScraperLogs     string    `bson:"scraperLogs" json:"scraperLogs"`
+	ScraperLogs     string    `bson:"scraperLogs" json:"scraperLogs" example:"Scraper started...\nScraper finished."`
 }
 
 // api response models

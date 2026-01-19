@@ -566,6 +566,12 @@ var doc = `{
                         "description": "page size",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "whether to return scraper logs or not",
+                        "name": "returnScraperLogs",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -970,7 +976,8 @@ var doc = `{
                     "example": 100
                 },
                 "scraperLogs": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Scraper started...\nScraper finished."
                 },
                 "scraperName": {
                     "type": "string",

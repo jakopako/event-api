@@ -26,6 +26,7 @@ import (
 // @Param name query string false "scraper name search string"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
+// @Param returnScraperLogs query bool false "whether to return scraper logs or not"
 // @Success 200 {object} models.GetScraperStatusResponse
 // @Failure 400 {object} models.GenericResponse
 // @Failure 404 {object} models.GenericResponse
@@ -49,6 +50,11 @@ func GetScraperStatus(c *fiber.Ctx) error {
 	}
 	var limit int64 = int64(limitInt)
 	name := c.Query("name", "")
+	returnScraperLogsStr := c.Query("returnScraperLogs", "false")
+	returnScraperLogs := false
+	if returnScraperLogsStr == "true" {
+		returnScraperLogs = true
+	}
 
 	statusCollection := config.MI.DB.Collection(shared.ScraperStatusCollectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -66,6 +72,9 @@ func GetScraperStatus(c *fiber.Ctx) error {
 	findOptions.SetSort(bson.D{{Key: "scraperName", Value: 1}})
 	findOptions.SetSkip((int64(page) - 1) * limit)
 	findOptions.SetLimit(limit)
+	if !returnScraperLogs {
+		findOptions.SetProjection(bson.M{"scraperLogs": 0})
+	}
 
 	total, _ := statusCollection.CountDocuments(ctx, filter)
 
