@@ -162,6 +162,10 @@ func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("nominatim returned non-200 status code: %d", resp.StatusCode)
+	}
+
 	var places []models.NominatimPlace
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
