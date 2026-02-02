@@ -156,6 +156,7 @@ func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation
 	requestUrl := nominatimSearchURL + params.Encode()
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
+	req.Header.Set("user-agent", "https://github.com/jakopako/event-api (uses Nominatim for geocoding)")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
