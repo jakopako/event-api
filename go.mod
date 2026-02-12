@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
-	github.com/gofiber/fiber/v2 v2.52.9
+	github.com/gofiber/fiber/v2 v2.52.11
 	github.com/joho/godotenv v1.4.0
 	github.com/swaggo/swag v1.8.1
 	go.mongodb.org/mongo-driver v1.8.4
