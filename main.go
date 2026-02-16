@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -56,6 +57,13 @@ func main() {
 			return utils.CopyString(c.OriginalURL())
 		},
 	}))
+
+	// debug log to console
+	debug := os.Getenv("DEBUG")
+	if debug == "true" {
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	}
+	slog.Debug("enabled debug logging")
 
 	// initialize DB and geoloc cache
 	config.ConnectDB()

@@ -56,27 +56,31 @@ func InitGeolocCache() {
 	}
 }
 
-func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, error) {
+func LookupCityCoordinates(city, state, country string) (*models.MongoGeolocation, error) {
 	// this function is used when inserting new events and not when a user enters a search.
 	// Otherwise we risk flooding the external geo service.
 	city = strings.ToLower(city)
+	state = strings.ToLower(state)
 	country = strings.ToLower(country)
-	searchKey := city
-	if country != "" {
-		searchKey += fmt.Sprintf("+%s", country)
+	internalSearchKey := city
+	if state != "" {
+		internalSearchKey += fmt.Sprintf("+%s", state)
 	}
-	searchKey = strings.ReplaceAll(searchKey, " ", "+")
+	if country != "" {
+		internalSearchKey += fmt.Sprintf("+%s", country)
+	}
+	internalSearchKey = strings.ReplaceAll(internalSearchKey, " ", "+")
 
 	// check memory cache
 	GC.cityMu.RLock()
-	coords, found := GC.cityMemCache[searchKey]
+	coords, found := GC.cityMemCache[internalSearchKey]
 	GC.cityMu.RUnlock()
 	if found {
 		return coords, nil
 	}
 
 	// check database
-	filter := bson.D{{Key: "name", Value: city}, {Key: "country", Value: country}}
+	filter := bson.D{{Key: "name", Value: city}, {Key: "state", Value: state}, {Key: "country", Value: country}}
 	var result models.City
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -86,23 +90,23 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			// check if we've gotten a negative result from nominatim in the past
-			nominatimErr, found := GC.negMemCache.Get(searchKey)
+			nominatimErr, found := GC.negMemCache.Get(internalSearchKey)
 			if found {
 				return nil, nominatimErr.(error)
 			}
 
-			geoLoc, err := queryNominatimForCityGeoloc(city, country)
+			geoLoc, err := queryNominatimForCityGeoloc(city, state, country)
 			if err != nil {
 				// write error to negative cache
 				// we don't want to flood the external service
-				GC.negMemCache.Set(searchKey, err, cache.DefaultExpiration)
+				GC.negMemCache.Set(internalSearchKey, err, cache.DefaultExpiration)
 				return nil, err
 			}
 			// write city to database and cache
 			GC.cityMu.Lock()
-			GC.cityMemCache[searchKey] = geoLoc
+			GC.cityMemCache[internalSearchKey] = geoLoc
 			GC.cityMu.Unlock()
-			newCity := models.City{Name: city, Country: country, Geolocation: *geoLoc}
+			newCity := models.City{Name: city, State: state, Country: country, Geolocation: *geoLoc}
 			_, err = GC.cityColl.InsertOne(ctx, newCity)
 			return geoLoc, err
 		} else {
@@ -111,7 +115,7 @@ func LookupCityCoordinates(city, country string) (*models.MongoGeolocation, erro
 	}
 	// write to cache
 	GC.cityMu.Lock()
-	GC.cityMemCache[searchKey] = &result.Geolocation
+	GC.cityMemCache[internalSearchKey] = &result.Geolocation
 	GC.cityMu.Unlock()
 	return &result.Geolocation, nil
 }
@@ -144,16 +148,21 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	return geolocs, nil
 }
 
-func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation, error) {
+func queryNominatimForCityGeoloc(city, state, country string) (*models.MongoGeolocation, error) {
+	slog.Debug("querying Nominatim for city geolocation", "city", city, "country", country)
 	client := &http.Client{}
 	params := url.Values{}
 	params.Set("city", city)
 	if country != "" {
 		params.Set("country", country)
 	}
+	if state != "" {
+		params.Set("state", state)
+	}
 	params.Set("format", "jsonv2")
 
 	requestUrl := nominatimSearchURL + params.Encode()
+	slog.Debug("sending request for city to Nominatim", "url", requestUrl)
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
 	req.Header.Set("user-agent", "https://github.com/jakopako/event-api (uses Nominatim for geocoding)")
@@ -209,6 +218,10 @@ func queryNominatimForCityGeoloc(city, country string) (*models.MongoGeolocation
 			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", city, countries)
 		}
 	}
+	slog.Warn("No relevant city found in Nominatim",
+		"city", city,
+		"country", country,
+	)
 	return nil, fmt.Errorf("no relevant coordinates found for %s, %s", city, country)
 }
 
@@ -222,11 +235,14 @@ func isValidLocalityAddressType(addressType string) bool {
 
 // LookupVenueLocation tries to find coordinates for a specific venue (location) in a city using Nominatim.
 // Returns a Venue struct if found, otherwise returns nil and an error.
-func LookupVenueLocation(location, city, country string) (*models.Address, error) {
+func LookupVenueLocation(location, city, state, country string) (*models.Address, error) {
 	if location == "" || city == "" {
 		return nil, fmt.Errorf("location and city must be provided for venue lookup")
 	}
 	venueKey := strings.ToLower(location) + "+" + strings.ToLower(city)
+	if state != "" {
+		venueKey += "+" + strings.ToLower(state)
+	}
 	if country != "" {
 		venueKey += "+" + strings.ToLower(country)
 	}
@@ -242,6 +258,9 @@ func LookupVenueLocation(location, city, country string) (*models.Address, error
 
 	// Check database
 	filter := bson.D{{Key: "name", Value: location}, {Key: "address.locality", Value: city}}
+	if state != "" {
+		filter = append(filter, bson.E{Key: "address.state", Value: state})
+	}
 	if country != "" {
 		filter = append(filter, bson.E{Key: "address.country", Value: country})
 	}
@@ -259,7 +278,7 @@ func LookupVenueLocation(location, city, country string) (*models.Address, error
 			}
 
 			// If not found in database, query Nominatim
-			venue, err := queryNominatimForVenue(location, city, country)
+			venue, err := queryNominatimForVenue(location, city, state, country)
 			if err != nil {
 				// Cache the error in negative cache to avoid flooding Nominatim
 				GC.negMemCache.Set(venueKey, err, cache.DefaultExpiration)
@@ -285,7 +304,8 @@ func LookupVenueLocation(location, city, country string) (*models.Address, error
 	return &result.Address, nil
 }
 
-func queryNominatimForVenue(location, city, country string) (*models.Venue, error) {
+func queryNominatimForVenue(location, city, state, country string) (*models.Venue, error) {
+	slog.Debug("querying Nominatim for venue location", "location", location, "city", city, "state", state, "country", country)
 	client := &http.Client{}
 	params := url.Values{}
 	params.Set("amenity", location)
@@ -295,9 +315,14 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 	if country != "" {
 		params.Set("country", country)
 	}
+	if state != "" {
+		params.Set("state", state)
+	}
 	requestUrl := nominatimSearchURL + params.Encode()
+	slog.Debug("sending request for venue to Nominatim", "url", requestUrl)
 	req, _ := http.NewRequest(http.MethodGet, requestUrl, nil)
 	req.Header.Set("accept-language", "en-US")
+	req.Header.Set("user-agent", "https://github.com/jakopako/event-api (uses Nominatim for geocoding)")
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -323,6 +348,7 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 			slog.Info("Found venue in Nominatim",
 				"location", location,
 				"city", city,
+				"state", state,
 				"country", country,
 				"place", place.Name,
 				"address", place.Address,
@@ -339,16 +365,9 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 				return nil, err
 			}
 
-			locality := place.Address.City
-			if locality == "" {
-				locality = place.Address.Town
-			}
-			if locality == "" {
-				locality = place.Address.Village
-			}
-			if locality == "" {
-				locality = city // fallback to the provided city if no locality is found
-			}
+			// locality always has to equal the given city, or else we risk not finding a venue in the DB
+			// later on when searching by city in the DB in LookupVenueLocation.
+			locality := city
 
 			venue := &models.Venue{
 				// For now, instead of place.Name, we use the location parameter.
@@ -382,6 +401,26 @@ func queryNominatimForVenue(location, city, country string) (*models.Venue, erro
 }
 
 func isValidAmenityType(amenityType string) bool {
-	validTypes := []string{"arts_centre", "bar", "cafe", "community_centre", "concert_hall", "events_centre", "events_venue", "mobility_hub", "music_school", "music_venue", "nightclub", "place_of_worship", "pub", "restaurant", "social_centre", "theatre", "university"}
+	validTypes := []string{
+		"arts_centre",
+		"bar",
+		"building",
+		"cafe",
+		"community_centre",
+		"concert_hall",
+		"events_centre",
+		"events_venue",
+		"mobility_hub",
+		"museum",
+		"music_school",
+		"music_venue",
+		"nightclub",
+		"place_of_worship",
+		"pub",
+		"restaurant",
+		"social_centre",
+		"theatre",
+		"university",
+	}
 	return slices.Contains(validTypes, amenityType)
 }
