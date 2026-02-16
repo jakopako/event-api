@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 	"time"
@@ -163,6 +164,7 @@ func AddEvents(c *fiber.Ctx) error {
 
 	validatedEvents, validationErrs := validateAndSanitizeEvents(ctx, events)
 
+	slog.Debug("writing events to DB", "numEvents", len(*validatedEvents))
 	var operations []mongo.WriteModel
 	for _, event := range *validatedEvents {
 		op := mongo.NewReplaceOneModel()
@@ -442,6 +444,7 @@ func getMarkdownSummary(events []models.Event) string {
 
 // validateAndSanitizeEvents validates and sanitizes events
 func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]models.Event, *[]models.ValidateEventError) {
+	slog.Debug("validating events", "numEvents", len(*events))
 	validate := validator.New()
 	validationErrs := []models.ValidateEventError{}
 	validatedEvents := []models.Event{}
@@ -461,17 +464,17 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 
 		// Lookup the city coordinates
 		// We need to lookup the city coordinates in order to make sure that the radius search works correctly
-		cityGeoLoc, err := geo.LookupCityCoordinates(event.City, event.Country)
+		cityGeoLoc, err := geo.LookupCityCoordinates(event.City, event.State, event.Country)
 		if err != nil {
 			validationErrs = append(validationErrs, models.ValidateEventError{
-				Message: fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", country: \"%s\"} (event %+v)", event.City, event.Country, event),
+				Message: fmt.Sprintf("failed to find relevant coordinates for city {city: \"%s\", state: \"%s\", country: \"%s\"} (event %+v)", event.City, event.State, event.Country, event),
 				Error:   err.Error(),
 			})
 			continue
 		}
 
 		// Lookup venue
-		address, err := geo.LookupVenueLocation(event.Location, event.City, event.Country)
+		address, err := geo.LookupVenueLocation(event.Location, event.City, event.State, event.Country)
 		if err == nil && address != nil {
 			event.Address = *address
 		} else {

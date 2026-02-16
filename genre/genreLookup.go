@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -119,6 +120,7 @@ func (gc *GenreCache) renewSpotifyToken() error {
 }
 
 func (gc *GenreCache) querySpotifyGenres(artist string) ([]string, error) {
+	slog.Debug("querying spotify genres for artist", "artist", artist)
 	client := http.Client{}
 	requestUrl := fmt.Sprintf("https://api.spotify.com/v1/search?q=%s&type=artist", url.QueryEscape(strings.ToLower(artist)))
 	bearer := "Bearer " + gc.spotifyToken

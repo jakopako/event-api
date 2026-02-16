@@ -8,6 +8,7 @@ type Event struct {
 	Title      string    `bson:"title,omitempty" json:"title,omitempty" validate:"required" example:"ExcitingTitle"`
 	Location   string    `bson:"location,omitempty" json:"location,omitempty" validate:"required" example:"SuperLocation"`
 	City       string    `bson:"city,omitempty" json:"city,omitempty" validate:"required" example:"SuperCity"`
+	State      string    `bson:"state,omitempty" json:"state,omitempty" example:"SuperState"`
 	Country    string    `bson:"country,omitempty" json:"country,omitempty" example:"SuperCountry"`
 	Date       time.Time `bson:"date,omitempty" json:"date,omitempty" validate:"required" example:"2021-10-31T19:00:00.000Z"`
 	Offset     int       `bson:"offset,omitempty" json:"offset,omitempty"`
@@ -33,6 +34,7 @@ type MongoGeolocation struct {
 
 type City struct {
 	Name        string           `bson:"name"`
+	State       string           `bson:"state"`
 	Country     string           `bson:"country"`
 	Geolocation MongoGeolocation `bson:"geolocation"`
 }
