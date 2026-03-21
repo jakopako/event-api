@@ -7,6 +7,7 @@ import (
 	"math"
 	"regexp"
 	"time"
+	"unicode"
 
 	"github.com/jakopako/event-api/config"
 	"github.com/jakopako/event-api/geo"
@@ -14,6 +15,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -21,6 +25,16 @@ const (
 	NotificationCollectionName  = "notifications"
 	ScraperStatusCollectionName = "status"
 )
+
+// RemoveDiacritics removes diacritical marks from a string
+func RemoveDiacritics(s string) string {
+	remover := runes.Remove(runes.Predicate(func(r rune) bool {
+		return unicode.Is(unicode.Mn, r)
+	}))
+	t := transform.Chain(norm.NFD, remover, norm.NFC)
+	result, _, _ := transform.String(t, s)
+	return result
+}
 
 func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 	eventCollection := config.MI.DB.Collection(EventCollectionName)
@@ -76,7 +90,32 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "date", Value: 1}})
 
-	for searchKey, searchValue := range map[string]string{"title": q.Title, "location": q.Location, "country": q.Country, "type": q.Type} {
+	// Special handling for title to include normalized search
+	if q.Title != "" {
+		normalizedTitle := RemoveDiacritics(q.Title)
+		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
+			"$or": []bson.M{
+				{
+					"title": bson.M{
+						"$regex": primitive.Regex{
+							Pattern: regexp.QuoteMeta(q.Title),
+							Options: "i",
+						},
+					},
+				},
+				{
+					"normalizedTitle": bson.M{
+						"$regex": primitive.Regex{
+							Pattern: regexp.QuoteMeta(normalizedTitle),
+							Options: "i",
+						},
+					},
+				},
+			},
+		})
+	}
+
+	for searchKey, searchValue := range map[string]string{"location": q.Location, "country": q.Country, "type": q.Type} {
 		if searchValue != "" {
 			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
 				searchKey: bson.M{
