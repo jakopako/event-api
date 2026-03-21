@@ -498,6 +498,9 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 		_, offset := event.Date.Zone()
 		event.Offset = offset
 
+		// add normalized title for diacritic-insensitive search
+		event.NormalizedTitle = shared.RemoveDiacritics(event.Title)
+
 		// append to validated events
 		validatedEvents = append(validatedEvents, event)
 	}
