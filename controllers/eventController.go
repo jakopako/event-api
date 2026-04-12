@@ -34,6 +34,7 @@ import (
 // @Param country query string false "country search string"
 // @Param radius query int false "radius around given city in kilometers"
 // @Param date query string false "date search string"
+// @Param genres query string false "comma-separated list of genres; events matching at least one genre are returned"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
 // @Success 200 {object} models.GetEventsResponseSuccess
@@ -75,6 +76,13 @@ func GetAllEvents(c *fiber.Ctx) error {
 		Radius:    radius,
 		Page:      page,
 		Limit:     limit,
+	}
+	if genresParam := c.Query("genres"); genresParam != "" {
+		for _, g := range strings.Split(genresParam, ",") {
+			if g = strings.TrimSpace(g); g != "" {
+				query.Genres = append(query.Genres, g)
+			}
+		}
 	}
 	events, total, last, err := shared.FetchEvents(query)
 	if err != nil {
