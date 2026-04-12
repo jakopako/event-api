@@ -53,7 +53,7 @@ go run .
 
 ```bash
 docker build -t event-api .
-docker run --env-file .env -p 5000:8080 event-api
+docker run --env-file .env -p 5000:5000 event-api
 ```
 
 ## API overview
