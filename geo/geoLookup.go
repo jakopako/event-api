@@ -397,6 +397,8 @@ func queryNominatimForVenue(location, city, state, country string) (*models.Venu
 		"city", city,
 		"country", country,
 	)
+	slog.Debug("Got following response from Nominatim",
+		"response", string(body))
 	return nil, fmt.Errorf("no relevant info found for venue %s in city %s", location, city)
 }
 
