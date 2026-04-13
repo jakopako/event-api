@@ -338,7 +338,12 @@ func queryNominatimForVenue(location, city, state, country string) (*models.Venu
 	}
 	if len(places) > 0 {
 		for _, place := range places {
-			if place.AddressType != "amenity" {
+			// worked very long just with place.AddressType != "amenity"
+			// for some reason, when the API runs in Google Cloud Run there is
+			// a music venue, Astra Kulturhaus Berlin, that has place.AddressType = "leisure" instead.
+			// However, this same venue had place.AddressType = "amenity" when queried from my
+			// local device.. very weird behaviour of nominatim
+			if place.AddressType != "amenity" && place.AddressType != "leisure" {
 				continue
 			}
 			if !isValidAmenityType(place.Type) {
