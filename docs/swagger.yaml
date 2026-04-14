@@ -63,6 +63,9 @@ definitions:
       sourceUrl:
         example: http://link.to/source
         type: string
+      state:
+        example: SuperState
+        type: string
       title:
         example: ExcitingTitle
         type: string
@@ -159,6 +162,10 @@ definitions:
         type: string
       endDate:
         type: string
+      genres:
+        items:
+          type: string
+        type: array
       location:
         type: string
       radius:
@@ -303,6 +310,11 @@ paths:
       - description: date search string
         in: query
         name: date
+        type: string
+      - description: comma-separated list of genres; events matching at least one
+          genre are returned
+        in: query
+        name: genres
         type: string
       - description: page number
         in: query

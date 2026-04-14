@@ -128,6 +128,14 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 		}
 	}
 
+	if len(q.Genres) > 0 {
+		filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
+			"genres": bson.M{
+				"$in": q.Genres,
+			},
+		})
+	}
+
 	if q.City != "" {
 		cityFilter := bson.M{
 			"$or": []bson.M{

@@ -92,6 +92,7 @@ type Query struct {
 	Country   string     `bson:"country" json:"country"`
 	Location  string     `bson:"location" json:"location"`
 	Type      string     `bson:"type" json:"type"`
+	Genres    []string   `bson:"genres" json:"genres"`
 	StartDate *time.Time `bson:"startDate" json:"startDate"`
 	EndDate   *time.Time `bson:"endDate" json:"endDate"`
 	Radius    int        `bson:"radius" json:"radius"`
