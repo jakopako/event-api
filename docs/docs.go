@@ -80,6 +80,12 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "comma-separated list of genres; events matching at least one genre are returned",
+                        "name": "genres",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "page number",
                         "name": "page",
@@ -798,6 +804,10 @@ var doc = `{
                     "type": "string",
                     "example": "http://link.to/source"
                 },
+                "state": {
+                    "type": "string",
+                    "example": "SuperState"
+                },
                 "title": {
                     "type": "string",
                     "example": "ExcitingTitle"
@@ -931,6 +941,12 @@ var doc = `{
                 },
                 "endDate": {
                     "type": "string"
+                },
+                "genres": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "location": {
                     "type": "string"
