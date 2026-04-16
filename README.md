@@ -68,7 +68,7 @@ All endpoints are prefixed with `/api`.
 | `POST` | `/api/events` | ✔ | Add new events (JSON array) |
 | `POST` | `/api/events/validate` | – | Validate events without persisting them |
 | `DELETE` | `/api/events` | ✔ | Delete events by `sourceUrl` or `datetime` |
-| `GET` | `/api/events/:field` | – | Get distinct values for `location` or `city` |
+| `GET` | `/api/events/:field` | – | Get distinct values for `location`, `city` or `genres` |
 | `POST` | `/api/events/today/slack` | – | Today's events formatted for a Slack slash command |
 
 ### Notifications – `/api/notifications`

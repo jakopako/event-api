@@ -304,7 +304,7 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "field name, can only be location or city",
+                        "description": "field name, can only be location, city or genres",
                         "name": "field",
                         "in": "path",
                         "required": true

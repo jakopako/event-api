@@ -376,7 +376,7 @@ paths:
       description: This endpoint returns all distinct values for the given field.
         Note that past events are not considered for this query.
       parameters:
-      - description: field name, can only be location or city
+      - description: field name, can only be location, city or genres
         in: path
         name: field
         required: true

@@ -388,7 +388,7 @@ func DeleteEvents(c *fiber.Ctx) error {
 // @Summary Get distinct field values.
 // @Tags events
 // @Produce json
-// @Param field path string true "field name, can only be location or city"
+// @Param field path string true "field name, can only be location, city or genres"
 // @Success 200 {object} models.GetDistinctFieldResponse
 // @Failure 400 {object} models.GenericResponse
 // @Failure 500 {object} models.GenericResponse
@@ -399,11 +399,11 @@ func GetDistinct(c *fiber.Ctx) error {
 	defer cancel()
 
 	field := c.Params("field")
-	if field != "location" && field != "city" {
+	if field != "location" && field != "city" && field != "genres" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
 			Success: false,
 			Message: "invalid value for the field parameter",
-			Error:   "the field parameter has to be 'location' or 'city'",
+			Error:   "the field parameter has to be 'location', 'city' or 'genres'",
 		})
 	}
 
