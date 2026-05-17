@@ -726,16 +726,13 @@ var doc = `{
                     "type": "string"
                 },
                 "geolocation": {
-                    "$ref": "#/definitions/models.MongoGeolocation"
+                    "$ref": "#/definitions/models.GeocodedLocation"
                 },
                 "houseNumber": {
                     "type": "string"
                 },
                 "locality": {
                     "type": "string"
-                },
-                "nominatimId": {
-                    "type": "integer"
                 },
                 "postCode": {
                     "type": "string"
@@ -839,6 +836,23 @@ var doc = `{
                 }
             }
         },
+        "models.GeocodedLocation": {
+            "type": "object",
+            "properties": {
+                "coordinates": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "osmId": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "models.GetDistinctFieldResponse": {
             "type": "object",
             "properties": {
@@ -896,20 +910,6 @@ var doc = `{
                 },
                 "total": {
                     "type": "integer"
-                }
-            }
-        },
-        "models.MongoGeolocation": {
-            "type": "object",
-            "properties": {
-                "coordinates": {
-                    "type": "array",
-                    "items": {
-                        "type": "number"
-                    }
-                },
-                "type": {
-                    "type": "string"
                 }
             }
         },

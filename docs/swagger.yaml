@@ -13,13 +13,11 @@ definitions:
       country:
         type: string
       geolocation:
-        $ref: '#/definitions/models.MongoGeolocation'
+        $ref: '#/definitions/models.GeocodedLocation'
       houseNumber:
         type: string
       locality:
         type: string
-      nominatimId:
-        type: integer
       postCode:
         type: string
       state:
@@ -95,6 +93,17 @@ definitions:
       success:
         type: boolean
     type: object
+  models.GeocodedLocation:
+    properties:
+      coordinates:
+        items:
+          type: number
+        type: array
+      osmId:
+        type: integer
+      type:
+        type: string
+    type: object
   models.GetDistinctFieldResponse:
     properties:
       data:
@@ -133,15 +142,6 @@ definitions:
         type: integer
       total:
         type: integer
-    type: object
-  models.MongoGeolocation:
-    properties:
-      coordinates:
-        items:
-          type: number
-        type: array
-      type:
-        type: string
     type: object
   models.Notification:
     properties:

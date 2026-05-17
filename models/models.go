@@ -33,11 +33,16 @@ type MongoGeolocation struct {
 	Coordinates []float64 `json:"coordinates" bson:"coordinates,omitempty"`
 }
 
+type GeocodedLocation struct {
+	OsmID            int64 `bson:"osmId,omitempty" json:"osmId,omitempty"`
+	MongoGeolocation `bson:",inline" json:",inline"`
+}
+
 type City struct {
 	Name        string           `bson:"name"`
 	State       string           `bson:"state"`
 	Country     string           `bson:"country"`
-	Geolocation MongoGeolocation `bson:"geolocation"`
+	Geolocation GeocodedLocation `bson:"geolocation" json:"geolocation"`
 }
 
 type Venue struct {
@@ -53,8 +58,7 @@ type Address struct {
 	HouseNumber   string           `bson:"houseNumber" json:"houseNumber,omitempty"`
 	Country       string           `bson:"country" json:"country,omitempty"`
 	State         string           `bson:"state" json:"state,omitempty"`
-	NominatimID   int64            `bson:"nominatimId,omitempty" json:"nominatimId,omitempty"`
-	Geolocacation MongoGeolocation `bson:"geolocation" json:"geolocation"`
+	Geolocacation GeocodedLocation `bson:"geolocation" json:"geolocation"`
 }
 
 type NominatimPlace struct {
