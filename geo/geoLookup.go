@@ -387,6 +387,7 @@ func queryNominatimForVenue(location, city, state, country string) (*models.Venu
 					PostCode:    place.Address.Postcode,
 					Street:      place.Address.Road,
 					HouseNumber: place.Address.HouseNumber,
+					NominatimID: place.OsmID,
 					Geolocacation: models.MongoGeolocation{
 						GeoJSONType: "Point",
 						Coordinates: []float64{lonFloat, latFloat},

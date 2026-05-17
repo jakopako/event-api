@@ -734,6 +734,9 @@ var doc = `{
                 "locality": {
                     "type": "string"
                 },
+                "nominatimId": {
+                    "type": "integer"
+                },
                 "postCode": {
                     "type": "string"
                 },

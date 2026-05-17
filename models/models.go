@@ -53,6 +53,7 @@ type Address struct {
 	HouseNumber   string           `bson:"houseNumber" json:"houseNumber,omitempty"`
 	Country       string           `bson:"country" json:"country,omitempty"`
 	State         string           `bson:"state" json:"state,omitempty"`
+	NominatimID   int64            `bson:"nominatimId,omitempty" json:"nominatimId,omitempty"`
 	Geolocacation MongoGeolocation `bson:"geolocation" json:"geolocation"`
 }
 
@@ -61,6 +62,7 @@ type NominatimPlace struct {
 	Lon         string           `json:"lon"`
 	Name        string           `json:"name"`
 	DisplayName string           `json:"display_name"`
+	OsmID       int64            `json:"osm_id"`
 	Importance  float64          `json:"importance"`
 	AddressType string           `json:"addresstype"`
 	Type        string           `json:"type"`
