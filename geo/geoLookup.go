@@ -32,7 +32,7 @@ type GeolocCache struct {
 	// for cityMemCache it's ok to use a map since we only
 	// add existing locations to it and there are only so many locations
 	// in the world.
-	cityMemCache map[string]*models.MongoGeolocation
+	cityMemCache map[string]*models.GeocodedLocation
 	// for the negative cache (non-existing locations & cities) we use a cache library
 	// to be able to set expiration times and not worry about memory
 	negMemCache   *cache.Cache
@@ -48,7 +48,7 @@ var GC *GeolocCache
 func InitGeolocCache() {
 	// this code assumes that the DB has already been initialized
 	GC = &GeolocCache{
-		cityMemCache:  make(map[string]*models.MongoGeolocation),
+		cityMemCache:  make(map[string]*models.GeocodedLocation),
 		negMemCache:   cache.New(10*time.Minute, 15*time.Minute),
 		cityColl:      config.MI.DB.Collection("cities"),
 		venueMemCache: make(map[string]*models.Venue),
@@ -56,7 +56,7 @@ func InitGeolocCache() {
 	}
 }
 
-func LookupCityCoordinates(city, state, country string) (*models.MongoGeolocation, error) {
+func LookupCityCoordinates(city, state, country string) (*models.GeocodedLocation, error) {
 	// this function is used when inserting new events and not when a user enters a search.
 	// Otherwise we risk flooding the external geo service.
 	city = strings.ToLower(city)
@@ -143,12 +143,12 @@ func AllMatchesCityCoordinates(city, country string) ([]*models.MongoGeolocation
 	for cursor.Next(ctx) {
 		var city models.City
 		cursor.Decode(&city)
-		geolocs = append(geolocs, &city.Geolocation)
+		geolocs = append(geolocs, &city.Geolocation.MongoGeolocation)
 	}
 	return geolocs, nil
 }
 
-func queryNominatimForCityGeoloc(city, state, country string) (*models.MongoGeolocation, error) {
+func queryNominatimForCityGeoloc(city, state, country string) (*models.GeocodedLocation, error) {
 	slog.Debug("querying Nominatim for city geolocation", "city", city, "country", country)
 	client := &http.Client{}
 	params := url.Values{}
@@ -210,9 +210,12 @@ func queryNominatimForCityGeoloc(city, state, country string) (*models.MongoGeol
 			if err != nil {
 				return nil, err
 			}
-			return &models.MongoGeolocation{
-				GeoJSONType: "Point",
-				Coordinates: []float64{lonFloat, latFloat},
+			return &models.GeocodedLocation{
+				OsmID: places[0].OsmID,
+				MongoGeolocation: models.MongoGeolocation{
+					GeoJSONType: "Point",
+					Coordinates: []float64{lonFloat, latFloat},
+				},
 			}, nil
 		} else {
 			return nil, fmt.Errorf("ambiguous results for coordinates of city %s. Found two possible countries: %v", city, countries)
@@ -387,9 +390,12 @@ func queryNominatimForVenue(location, city, state, country string) (*models.Venu
 					PostCode:    place.Address.Postcode,
 					Street:      place.Address.Road,
 					HouseNumber: place.Address.HouseNumber,
-					Geolocacation: models.MongoGeolocation{
-						GeoJSONType: "Point",
-						Coordinates: []float64{lonFloat, latFloat},
+					Geolocacation: models.GeocodedLocation{
+						OsmID: place.OsmID,
+						MongoGeolocation: models.MongoGeolocation{
+							GeoJSONType: "Point",
+							Coordinates: []float64{lonFloat, latFloat},
+						},
 					},
 				},
 			}
