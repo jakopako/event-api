@@ -32,7 +32,9 @@ import (
 // @Param type query string false "type search string"
 // @Param city query string false "city search string"
 // @Param country query string false "country search string"
-// @Param radius query int false "radius around given city in kilometers"
+// @Param radius query int false "radius around given city or coordinates in kilometers"
+// @Param lat query number false "latitude of the search location (used together with lon and radius)"
+// @Param lon query number false "longitude of the search location (used together with lat and radius)"
 // @Param date query string false "date search string"
 // @Param genres query string false "comma-separated list of genres; events matching at least one genre are returned"
 // @Param page query int false "page number"
@@ -76,6 +78,35 @@ func GetAllEvents(c *fiber.Ctx) error {
 		Radius:    radius,
 		Page:      page,
 		Limit:     limit,
+	}
+	if latStr := c.Query("lat"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			query.Lat = &lat
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "failed to fetch events",
+				Error:   fmt.Sprintf("couldn't parse lat: %v", err),
+			})
+		}
+	}
+	if lonStr := c.Query("lon"); lonStr != "" {
+		if lon, err := strconv.ParseFloat(lonStr, 64); err == nil {
+			query.Lon = &lon
+		} else {
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "failed to fetch events",
+				Error:   fmt.Sprintf("couldn't parse lon: %v", err),
+			})
+		}
+	}
+	if (query.Lat == nil) != (query.Lon == nil) {
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to fetch events",
+			Error:   "lat and lon must both be provided or both be absent",
+		})
 	}
 	if genresParam := c.Query("genres"); genresParam != "" {
 		for _, g := range strings.Split(genresParam, ",") {
