@@ -168,8 +168,12 @@ definitions:
         items:
           type: string
         type: array
+      lat:
+        type: number
       location:
         type: string
+      lon:
+        type: number
       radius:
         type: integer
       startDate:
@@ -305,10 +309,19 @@ paths:
         in: query
         name: country
         type: string
-      - description: radius around given city in kilometers
+      - description: radius around given city or coordinates in kilometers
         in: query
         name: radius
         type: integer
+      - description: latitude of the search location (used together with lon and radius)
+        in: query
+        name: lat
+        type: number
+      - description: longitude of the search location (used together with lat and
+          radius)
+        in: query
+        name: lon
+        type: number
       - description: date search string
         in: query
         name: date

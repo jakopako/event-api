@@ -69,8 +69,20 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "radius around given city in kilometers",
+                        "description": "radius around given city or coordinates in kilometers",
                         "name": "radius",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "latitude of the search location (used together with lon and radius)",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "longitude of the search location (used together with lat and radius)",
+                        "name": "lon",
                         "in": "query"
                     },
                     {
@@ -951,8 +963,14 @@ var doc = `{
                         "type": "string"
                     }
                 },
+                "lat": {
+                    "type": "number"
+                },
                 "location": {
                     "type": "string"
+                },
+                "lon": {
+                    "type": "number"
                 },
                 "radius": {
                     "type": "integer"
