@@ -164,6 +164,21 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 			}
 		}
 		filter["$and"] = append(filter["$and"].([]bson.M), cityFilter)
+	} else if q.Lat != nil && q.Lon != nil {
+		earthRadiusKm := 6378.1
+		if q.Radius > 0 {
+			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
+				"address.geolocation": bson.M{
+					"$geoWithin": bson.M{
+						"$centerSphere": bson.A{bson.A{*q.Lon, *q.Lat}, float64(q.Radius) / earthRadiusKm},
+					},
+				},
+			})
+		} else {
+			filter["$and"] = append(filter["$and"].([]bson.M), bson.M{
+				"address.geolocation.coordinates": bson.A{*q.Lon, *q.Lat},
+			})
+		}
 	}
 
 	total, _ := eventCollection.CountDocuments(ctx, filter)

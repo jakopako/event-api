@@ -102,6 +102,8 @@ type Query struct {
 	StartDate *time.Time `bson:"startDate" json:"startDate"`
 	EndDate   *time.Time `bson:"endDate" json:"endDate"`
 	Radius    int        `bson:"radius" json:"radius"`
+	Lat       *float64   `bson:"lat" json:"lat,omitempty"`
+	Lon       *float64   `bson:"lon" json:"lon,omitempty"`
 	Page      int        `bson:"page" json:"-"`
 	Limit     int64      `bson:"limit" json:"-"`
 }
