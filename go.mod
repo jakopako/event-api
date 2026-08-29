@@ -7,9 +7,11 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.13
 	github.com/joho/godotenv v1.4.0
 	github.com/swaggo/swag v1.8.1
-	go.mongodb.org/mongo-driver v1.8.4
+	go.mongodb.org/mongo-driver v1.17.7
 	gopkg.in/go-playground/validator.v9 v9.31.0
 )
+
+require github.com/montanaflynn/stats v0.7.1 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
@@ -22,7 +24,6 @@ require (
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-test/deep v1.1.1
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -35,7 +36,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/tinylib/msgp v1.2.5 // indirect
@@ -43,9 +43,9 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
-	github.com/xdg-go/scram v1.1.1 // indirect
-	github.com/xdg-go/stringprep v1.0.3 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
+	github.com/xdg-go/scram v1.1.2 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
