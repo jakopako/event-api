@@ -1011,12 +1011,10 @@
                 },
                 "nrErrors": {
                     "type": "integer",
-                    "minimum": 0,
                     "example": 0
                 },
                 "nrItems": {
                     "type": "integer",
-                    "minimum": 0,
                     "example": 100
                 },
                 "scraperLogs": {

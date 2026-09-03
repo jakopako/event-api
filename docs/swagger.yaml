@@ -193,11 +193,9 @@ definitions:
         type: string
       nrErrors:
         example: 0
-        minimum: 0
         type: integer
       nrItems:
         example: 100
-        minimum: 0
         type: integer
       scraperLogs:
         example: |-
