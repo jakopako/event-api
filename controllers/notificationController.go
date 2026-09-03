@@ -291,6 +291,7 @@ func SendNotifications(c *fiber.Ctx) error {
 		// the start date of a notification query is always now, the moment the notification is sent
 		now := time.Now().UTC()
 		n.Query.StartDate = &now
+		n.Query.ExcludeStartDate = true
 		_, total, _, err := shared.FetchEvents(n.Query)
 		if err != nil {
 			log.Errorf("couldn't fetch events for query %v", n.Query)

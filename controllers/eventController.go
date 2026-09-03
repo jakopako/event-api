@@ -35,7 +35,9 @@ import (
 // @Param radius query int false "radius around given city or coordinates in kilometers"
 // @Param lat query number false "latitude of the search location (used together with lon and radius)"
 // @Param lon query number false "longitude of the search location (used together with lat and radius)"
-// @Param date query string false "date search string"
+// @Param date query string false "Deprecated: date search string in RFC3339 format. Cannot be combined with fromTime or toTime."
+// @Param fromTime query string false "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)"
+// @Param toTime query string false "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime."
 // @Param genres query string false "comma-separated list of genres; events matching at least one genre are returned"
 // @Param page query int false "page number"
 // @Param limit query int false "page size"
@@ -48,13 +50,17 @@ func GetAllEvents(c *fiber.Ctx) error {
 	limitInt, _ := strconv.Atoi(c.Query("limit", "10"))
 	var limit int64 = int64(limitInt)
 
-	// TODO: push defining start date and end date to the caller of this endpoint
 	queryDate := c.Query("date")
 	var startDate, endDate *time.Time
-	if queryDate == "" {
-		now := time.Now().UTC()
-		startDate = &now
-	} else {
+	excludeStartDate := false
+	if queryDate != "" && (c.Query("fromTime") != "" || c.Query("toTime") != "") {
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "failed to fetch events",
+			Error:   "date cannot be combined with fromTime or toTime",
+		})
+	}
+	if queryDate != "" {
 		d, err := time.Parse(time.RFC3339, queryDate)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
@@ -66,18 +72,33 @@ func GetAllEvents(c *fiber.Ctx) error {
 		startDate = &d
 		plusOneDay := d.Add(time.Hour * 24)
 		endDate = &plusOneDay
+	} else if c.Query("fromTime") != "" || c.Query("toTime") != "" {
+		var err error
+		startDate, endDate, err = parseTimeRange(c.Query("fromTime"), c.Query("toTime"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "failed to fetch events",
+				Error:   err.Error(),
+			})
+		}
+	} else {
+		now := time.Now().UTC()
+		startDate = &now
+		excludeStartDate = true
 	}
 	query := models.Query{
-		Title:     c.Query("title"),
-		City:      c.Query("city"),
-		Country:   c.Query("country"),
-		Location:  c.Query("location"),
-		Type:      c.Query("type"),
-		StartDate: startDate,
-		EndDate:   endDate,
-		Radius:    radius,
-		Page:      page,
-		Limit:     limit,
+		Title:            c.Query("title"),
+		City:             c.Query("city"),
+		Country:          c.Query("country"),
+		Location:         c.Query("location"),
+		Type:             c.Query("type"),
+		StartDate:        startDate,
+		EndDate:          endDate,
+		ExcludeStartDate: excludeStartDate,
+		Radius:           radius,
+		Page:             page,
+		Limit:            limit,
 	}
 	if latStr := c.Query("lat"); latStr != "" {
 		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
@@ -356,21 +377,43 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param sourceUrl query string false "sourceUrl string"
-// @Param datetime query string false "datetime string, format YYYY-MM-DD HH:MM"
+// @Param datetime query string false "Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot be combined with fromTime or toTime."
+// @Param fromTime query string false "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)"
+// @Param toTime query string false "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime."
 // @Success 200 {object} models.GenericResponse
 // @Failure 400 {object} models.GenericResponse
 // @Failure 500 {object} models.GenericResponse
 // @Router /api/events [delete]
 func DeleteEvents(c *fiber.Ctx) error {
-	eventsCollection := config.MI.DB.Collection("events")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	src := c.Query("sourceUrl")
 
 	datetimeString := c.Query("datetime")
+	if datetimeString != "" && (c.Query("fromTime") != "" || c.Query("toTime") != "") {
+		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+			Success: false,
+			Message: "couldn't parse datetime",
+			Error:   "datetime cannot be combined with fromTime or toTime",
+		})
+	}
 	var filter bson.M
-	if datetimeString == "" {
+	if c.Query("fromTime") != "" || c.Query("toTime") != "" {
+		fromTime, toTime, err := parseTimeRange(c.Query("fromTime"), c.Query("toTime"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
+				Success: false,
+				Message: "couldn't parse datetime",
+				Error:   err.Error(),
+			})
+		}
+		dateFilter := bson.M{"$gte": fromTime}
+		if toTime != nil {
+			dateFilter["$lte"] = toTime
+		}
+		filter = bson.M{"date": dateFilter}
+		if src != "" {
+			filter["sourceUrl"] = src
+		}
+	} else if datetimeString == "" {
 		filter = bson.M{"sourceUrl": src}
 	} else {
 		t, err := time.Parse("2006-01-02 15:04", datetimeString)
@@ -399,6 +442,10 @@ func DeleteEvents(c *fiber.Ctx) error {
 		}
 	}
 
+	eventsCollection := config.MI.DB.Collection("events")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	result, err := eventsCollection.DeleteMany(ctx, filter)
 
 	if err != nil {
@@ -412,6 +459,29 @@ func DeleteEvents(c *fiber.Ctx) error {
 		Success: true,
 		Message: fmt.Sprintf("successfully deleted %d events with source %s", result.DeletedCount, src),
 	})
+}
+
+func parseTimeRange(fromTime, toTime string) (*time.Time, *time.Time, error) {
+	if toTime != "" && fromTime == "" {
+		return nil, nil, fmt.Errorf("fromTime must be provided when toTime is used")
+	}
+
+	var from, to *time.Time
+	if fromTime != "" {
+		parsed, err := time.Parse(time.RFC3339, fromTime)
+		if err != nil {
+			return nil, nil, fmt.Errorf("couldn't parse fromTime as RFC3339: %w", err)
+		}
+		from = &parsed
+	}
+	if toTime != "" {
+		parsed, err := time.Parse(time.RFC3339, toTime)
+		if err != nil {
+			return nil, nil, fmt.Errorf("couldn't parse toTime as RFC3339: %w", err)
+		}
+		to = &parsed
+	}
+	return from, to, nil
 }
 
 // GetDistinct func for getting distinct field values.

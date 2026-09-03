@@ -193,9 +193,11 @@ definitions:
         type: string
       nrErrors:
         example: 0
+        minimum: 0
         type: integer
       nrItems:
         example: 100
+        minimum: 0
         type: integer
       scraperLogs:
         example: |-
@@ -258,9 +260,19 @@ paths:
         in: query
         name: sourceUrl
         type: string
-      - description: datetime string, format YYYY-MM-DD HH:MM
+      - description: 'Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot
+          be combined with fromTime or toTime.'
         in: query
         name: datetime
+        type: string
+      - description: Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)
+        in: query
+        name: fromTime
+        type: string
+      - description: Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00).
+          Requires fromTime.
+        in: query
+        name: toTime
         type: string
       produces:
       - application/json
@@ -322,9 +334,19 @@ paths:
         in: query
         name: lon
         type: number
-      - description: date search string
+      - description: 'Deprecated: date search string in RFC3339 format. Cannot be
+          combined with fromTime or toTime.'
         in: query
         name: date
+        type: string
+      - description: Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)
+        in: query
+        name: fromTime
+        type: string
+      - description: Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00).
+          Requires fromTime.
+        in: query
+        name: toTime
         type: string
       - description: comma-separated list of genres; events matching at least one
           genre are returned
