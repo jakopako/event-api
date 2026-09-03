@@ -401,7 +401,7 @@ func DeleteEvents(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
 				Success: false,
-				Message: "couldn't parse datetime",
+				Message: "couldn't parse time range",
 				Error:   err.Error(),
 			})
 		}
