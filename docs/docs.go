@@ -87,8 +87,20 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "date search string",
+                        "description": "Deprecated: date search string in RFC3339 format. Cannot be combined with fromTime or toTime.",
                         "name": "date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)",
+                        "name": "fromTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime.",
+                        "name": "toTime",
                         "in": "query"
                     },
                     {
@@ -203,8 +215,20 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "datetime string, format YYYY-MM-DD HH:MM",
+                        "description": "Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot be combined with fromTime or toTime.",
                         "name": "datetime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)",
+                        "name": "fromTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime.",
+                        "name": "toTime",
                         "in": "query"
                     }
                 ],

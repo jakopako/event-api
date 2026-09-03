@@ -56,11 +56,15 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 	var filter primitive.M
 	if q.StartDate != nil {
 		if q.EndDate == nil {
+			dateOperator := "$gte"
+			if q.ExcludeStartDate {
+				dateOperator = "$gt"
+			}
 			filter = bson.M{
 				"$and": []bson.M{
 					{
 						"date": bson.M{
-							"$gt": q.StartDate,
+							dateOperator: q.StartDate,
 						},
 					},
 				},
