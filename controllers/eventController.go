@@ -591,8 +591,8 @@ func validateAndSanitizeEvents(ctx context.Context, events *[]models.Event) (*[]
 			event.Address.Geolocacation = *cityGeoLoc
 		}
 
-		// lookup genres if not given and if the event type is 'concert'
-		if len(event.Genres) == 0 && event.Type == "concert" {
+		// lookup genres if not given and if the event type is 'concert' or 'party'
+		if len(event.Genres) == 0 && (event.Type == "concert" || event.Type == "party") {
 			genres, err := genre.LookupGenres(ctx, event)
 			if err != nil {
 				validationErrs = append(validationErrs, models.ValidateEventError{
