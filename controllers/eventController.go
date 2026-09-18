@@ -484,29 +484,38 @@ func parseTimeRange(fromTime, toTime string) (*time.Time, *time.Time, error) {
 	return from, to, nil
 }
 
+func isSupportedDistinctField(field string) bool {
+	switch field {
+	case "location", "city", "genres", "type":
+		return true
+	default:
+		return false
+	}
+}
+
 // GetDistinct func for getting distinct field values.
 // @Description This endpoint returns all distinct values for the given field. Note that past events are not considered for this query.
 // @Summary Get distinct field values.
 // @Tags events
 // @Produce json
-// @Param field path string true "field name, can only be location, city or genres"
+// @Param field path string true "field name, can only be location, city, genres or type"
 // @Success 200 {object} models.GetDistinctFieldResponse
 // @Failure 400 {object} models.GenericResponse
 // @Failure 500 {object} models.GenericResponse
 // @Router /api/events/{field} [get]
 func GetDistinct(c *fiber.Ctx) error {
-	eventsCollection := config.MI.DB.Collection("events")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
 	field := c.Params("field")
-	if field != "location" && field != "city" && field != "genres" {
+	if !isSupportedDistinctField(field) {
 		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
 			Success: false,
 			Message: "invalid value for the field parameter",
-			Error:   "the field parameter has to be 'location', 'city' or 'genres'",
+			Error:   "the field parameter has to be 'location', 'city', 'genres' or 'type'",
 		})
 	}
+
+	eventsCollection := config.MI.DB.Collection("events")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	d := time.Now()
 	today := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
