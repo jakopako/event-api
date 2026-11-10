@@ -49,6 +49,22 @@ Key variables:
 go run .
 ```
 
+## Running tests
+
+The unit tests run without MongoDB or external services:
+
+```bash
+go test ./...
+```
+
+To generate a statement-coverage report:
+
+```bash
+go test ./... -coverprofile=coverage.out
+go tool cover -func=coverage.out
+go tool cover -html=coverage.out
+```
+
 ## Running with Docker
 
 ```bash

@@ -37,22 +37,57 @@ func RemoveDiacritics(s string) string {
 }
 
 func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
+	if err := validateEventQuery(q); err != nil {
+		return nil, 0, 0, err
+	}
+
 	eventCollection := config.MI.DB.Collection(EventCollectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	var events []models.Event
+	filter := buildEventFilter(q, geo.AllMatchesCityCoordinates)
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{Key: "date", Value: 1}})
 
+	total, _ := eventCollection.CountDocuments(ctx, filter)
+
+	findOptions.SetSkip((int64(q.Page) - 1) * q.Limit)
+	findOptions.SetLimit(q.Limit)
+
+	cursor, err := eventCollection.Find(ctx, filter, findOptions)
+	if err != nil {
+		return events, 0, 0, fmt.Errorf("events not found: %v", err)
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var event models.Event
+		cursor.Decode(&event)
+		events = append(events, event)
+	}
+
+	last := int64(math.Ceil(float64(total) / float64(q.Limit)))
+	if last < 1 && total > 0 {
+		last = 1
+	}
+	return events, total, last, nil
+}
+
+func validateEventQuery(q models.Query) error {
 	if q.Page < 1 {
-		return events, 0, 0, errors.New("page parameter must be greater than 0")
+		return errors.New("page parameter must be greater than 0")
 	}
 	if q.Limit < 1 {
-		return events, 0, 0, errors.New("limit parameter must be greater than 0")
+		return errors.New("limit parameter must be greater than 0")
 	}
 	if q.Radius < 0 {
-		return events, 0, 0, errors.New("radius parameter must be greater than or equal to 0")
+		return errors.New("radius parameter must be greater than or equal to 0")
 	}
+	return nil
+}
 
+func buildEventFilter(q models.Query, lookupCity func(string, string) ([]*models.MongoGeolocation, error)) bson.M {
 	var filter primitive.M
 	if q.StartDate != nil {
 		if q.EndDate == nil {
@@ -90,9 +125,6 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 			"$and": []bson.M{},
 		}
 	}
-
-	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{Key: "date", Value: 1}})
 
 	// Special handling for title to include normalized search
 	if q.Title != "" {
@@ -155,7 +187,7 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 		}
 		if q.Radius > 0 {
 			// near in or not supported: https://jira.mongodb.org/browse/SERVER-13974
-			if geolocs, err := geo.AllMatchesCityCoordinates(q.City, q.Country); err == nil && len(geolocs) > 0 {
+			if geolocs, err := lookupCity(q.City, q.Country); err == nil && len(geolocs) > 0 {
 				earthRadiusKm := 6378.1
 				radiusFilter := bson.D{
 					{Key: "address.geolocation.coordinates", Value: bson.D{
@@ -189,26 +221,5 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 		delete(filter, "$and")
 	}
 
-	total, _ := eventCollection.CountDocuments(ctx, filter)
-
-	findOptions.SetSkip((int64(q.Page) - 1) * q.Limit)
-	findOptions.SetLimit(q.Limit)
-
-	cursor, err := eventCollection.Find(ctx, filter, findOptions)
-	if err != nil {
-		return events, 0, 0, fmt.Errorf("events not found: %v", err)
-	}
-	defer cursor.Close(ctx)
-
-	for cursor.Next(ctx) {
-		var event models.Event
-		cursor.Decode(&event)
-		events = append(events, event)
-	}
-
-	last := int64(math.Ceil(float64(total) / float64(q.Limit)))
-	if last < 1 && total > 0 {
-		last = 1
-	}
-	return events, total, last, nil
+	return filter
 }
