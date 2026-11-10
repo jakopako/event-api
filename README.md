@@ -57,6 +57,10 @@ The unit tests run without MongoDB or external services:
 go test ./...
 ```
 
+Some handler tests use the MongoDB driver's mock deployment; those tests are
+skipped by `go test -short`. MongoDB query semantics still require integration
+tests.
+
 To generate a statement-coverage report:
 
 ```bash
