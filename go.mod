@@ -11,7 +11,10 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.31.0
 )
 
-require github.com/montanaflynn/stats v0.7.1 // indirect
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/montanaflynn/stats v0.7.1 // indirect
+)
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
