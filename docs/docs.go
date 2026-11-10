@@ -87,7 +87,6 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "type": "string",
                         "description": "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)",
                         "name": "fromTime",
                         "in": "query"
