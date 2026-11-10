@@ -19,7 +19,9 @@ func TestParseTimeRange(t *testing.T) {
 		from    string
 		to      string
 		wantErr bool
+		wantNil bool
 	}{
+		{name: "no range", wantNil: true},
 		{name: "from only", from: from},
 		{name: "from and to", from: from, to: to},
 		{name: "to requires from", to: to, wantErr: true},
@@ -34,6 +36,12 @@ func TestParseTimeRange(t *testing.T) {
 				t.Fatalf("parseTimeRange() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.wantErr {
+				return
+			}
+			if tt.wantNil {
+				if gotFrom != nil || gotTo != nil {
+					t.Errorf("parseTimeRange() = (%v, %v), want (nil, nil)", gotFrom, gotTo)
+				}
 				return
 			}
 			if gotFrom == nil {
@@ -51,40 +59,6 @@ func TestParseTimeRange(t *testing.T) {
 				if gotTo == nil || !gotTo.Equal(wantTo) {
 					t.Errorf("to = %v, want %v", gotTo, wantTo)
 				}
-			}
-		})
-	}
-}
-
-func TestEventHandlersRejectLegacyAndRangeParametersTogether(t *testing.T) {
-	tests := []struct {
-		name    string
-		handler fiber.Handler
-		url     string
-	}{
-		{
-			name:    "get",
-			handler: GetAllEvents,
-			url:     "/?date=2026-09-03T12:00:00Z&fromTime=2026-09-03T12:00:00Z",
-		},
-		{
-			name:    "delete",
-			handler: DeleteEvents,
-			url:     "/?datetime=2026-09-03%2012:00&fromTime=2026-09-03T12:00:00Z",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			app := fiber.New()
-			app.All("/", tt.handler)
-
-			response, err := app.Test(httptest.NewRequest("GET", tt.url, nil))
-			if err != nil {
-				t.Fatalf("app.Test() error = %v", err)
-			}
-			if response.StatusCode != fiber.StatusBadRequest {
-				t.Errorf("status = %d, want %d", response.StatusCode, fiber.StatusBadRequest)
 			}
 		})
 	}

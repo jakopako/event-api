@@ -258,11 +258,6 @@ paths:
         in: query
         name: sourceUrl
         type: string
-      - description: 'Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot
-          be combined with fromTime or toTime.'
-        in: query
-        name: datetime
-        type: string
       - description: Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)
         in: query
         name: fromTime
@@ -295,9 +290,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: This endpoint returns all events matching the search terms. Note
-        that only events from today on will be returned if no date is passed, ie no
-        past events.
+      description: This endpoint returns all events matching the search terms. When
+        no time range is specified, events from all dates are returned.
       parameters:
       - description: title search string
         in: query
@@ -332,11 +326,6 @@ paths:
         in: query
         name: lon
         type: number
-      - description: 'Deprecated: date search string in RFC3339 format. Cannot be
-          combined with fromTime or toTime.'
-        in: query
-        name: date
-        type: string
       - description: Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)
         in: query
         name: fromTime

@@ -64,10 +64,10 @@ All endpoints are prefixed with `/api`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/api/events` | – | Query events (supports `title`, `location`, `city`, `country`, `type`, `date`, `radius`, `page`, `limit`) |
+| `GET` | `/api/events` | – | Query events (supports `title`, `location`, `city`, `country`, `type`, `fromTime`, `toTime`, `radius`, `page`, `limit`); returns events from all dates if no time range is provided |
 | `POST` | `/api/events` | ✔ | Add new events (JSON array) |
 | `POST` | `/api/events/validate` | – | Validate events without persisting them |
-| `DELETE` | `/api/events` | ✔ | Delete events by `sourceUrl` or `datetime` |
+| `DELETE` | `/api/events` | ✔ | Delete events by `sourceUrl` and optional `fromTime`/`toTime` range |
 | `GET` | `/api/events/:field` | – | Get distinct values for `location`, `city` or `genres` |
 | `POST` | `/api/events/today/slack` | – | Today's events formatted for a Slack slash command |
 

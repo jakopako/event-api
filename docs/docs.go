@@ -25,7 +25,7 @@ var doc = `{
     "paths": {
         "/api/events": {
             "get": {
-                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned if no date is passed, ie no past events.",
+                "description": "This endpoint returns all events matching the search terms. When no time range is specified, events from all dates are returned.",
                 "consumes": [
                     "application/json"
                 ],
@@ -83,12 +83,6 @@ var doc = `{
                         "type": "number",
                         "description": "longitude of the search location (used together with lat and radius)",
                         "name": "lon",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Deprecated: date search string in RFC3339 format. Cannot be combined with fromTime or toTime.",
-                        "name": "date",
                         "in": "query"
                     },
                     {
@@ -211,12 +205,6 @@ var doc = `{
                         "type": "string",
                         "description": "sourceUrl string",
                         "name": "sourceUrl",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot be combined with fromTime or toTime.",
-                        "name": "datetime",
                         "in": "query"
                     },
                     {

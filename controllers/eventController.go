@@ -22,7 +22,7 @@ import (
 )
 
 // GetAllEvents func gets all events.
-// @Description This endpoint returns all events matching the search terms. Note that only events from today on will be returned if no date is passed, ie no past events.
+// @Description This endpoint returns all events matching the search terms. When no time range is specified, events from all dates are returned.
 // @Summary Get all events.
 // @Tags events
 // @Accept json
@@ -35,7 +35,6 @@ import (
 // @Param radius query int false "radius around given city or coordinates in kilometers"
 // @Param lat query number false "latitude of the search location (used together with lon and radius)"
 // @Param lon query number false "longitude of the search location (used together with lat and radius)"
-// @Param date query string false "Deprecated: date search string in RFC3339 format. Cannot be combined with fromTime or toTime."
 // @Param fromTime query string false "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)"
 // @Param toTime query string false "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime."
 // @Param genres query string false "comma-separated list of genres; events matching at least one genre are returned"
@@ -50,55 +49,25 @@ func GetAllEvents(c *fiber.Ctx) error {
 	limitInt, _ := strconv.Atoi(c.Query("limit", "10"))
 	var limit int64 = int64(limitInt)
 
-	queryDate := c.Query("date")
-	var startDate, endDate *time.Time
-	excludeStartDate := false
-	if queryDate != "" && (c.Query("fromTime") != "" || c.Query("toTime") != "") {
+	startDate, endDate, err := parseTimeRange(c.Query("fromTime"), c.Query("toTime"))
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
 			Success: false,
 			Message: "failed to fetch events",
-			Error:   "date cannot be combined with fromTime or toTime",
+			Error:   err.Error(),
 		})
 	}
-	if queryDate != "" {
-		d, err := time.Parse(time.RFC3339, queryDate)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
-				Success: false,
-				Message: "failed fetch events",
-				Error:   fmt.Sprintf("couldn't parse date: %v", err),
-			})
-		}
-		startDate = &d
-		plusOneDay := d.Add(time.Hour * 24)
-		endDate = &plusOneDay
-	} else if c.Query("fromTime") != "" || c.Query("toTime") != "" {
-		var err error
-		startDate, endDate, err = parseTimeRange(c.Query("fromTime"), c.Query("toTime"))
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
-				Success: false,
-				Message: "failed to fetch events",
-				Error:   err.Error(),
-			})
-		}
-	} else {
-		now := time.Now().UTC()
-		startDate = &now
-		excludeStartDate = true
-	}
 	query := models.Query{
-		Title:            c.Query("title"),
-		City:             c.Query("city"),
-		Country:          c.Query("country"),
-		Location:         c.Query("location"),
-		Type:             c.Query("type"),
-		StartDate:        startDate,
-		EndDate:          endDate,
-		ExcludeStartDate: excludeStartDate,
-		Radius:           radius,
-		Page:             page,
-		Limit:            limit,
+		Title:     c.Query("title"),
+		City:      c.Query("city"),
+		Country:   c.Query("country"),
+		Location:  c.Query("location"),
+		Type:      c.Query("type"),
+		StartDate: startDate,
+		EndDate:   endDate,
+		Radius:    radius,
+		Page:      page,
+		Limit:     limit,
 	}
 	if latStr := c.Query("lat"); latStr != "" {
 		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
@@ -377,7 +346,6 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 // @Produce json
 // @Security BasicAuth
 // @Param sourceUrl query string false "sourceUrl string"
-// @Param datetime query string false "Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot be combined with fromTime or toTime."
 // @Param fromTime query string false "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)"
 // @Param toTime query string false "Inclusive end time in RFC3339 format (2006-01-02T15:04:05Z07:00). Requires fromTime."
 // @Success 200 {object} models.GenericResponse
@@ -387,14 +355,6 @@ func GetTodaysEventsSlack(c *fiber.Ctx) error {
 func DeleteEvents(c *fiber.Ctx) error {
 	src := c.Query("sourceUrl")
 
-	datetimeString := c.Query("datetime")
-	if datetimeString != "" && (c.Query("fromTime") != "" || c.Query("toTime") != "") {
-		return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
-			Success: false,
-			Message: "couldn't parse datetime",
-			Error:   "datetime cannot be combined with fromTime or toTime",
-		})
-	}
 	var filter bson.M
 	if c.Query("fromTime") != "" || c.Query("toTime") != "" {
 		fromTime, toTime, err := parseTimeRange(c.Query("fromTime"), c.Query("toTime"))
@@ -413,33 +373,8 @@ func DeleteEvents(c *fiber.Ctx) error {
 		if src != "" {
 			filter["sourceUrl"] = src
 		}
-	} else if datetimeString == "" {
-		filter = bson.M{"sourceUrl": src}
 	} else {
-		t, err := time.Parse("2006-01-02 15:04", datetimeString)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(models.GenericResponse{
-				Success: false,
-				Message: "couldn't parse datetime",
-				Error:   err.Error(),
-			})
-		}
-		if src == "" {
-			filter = bson.M{"date": bson.M{"$gte": t}}
-		} else {
-			filter = bson.M{
-				"$and": []bson.M{
-					{
-						"date": bson.M{
-							"$gte": t,
-						},
-					},
-					{
-						"sourceUrl": src,
-					},
-				},
-			}
-		}
+		filter = bson.M{"sourceUrl": src}
 	}
 
 	eventsCollection := config.MI.DB.Collection("events")
