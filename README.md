@@ -65,6 +65,9 @@ go tool cover -func=coverage.out
 go tool cover -html=coverage.out
 ```
 
+GitHub Actions runs the tests with the race detector on pull requests and
+pushes to `main`, and uploads the coverage profile as a workflow artifact.
+
 ## Running with Docker
 
 ```bash
