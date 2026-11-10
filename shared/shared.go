@@ -185,6 +185,10 @@ func FetchEvents(q models.Query) ([]models.Event, int64, int64, error) {
 		}
 	}
 
+	if conditions := filter["$and"].([]bson.M); len(conditions) == 0 {
+		delete(filter, "$and")
+	}
+
 	total, _ := eventCollection.CountDocuments(ctx, filter)
 
 	findOptions.SetSkip((int64(q.Page) - 1) * q.Limit)
