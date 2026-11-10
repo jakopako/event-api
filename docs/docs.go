@@ -25,7 +25,7 @@ var doc = `{
     "paths": {
         "/api/events": {
             "get": {
-                "description": "This endpoint returns all events matching the search terms. Note that only events from today on will be returned if no date is passed, ie no past events.",
+                "description": "This endpoint returns all events matching the search terms. When no time range is specified, events from all dates are returned.",
                 "consumes": [
                     "application/json"
                 ],
@@ -87,11 +87,6 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "Deprecated: date search string in RFC3339 format. Cannot be combined with fromTime or toTime.",
-                        "name": "date",
-                        "in": "query"
-                    },
-                    {
                         "type": "string",
                         "description": "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)",
                         "name": "fromTime",
@@ -213,13 +208,6 @@ var doc = `{
                         "name": "sourceUrl",
                         "in": "query"
                     },
-                    {
-                        "type": "string",
-                        "description": "Deprecated: datetime string in YYYY-MM-DD HH:MM format. Cannot be combined with fromTime or toTime.",
-                        "name": "datetime",
-                        "in": "query"
-                    },
-                    {
                         "type": "string",
                         "description": "Inclusive start time in RFC3339 format (2006-01-02T15:04:05Z07:00)",
                         "name": "fromTime",
