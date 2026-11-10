@@ -25,6 +25,10 @@ func TestRemoveDiacritics(t *testing.T) {
 		{"empty string", "", ""},
 		{"no diacritics", "no diacritics", "no diacritics"},
 		{"special chars", "123!@#", "123!@#"},
+		{"decomposed accent", "cafe\u0301", "cafe"},
+		{"multiple combining marks", "a\u0301\u0308", "a"},
+		{"non-Latin", "東京", "東京"},
+		{"characters without decomposition", "ø ł ß", "ø ł ß"},
 	}
 
 	for _, tt := range tests {

@@ -49,6 +49,25 @@ Key variables:
 go run .
 ```
 
+## Running tests
+
+The unit tests run without MongoDB or external services:
+
+```bash
+go test ./...
+```
+
+To generate a statement-coverage report:
+
+```bash
+go test ./... -coverprofile=coverage.out
+go tool cover -func=coverage.out
+go tool cover -html=coverage.out
+```
+
+GitHub Actions runs the tests with the race detector on pull requests and
+pushes to `main`, and uploads the coverage profile as a workflow artifact.
+
 ## Running with Docker
 
 ```bash
